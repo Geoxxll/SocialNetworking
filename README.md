@@ -11,6 +11,7 @@ Contributing
 ============
 
 Sahir Momin
+Lei Xiao
 
 Contributors / Licensing
 ========================
