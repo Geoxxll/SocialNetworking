@@ -10,7 +10,7 @@ Make a distributed social network!
 Contributing
 ============
 
-Send a pull request and be sure to update this file with your name.
+Sahir Momin
 
 Contributors / Licensing
 ========================
@@ -31,4 +31,3 @@ Contributors:
     Abram Hindle
     Braedy Kuzma
     Nhan Nguyen 
-    Sahir Momin
