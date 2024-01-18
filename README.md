@@ -10,7 +10,7 @@ Make a distributed social network!
 Contributing
 ============
 
-Sahir Momin
+Sahir Momin \n
 Lei Xiao
 
 Contributors / Licensing
