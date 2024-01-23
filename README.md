@@ -13,7 +13,8 @@ Contributing
 Sahir Momin -
 Lei Xiao - 
 Travis Lee -
-Anh Dinh
+Anh Dinh -
+Jawad Chowdhury
 
 Contributors / Licensing
 ========================
