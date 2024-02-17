@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth.models import User
 # Create your models here.
 
-class Author(models.Model):
+class Authors(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True)
     url = models.URLField()

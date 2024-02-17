@@ -1,9 +1,9 @@
 from django.db import models
 from . import authors
 
-class followers:
-    follower = models.ForeignKey(authors, related_name='follower_set', on_delete=models.CASCADE)
-    followee = models.ForeignKey(authors, related_name='followee_set', on_delete=models.CASCADE)
+class followers(models.Model):
+    follower = models.ForeignKey(authors.Authors, related_name='follower_set', on_delete=models.CASCADE)
+    followee = models.ForeignKey(authors.Authors, related_name='followee_set', on_delete=models.CASCADE)
     followed_at = models.DateTimeField(auto_now_add=True)
 
     '''
