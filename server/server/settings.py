@@ -96,8 +96,10 @@ WSGI_APPLICATION = 'server.wsgi.application'
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
         'APP': {
-            'client_id': '0da0a89a501a657bfa6c',
-            'secret': '97684f5287caf938cad9145036af69abf91a84d3',
+            # client id and secret code needs to be unique for each user and needs to be provided for 
+            # testing purpose
+            'client_id': '123',
+            'secret': '456',
             'key': ''
         }
     }
