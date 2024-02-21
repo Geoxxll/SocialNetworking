@@ -19,6 +19,7 @@ class Post (models.Model):
 
 
     title = models.CharField(max_length=100)
+    type = models.CharField(max_length=15, default='post', editable=False)
     post_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     source = models.URLField()
     origin = models.URLField()
