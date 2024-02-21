@@ -98,8 +98,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             # client id and secret code needs to be unique for each user and needs to be provided for 
             # testing purpose
-            'client_id': '123',
-            'secret': '456',
+            'client_id': '0da0a89a501a657bfa6c',
+            'secret': 'e79ec15e71261fa157589473eaf7219f155da350',
             'key': ''
         }
     }
