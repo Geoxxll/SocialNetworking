@@ -22,7 +22,7 @@ class Post (models.Model):
     post_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     source = models.URLField()
     origin = models.URLField()
-    description = models.CharField(max_length=300)
+    description = models.TextField()
     contentTpye = models.CharField(max_length=30, choices=contentTypesChoices, default='PLAIN')
     content = models.BinaryField(null=True, blank=True)
     visibility = models.CharField(max_length=10, choices=visibilityChoices, default='PUBLIC')
