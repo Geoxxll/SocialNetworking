@@ -10,11 +10,10 @@ class Post (models.Model):
         'JPEG':'image/jpeg;base64',
     }
 
-    visibilityChoices = models.TextChoices(
-        'PUBLIC',
-        'FRIENDS',
-        'UNLISTED',
-    )
+    class VisibilityChoices(models.TextChoices):
+        PUBLIC = 'PUBLIC', 'Public'
+        FRIENDS = 'FRIENDS', 'Friends'
+        UNLISTED = 'UNLISTED', 'Unlisted'
 
 
 
@@ -26,7 +25,7 @@ class Post (models.Model):
     description = models.TextField()
     contentTpye = models.CharField(max_length=30, choices=contentTypesChoices, default='PLAIN')
     content = models.BinaryField(null=True, blank=True)
-    visibility = models.CharField(max_length=10, choices=visibilityChoices, default='PUBLIC')
+    visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)
     author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='posts_set')
 
