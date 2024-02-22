@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     #own
     'landing',
     'social',
+    'crispy_forms',
+    'crispy_bootstrap5',
     
     'allauth',
     'allauth.account',
@@ -157,7 +159,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL ="index"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+LOGIN_REDIRECT_URL ="post-list"
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 # email requirement to be added later 
 # ACCOUNT_EMAIL_REQUIRED = True

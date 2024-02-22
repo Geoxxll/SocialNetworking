@@ -16,7 +16,6 @@ class Post (models.Model):
         UNLISTED = 'UNLISTED', 'Unlisted'
 
 
-
     title = models.CharField(max_length=100)
     type = models.CharField(max_length=15, default='post', editable=False)
     post_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
@@ -28,5 +27,5 @@ class Post (models.Model):
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)
     author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='posts_set')
-
+    
 
