@@ -1,6 +1,6 @@
-{% extends 'landing/base.html' %}
+{% extends 'landing/loggedin_base.html' %}
 {% load crispy_forms_tags %}
-
+{% load static %}
 {% block content %}
 <div class="container">
     <div class="row justify-content-center mt-3">
@@ -24,11 +24,11 @@
     {% for post in post_list %}
     <div class="row justify-content-center mt-3">
         <div class="col-md-5 col-sm-12 border-bottom position-relative">
-            <p><strong>{{ post.author_of_posts }}</strong> {{ post.published_at }}</p>
+            <p><strong>{{ post.author_of_posts.user.username }}</strong><br> {{ post.published_at }}</p>
             <p>{{ post.description }}</p>
             <a class="stretched-link" href="{% url 'post-detail' post.pk %}"></a>
         </div>
     </div>
     {% endfor %}
 </div>
-{% endblock content %}
+{% endblock content %} 

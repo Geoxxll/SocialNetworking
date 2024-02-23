@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('source', models.URLField()),
                 ('origin', models.URLField()),
                 ('description', models.CharField(max_length=300)),
-                ('contentTpye', models.CharField(choices=[('COMMON_MARK', 'text/markdown'), ('PLAIN', 'text/plain'), ('BASE64', 'application/base64'), ('PNG', 'image/png;base64'), ('JPEG', 'image/jpeg;base64')], default='PLAIN', max_length=30)),
+                ('contentType', models.CharField(choices=[('COMMON_MARK', 'text/markdown'), ('PLAIN', 'text/plain'), ('BASE64', 'application/base64'), ('PNG', 'image/png;base64'), ('JPEG', 'image/jpeg;base64')], default='PLAIN', max_length=30)),
                 ('content', models.BinaryField(blank=True, null=True)),
                 ('visibility', models.CharField(choices=[('FRIENDS', 'Friends')], default='PUBLIC', max_length=10)),
                 ('published_at', models.DateTimeField(auto_now_add=True)),
