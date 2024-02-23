@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 
-# Create your views here.
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from django.views import View
 from .models.posts import Post
 from .models.comments import Comment
@@ -159,3 +162,100 @@ class CommentDeleteView(DeleteView):
     # def test_func(self):
     #     comment = self.get_object()
     #     return self.request.user == comment.author
+
+@api_view(['GET'])
+def authors(request):
+    return
+
+
+@api_view(['GET', 'PUT'])
+def authors_id(request, author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'PUT':
+        return
+    
+
+@api_view(['GET'])
+def followers(request, author_id):
+    return
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def followers_id(request, author_id, foreign_author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'PUT':
+        return
+    
+    elif request.method == 'DELETE':
+        return
+
+
+@api_view(['GET', 'POST'])
+def posts(request, author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def posts_id(request, author_id, post_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'PUT':
+        return
+    
+    elif request.method == 'DELETE':
+        return
+
+
+@api_view(['GET'])
+def image(request, author_id, post_id):
+    return
+
+
+@api_view(['GET', 'POST'])
+def comments(request, author_id, post_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+
+
+@api_view(['GET'])
+def posts_likes(request, author_id, post_id):
+    return
+
+
+@api_view(['GET'])
+def comments_likes(request, author_id, post_id, comment_id):
+    return
+
+
+@api_view(['GET'])
+def liked(request, author_id):
+    return
+
+@api_view(['GET', 'POST', 'DELETE'])
+def inbox(request, author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+    
+    elif request.method == 'DELETE':
+        return
