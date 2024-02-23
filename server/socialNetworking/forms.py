@@ -23,7 +23,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ['comment', 'comment_author', 'post']  # Add the necessary fields
+        fields = ['comment']  # Add the necessary fields
         widgets = {
             'comment_author': forms.HiddenInput(),  # Hide the comment_author field
             'post': forms.HiddenInput(),  # Hide the post field

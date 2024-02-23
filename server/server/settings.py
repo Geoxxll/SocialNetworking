@@ -168,6 +168,6 @@ STATICFILES_DIRS = [ os.path.join(BASE_DIR, "/") ]
 # STATICFILES_DIRS =[BASE_DIR]
 
 # email requirement to be added later 
-# ACCOUNT_EMAIL_REQUIRED = True
-# # for testing purpose
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+ACCOUNT_EMAIL_REQUIRED = True
+# for testing purpose
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

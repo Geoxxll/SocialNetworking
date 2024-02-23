@@ -1,0 +1,46 @@
+{% extends 'landing/loggedin_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+	<div class="row mt-5">
+		<div class="col-md-3 col-sm-6">
+			<a href="{% url 'post-list' %}" class="btn btn-light">Back to Feed</a>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row justify-content-center mt-3">
+			<div class="col-md-5 col-sm-12 border-bottom">
+				<h2>View Your Posts!</h2>
+			</div>
+		</div>
+
+		{% for post in post_list %}
+		<div class="row justify-content-center mt-3">
+			<div class="col-md-5 col-sm-12 border-bottom position-relative">
+				<a href="{% url 'post-edit' post.pk %}">Edit</a>
+				<a href="{% url 'post-delete' post.pk %}">Delete</a>
+				<p>{{ post.published_at }}</p>
+				<p>{{ post.description }}</p>
+				<!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock content %} 
+
+
+		<!-- <div class="row justify-content-center mt-3 mb-5">
+			<div class="col-md-5 col-sm-12 border-bottom">
+				<form method="POST">
+					{% csrf_token %}
+					{{ form | crispy }}
+					<div class="d-grid gap-2">
+						<button class="btn btn-success mt-3">Submit!</button>
+					</div>
+				</form>
+			</div>
+		</div> -->

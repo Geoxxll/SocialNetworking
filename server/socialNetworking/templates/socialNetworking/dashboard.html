@@ -9,7 +9,7 @@
 </head> -->
 
 <!-- <body> -->
-
+    
     {% extends 'landing/loggedin_base.html' %}
     {% load static %}
     {% block content %}
@@ -18,8 +18,8 @@
         <div class="navbar left-content">
             <button>Dashboard</button>
             <button>Find Friends</button>
-            <button>Profile</button>
-            <button><a href="socialNetworking/post_list.html">post</a></button>
+            <button><a href="{% url 'profile-view' %}">Profile</a></button>
+            <button><a href="{% url 'add-post' %}">post</a></button>
         </div>
         <div id="sidebar-container">
             <div class="sidebar">
@@ -42,12 +42,17 @@
         <div class="post-container left-content">
             <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
             <div class="post-content">
-                <h3>{{ post.author_of_posts }}</h3>
+                
+                <h5>{{ post.author_of_posts.user.username }}</h5>
                 <p>{{ post.description }}</p>
+                {% for comment in post_comments%}
+                <p>{{ comment.comment }}</p>
+                <!-- Add more comment details as needed -->
+                {% endfor %}
             </div>
             <div class="post-buttons">
                 <button>Like</button>
-                <button>Comment</button>
+                <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
                 <button>Repost</button>
             </div>
         </div>

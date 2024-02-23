@@ -10,6 +10,11 @@
     </div>
     <div class="row justify-content-center mt-3">
         <div class="col-md-5 col-sm-12 border-bottom">
+			<!-- access control needed -->
+			<!-- {% if request.user == post.author_of_posts %}
+                <a href="{% url 'post-edit' post.pk %}" style="color: #333;"><i class="far fa-edit"></i></a>
+                <a href="{% url 'post-delete' post.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a>
+            {% endif %} -->
             <p><strong>{{ post.author_of_posts }}</strong> {{ post.published_at }}</p>
             <p>{{ post.description }}</p>
         </div>
@@ -31,5 +36,21 @@
             </form>
         </div>
     </div>
+	{% for comment in comments %}
+    <div class="row justify-content-center mt-3 mb-5 border-bottom">
+        <div class="col-md-5 col-sm-12">
+            <p>
+                <strong>{{ comment.comment_author }}</strong> {{ comment.published_at }}
+                <!-- <a href="{% url 'comment-delete' post.pk comment.pk %}">Delete</a> -->
+				<!-- Need user access restriction -->
+				{% if request.user == comment.comment_author.user %}
+				<a href="{% url 'comment-delete' post.pk comment.pk %}">Delete</a>
+                <!-- <a href="{% url 'comment-delete' post.pk comment.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a> -->
+                {% endif %}
+            </p>
+            <p>{{ comment.comment }}</p>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock content %}
