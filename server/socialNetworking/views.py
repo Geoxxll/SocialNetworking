@@ -1,4 +1,3 @@
-from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
@@ -9,9 +8,6 @@ from .forms import PostForm, CommentForm
 from .models.authors import Author
 from django.contrib.auth.models import User
 
-from allauth.account.views import SignupView
-from .uriConstructor import construct_default_author_uri
-from allauth.account.forms import SignupForm
 
 
 class PostListView(View):
@@ -24,7 +20,7 @@ class PostListView(View):
             'form': form,
         }
 
-        return render(request, 'socialNetworking/post_list.html', context)
+        return render(request, 'socialNetworking/dashboard.html', context)
 
     def post(self, request, *args, **kwargs):
         posts = Post.objects.all().order_by('-published_at')

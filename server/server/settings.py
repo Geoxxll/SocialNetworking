@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,9 +149,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ACCOUNT_EMAIL_VERIFICATION = "none"
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -166,6 +164,9 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 LOGIN_REDIRECT_URL ="post-list"
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+STATICFILES_DIRS = [ os.path.join(BASE_DIR, "/") ]
+# STATICFILES_DIRS =[BASE_DIR]
+
 # email requirement to be added later 
 # ACCOUNT_EMAIL_REQUIRED = True
 # # for testing purpose

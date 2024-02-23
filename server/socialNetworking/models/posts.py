@@ -22,7 +22,7 @@ class Post (models.Model):
     source = models.URLField()
     origin = models.URLField()
     description = models.TextField()
-    contentTpye = models.CharField(max_length=30, choices=contentTypesChoices, default='PLAIN')
+    contentType = models.CharField(max_length=30, choices=contentTypesChoices.items(), default='PLAIN')
     content = models.BinaryField(null=True, blank=True)
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)

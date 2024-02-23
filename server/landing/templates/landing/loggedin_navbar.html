@@ -1,0 +1,28 @@
+{% load static %}
+<!-- new navbar -->
+<div class="nav-container">
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <a class="navbar-brand" {% if user.is_authenticated %} href="{% url 'post-list' %}" {% else %}
+    href="{% url 'index' %}" {% endif %}>
+    <div class="social-network">
+      <h1>Social Network</h1>
+    </div>
+    <div class="right-section">
+      <div class="username">
+        <span>{{ user_data }}</span>
+        <div class="dropdown">
+          <button class="dropbtn">
+            <img src="{% static 'images/expand_down.png' %}" alt="Dropdown" style="width: 15px;">
+          </button>
+          {% if user.is_authenticated %}
+          <div class="dropdown-content">
+            <a href="{% url 'account_logout' %}">Logout</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="profile-pic">
+        <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture">
+      </div>
+    </div>
+</div>

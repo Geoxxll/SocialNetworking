@@ -1,0 +1,59 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network</title>
+    <link rel="stylesheet" href="styles.css">
+</head> -->
+
+<!-- <body> -->
+
+    {% extends 'landing/loggedin_base.html' %}
+    {% load static %}
+    {% block content %}
+    <div id="content-container">
+    
+        <div class="navbar left-content">
+            <button>Dashboard</button>
+            <button>Find Friends</button>
+            <button>Profile</button>
+            <button><a href="socialNetworking/post_list.html">post</a></button>
+        </div>
+        <div id="sidebar-container">
+            <div class="sidebar">
+                <div class="static-box">
+                    <h2>Follow Requests</h2>
+                    <hr class="line">
+                    <!-- Content for Follow Requests -->
+                </div>
+                <div class="static-box">
+                    <h2>Notifications</h2>
+                    <hr class="line">
+                    <!-- Content for Notifications -->
+                </div>
+            </div>
+    
+        </div>
+    
+        {% for post in post_list %}
+        <!-- Post Container -->
+        <div class="post-container left-content">
+            <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+            <div class="post-content">
+                <h3>{{ post.author_of_posts }}</h3>
+                <p>{{ post.description }}</p>
+            </div>
+            <div class="post-buttons">
+                <button>Like</button>
+                <button>Comment</button>
+                <button>Repost</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endblock %}
+    <!-- </body>
+    
+    </html> -->

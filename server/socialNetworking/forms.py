@@ -7,13 +7,13 @@ class PostForm(forms.ModelForm):
     source = forms.URLField()
     origin = forms.URLField()
     description = forms.CharField(widget=forms.Textarea)
-    contentTpye = forms.ChoiceField(choices=Post.contentTypesChoices.items())
+    contentType = forms.ChoiceField(choices=Post.contentTypesChoices.items())
     content = forms.ImageField(required=False)  # Use ImageField for binary images
     visibility = forms.ChoiceField(choices=Post.VisibilityChoices.choices)
 
     class Meta:
         model = Post
-        fields = ['title', 'source', 'origin', 'description', 'contentTpye', 'visibility']
+        fields = ['title', 'source', 'origin', 'description', 'contentType', 'visibility']
         
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(
