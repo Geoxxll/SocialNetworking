@@ -1,18 +1,20 @@
-<!-- <!DOCTYPE html>
+{% extends 'landing/loggedin_base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network</title>
-    <link rel="stylesheet" href="styles.css">
-</head> -->
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/follow_request.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/notification.css' %}">
+</head>
 
-<!-- <body> -->
+<body>
 
-    {% extends 'landing/loggedin_base.html' %}
-    {% load static %}
-    {% block content %}
     <div id="content-container">
     
         <div class="navbar left-content">
@@ -23,15 +25,47 @@
         </div>
         <div id="sidebar-container">
             <div class="sidebar">
-                <div class="static-box">
+                <div id="follow_request" class="static-box">
                     <h2>Follow Requests</h2>
-                    <hr class="line">
-                    <!-- Content for Follow Requests -->
+                    <div>
+                        <hr>
+                        <div>
+                            <h3>User 03</h3>
+                            <button>Accept</button>
+                        </div>
+                        <hr>
+                        <div>
+                            <h3>User 05</h3>
+                            <button>Accept</button>
+                        </div>
+                        <hr>
+                        <div>
+                            <h3>User 06</h3>
+                            <button>Accept</button>
+                        </div>
+                        <hr>
+                        <div>
+                            <h3>User 07</h3>
+                            <button>Accept</button>
+                        </div>
+                        <hr>
+                    </div>
                 </div>
-                <div class="static-box">
+                <div id="notification" class="static-box">
                     <h2>Notifications</h2>
-                    <hr class="line">
-                    <!-- Content for Notifications -->
+                    <div>
+                        <hr>
+                        <h4>User 01 liked your post</h4>
+                        <hr>
+                        <h4>User 07 liked your post</h4>
+                        <hr>
+                        <h4>User 08 liked your post</h4>
+                        <hr>
+                        <h4>User 09 liked your post</h4>
+                        <hr>
+                        <h4>User 10 liked your post</h4>
+                        <hr>
+                    </div>
                 </div>
             </div>
     
@@ -54,6 +88,6 @@
         {% endfor %}
     </div>
     {% endblock %}
-    <!-- </body>
+    </body>
     
-    </html> -->
+    </html>

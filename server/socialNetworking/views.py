@@ -20,6 +20,7 @@ class PostListView(View):
             'form': form,
         }
 
+        # return render(request, 'socialNetworking/post_list.html', context)
         return render(request, 'socialNetworking/dashboard.html', context)
 
     def post(self, request, *args, **kwargs):
