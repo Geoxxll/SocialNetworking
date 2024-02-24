@@ -44,8 +44,10 @@ INSTALLED_APPS = [
     #own
     'landing',
     'social',
+    'socialNetworking',
     'crispy_forms',
     'crispy_bootstrap5',
+    'rest_framework',
     
     'allauth',
     'allauth.account',
@@ -58,8 +60,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'socialNetworking',
-
 ]
 
 MIDDLEWARE = [

@@ -1,16 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 
-# Create your views here.
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from django.views import View
 from .models.posts import Post
 from .models.comments import Comment
+from .models.followers import Follower
 from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
 
 from .models.authors import Author
 from django.contrib.auth.models import User
+
+from django.http import JsonResponse
+from .serializers import AuthorSerializer, FollowerSerializer
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class AddPostView(View):
@@ -35,7 +44,7 @@ class AddPostView(View):
             user_instance = request.user if isinstance(request.user, User) else User.objects.get(username=request.user)
 
             # Retrieve or create Author instance associated with the User
-            author_instance, created = Author.objects.get_or_create(user=user_instance)
+            author_instance = Author.objects.get(user=user_instance)
             new_post = form.save(commit=False)
             new_post.author_of_posts = author_instance
             new_post.save()
@@ -159,3 +168,147 @@ class CommentDeleteView(DeleteView):
     # def test_func(self):
     #     comment = self.get_object()
     #     return self.request.user == comment.author
+
+@api_view(['GET'])
+def authors(request):
+    if request.method == 'GET':
+        authors = Author.objects.all()
+        author_serializer = AuthorSerializer(authors, many=True)
+        return Response(author_serializer.data, status=status.HTTP_200_OK)
+    else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(['GET', 'PUT'])
+def authors_id(request, author_id):
+    if Author.objects.filter(pk=author_id).exists():
+        author = Author.objects.get(pk=author_id)
+        if request.method == 'GET':
+            author_serializer = AuthorSerializer(author)
+            return Response(author_serializer.data, status=status.HTTP_200_OK)
+        
+         
+        elif request.method == 'PUT':
+            author_serializer = AuthorSerializer(author, data=request.data)
+            if author_serializer.is_valid():
+                author_serializer.save()
+                return Response(author_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    else:
+            return Response({'error': "Author not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    
+    
+    
+
+@api_view(['GET'])
+def followers(request, author_id):
+    '''
+        return all follower of author_id as json
+    '''
+    if Author.objects.filter(pk=author_id).exists():
+        if request.method == 'GET':
+            author = Author.objects.get(pk=author_id)
+            followers = Follower.objects.filter(followee=author)
+            followers_serializer = FollowerSerializer(followers, many=True)
+            return Response(followers_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    else:
+        return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND) 
+    
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def followers_id(request, author_id, foreign_author_id):
+    if Author.objects.filter(pk=author_id).exists() and Author.objects.filter(pk=foreign_author_id).exists():
+        followee = Author.objects.get(pk=author_id)
+        follower = Author.objects.get(pk=foreign_author_id)
+        obj_follow = Follower.objects.get(followee=followee, follower=follower)
+        if request.method == 'GET':
+            follower_serializer = FollowerSerializer(obj_follow)
+            return Response(follower_serializer.data, status=status.HTTP_200_OK)
+        
+        elif request.method == 'PUT':
+            follower_serializer = FollowerSerializer(request.data)
+            if follower_serializer.is_valid():
+                follower_serializer.save()
+                return Response(follower_serializer.data, status=status.HTTP_200_OK)
+        
+        elif request.method == 'DELETE':
+            obj_follow.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+    else:
+        if not Author.objects.filter(pk=author_id).exists():
+            return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'error': 'Follower not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+@api_view(['GET', 'POST'])
+def posts(request, author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def posts_id(request, author_id, post_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'PUT':
+        return
+    
+    elif request.method == 'DELETE':
+        return
+
+
+@api_view(['GET'])
+def image(request, author_id, post_id):
+    return
+
+
+@api_view(['GET', 'POST'])
+def comments(request, author_id, post_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+
+
+@api_view(['GET'])
+def posts_likes(request, author_id, post_id):
+    return
+
+
+@api_view(['GET'])
+def comments_likes(request, author_id, post_id, comment_id):
+    return
+
+
+@api_view(['GET'])
+def liked(request, author_id):
+    return
+
+@api_view(['GET', 'POST', 'DELETE'])
+def inbox(request, author_id):
+
+    if request.method == 'GET':
+        return
+    
+    elif request.method == 'POST':
+        return
+    
+    elif request.method == 'DELETE':
+        return

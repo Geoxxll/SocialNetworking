@@ -10,8 +10,9 @@ class Author(models.Model):
     url = models.URLField()
     host = models.URLField()
     displayName = models.CharField(max_length=100)
-    github = models.URLField()
-    profileImage = models.URLField()
+    github = models.URLField(null=True, blank=True)
+    # TODO: url for default profileImage
+    profileImage = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.displayName
