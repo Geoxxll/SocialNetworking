@@ -154,15 +154,18 @@ body {
     height: 80px;
 }
 
-.navbar {
-    width: 60%;
+#navigation-container {
     display: flex;
     background-color: #31492A;
     border-radius: 10px;
-    /* Consistent border radius */
     margin-top: 20px;
     overflow: hidden;
-    align-self: start;
+    justify-content: center;
+}
+
+#left-content-container {
+    width: 60%;
+    align-content: center;
 }
 
 .left-content {
@@ -170,21 +173,25 @@ body {
     margin-inline-end: 5%;
 }
 
-
-.navbar button {
-    flex: 1;
-    padding: 10px;
+#navigation-container>button {
+    width: 25%;
+    padding: 16px;
     border: none;
     background-color: transparent;
     color: white;
-    font-size: 16px;
     cursor: pointer;
     border-radius: 0;
     /* Remove button border radius */
     transition: background-color 0.3s ease;
 }
 
-.navbar button:hover {
+#navigation-container>button>a {
+    font-size: 1.5em;
+    text-decoration: none;
+    color: white;
+}
+
+#navigation-container>button:hover {
     background-color: #416837;
     transition: background-color 0.3s ease;
     border-radius: 10px;
@@ -214,7 +221,7 @@ body {
     background-color: #B1C695;
     padding: 10px;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
@@ -234,8 +241,8 @@ body {
 
 /* Additional Styles for the Post Container */
 .post-container {
-    width: 60%;
-    /* margin-left: 2%; */
+    margin-top: 16px;
+    margin-bottom: 16px;
     align-self: start;
     display: flex;
     align-items: center;
