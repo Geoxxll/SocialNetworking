@@ -227,6 +227,24 @@ class AddCommentLike(LoginRequiredMixin, View):
 
         next = request.POST.get('next', '/')
         return HttpResponseRedirect(next)
+    
+class CommentReplyView(View):
+    def post(self, request, post_pk, pk, *args, **kwargs):
+        post = Post.objects.get(pk=post_pk)
+        parent_comment = Comment.objects.get(pk=pk)
+        form = CommentForm(request.POST)
+        
+        author, created = Author.objects.get_or_create(user=request.user)
+
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.comment_author = author
+            new_comment.post = post
+            new_comment.parent = parent_comment
+            new_comment.save()
+
+        return redirect('post-detail', pk=post_pk)
+    
 
 
 @api_view(['GET'])
@@ -259,9 +277,8 @@ def authors_id(request, author_id):
     else:
             return Response({'error': "Author not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    
-    
-    
+
+
 
 @api_view(['GET'])
 def followers(request, author_id):
