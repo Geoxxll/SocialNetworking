@@ -15,6 +15,11 @@ from django.views.generic.edit import UpdateView, DeleteView
 from .models.authors import Author
 from django.contrib.auth.models import User
 
+from django.http import JsonResponse
+from .serializers import AuthorSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class AddPostView(View):
     def get(self, request, *args, **kwargs):
@@ -165,17 +170,34 @@ class CommentDeleteView(DeleteView):
 
 @api_view(['GET'])
 def authors(request):
-    return
+    if request.method == 'GET':
+        authors = Author.objects.all()
+        author_serializer = AuthorSerializer(authors, many=True)
+        return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT'])
 def authors_id(request, author_id):
+    if Author.objects.filter(pk=author_id).exists():
+        if request.method == 'GET':
+            author = Author.objects.get(pk=author_id)
+            author_serializer = AuthorSerializer(author)
+            return Response(author_serializer.data, status=status.HTTP_200_OK)
+        
+         
+        elif request.method == 'PUT':
+            author = Author.objects.get(pk=author_id)
+            author_serializer = AuthorSerializer(author, data=request.data)
+            if author_serializer.is_valid():
+                author_serializer.save()
+                return Response(author_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+            return Response({'error': "Author not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        return
     
-    elif request.method == 'PUT':
-        return
+    
     
 
 @api_view(['GET'])

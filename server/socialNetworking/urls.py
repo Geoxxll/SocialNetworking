@@ -3,6 +3,10 @@ from .views import CommentDeleteView, PostDeleteView, PostListView, PostDetailVi
 from . import views
 
 urlpatterns = [
+    # serializer test url
+    path('serializer/authors/', views.authors, name='authors'),
+    path('serializer/authors/<uuid:author_id>/', views.authors_id, name='authorId'),
+
     path('social/', PostListView.as_view(), name='post-list'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
     path('social/profile/', ProfileView.as_view(), name='profile-view'),
@@ -22,4 +26,5 @@ urlpatterns = [
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
     #path("api/authors/<uuid:author_id>/liked/", views.liked, name="liked"),
     #path("api/authors/<uuid:author_id>/inbox/", views.inbox, name="inbox"),
+    
 ]
