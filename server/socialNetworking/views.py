@@ -15,6 +15,9 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .models.authors import Author
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+
 
 from django.http import JsonResponse
 from .serializers import AuthorSerializer, FollowerSerializer
@@ -59,6 +62,26 @@ class AddPostView(View):
         }
 
         return render(request, 'socialNetworking/dashboard.html', context)
+
+class FindFriendsView(View):
+    def get(self, request, *args, **kwargs):
+        User = get_user_model()
+        query = request.GET.get('query')
+        
+        if query:
+            # Filter users based on the search query
+            all_users = User.objects.filter(username__icontains=query).order_by('-username')
+        else:
+            # Retrieve all users if no search query provided
+            all_users = User.objects.all().order_by('-username')
+        context = { 
+            'user_list': all_users,
+            # 'form' : form,
+        }
+
+        
+
+        return render(request, 'socialNetworking/find_friends.html', context)
 
 class PostListView(View):
     def get(self, request, *args, **kwargs):

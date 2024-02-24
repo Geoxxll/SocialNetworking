@@ -1,0 +1,52 @@
+{% extends 'landing/loggedin_base.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/follow_request.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/notification.css' %}">
+</head>
+
+<body>
+
+    <div id="content-container">
+
+        <div id="left-content-container" class="left-content">
+
+            <div id="navigation-container" class="left-content">
+                <button><a href="{% url 'post-list' %}">Dashboard</a></button>
+                <button style="background-color: #4d7b42;border-radius: 10px;"><a href="{% url 'find-friends' %}">Find Friends</a></button>
+                <button><a href="{% url 'profile-view' %}">Profile</a></button>
+                <button><a href="{% url 'add-post' %}">Post</a></button>
+            </div>
+        
+        <!-- Search Bar Form -->
+        <div id="search-container" class="left-content">
+            <form method="GET">
+                <input type="text" name="query" placeholder="Search..." class="search-input">
+                <button type="submit" class="search-button">Search</button>
+            </form>
+        </div>
+
+        <div id="userList-container" class="left-content">
+
+            <!-- user list -->
+            {% for user in user_list %}
+                <div id="user-container" class="left-content">
+                    <span>{{ user.username }}</span>
+                </div>
+            {% endfor %}
+
+        </div>
+
+
+</html>
+{% endblock %}
+            
