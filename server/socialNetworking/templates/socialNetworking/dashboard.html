@@ -13,17 +13,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/notification.css' %}">
 </head>
 
-<<<<<<< HEAD
-<!-- <body> -->
-    
-    {% extends 'landing/loggedin_base.html' %}
-    {% load static %}
-    {% block content %}
-=======
 <body>
 
->>>>>>> f68d79c2220eb095a5c4adf2918c0691db1462ff
-    <div id="content-container">
+    <!-- <div id="content-container"> -->
     
         <div class="navbar left-content">
             <button>Dashboard</button>
@@ -31,7 +23,7 @@
             <button><a href="{% url 'profile-view' %}">Profile</a></button>
             <button><a href="{% url 'add-post' %}">post</a></button>
         </div>
-        <div id="sidebar-container">
+        <!-- <div id="sidebar-container">
             <div class="sidebar">
                 <div id="follow_request" class="static-box">
                     <h2>Follow Requests</h2>
@@ -77,7 +69,7 @@
                 </div>
             </div>
     
-        </div>
+        </div> -->
     
         {% for post in post_list %}
         <!-- Post Container -->
@@ -99,7 +91,7 @@
             </div>
         </div>
         {% endfor %}
-    </div>
+    <!-- </div> -->
     {% endblock %}
     </body>
     
