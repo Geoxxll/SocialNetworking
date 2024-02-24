@@ -93,7 +93,7 @@ class PostListView(View):
             comments = Comment.objects.filter(post=post)
             post_comments[post.post_id] = comments
             
-        # print(post_comments)
+        print(post_comments)
         context = {
             'post_list': posts,
             'form': form,
@@ -129,6 +129,7 @@ class PostDetailView(View):
             new_comment.comment_author = Author.objects.get(user=request.user)
             new_comment.post = post
             new_comment.save()
+            form = CommentForm()
 
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
@@ -145,7 +146,7 @@ class PostDetailView(View):
         return render(request, 'socialNetworking/post_detail.html', context)
 
 
-class ProfileView(View):
+class DashboardView(View):
     def get(self, request, *args, **kwargs):
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
         form = PostForm()
@@ -164,7 +165,7 @@ class PostEditView(UpdateView):
     
     def get_success_url(self):
         pk = self.kwargs['pk']
-        return reverse_lazy('profile-view')
+        return reverse_lazy('profile')
     
     # def test_func(self):
     #     post = self.get_object()
@@ -191,6 +192,65 @@ class CommentDeleteView(DeleteView):
     # def test_func(self):
     #     comment = self.get_object()
     #     return self.request.user == comment.author
+    
+class ProfileEditView(UpdateView):
+    def get(self, request, pk, *args, **kwargs):
+        model = Author
+        fields = ['displayName','github','url','host']
+        template_name = 'socialNetworking/profile_edit.html'
+        
+        def get_success_url(self):
+            pk = self.kwargs['pk']
+            return reverse_lazy('profile')
+
+        # profile = Author.objects.get(pk=pk)
+        # user = profile.user
+        # posts = Post.objects.filter(author_of_posts=user).order_by('-created_on')
+
+        # context = {
+        #     'user': user,
+        #     'profile': profile,
+        #     'posts': posts
+        # }
+
+        # return render(request, 'socialNetworking/profile_edit.html', context)
+
+class AddLike(View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+        author, created = Author.objects.get_or_create(user=request.user)
+        
+
+        if author in post.likes.all():
+            print("Unliking")
+            post.likes.remove(author)
+        else:
+            print("Liking")
+            post.likes.add(author)
+        
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+class AddCommentLike(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+            
+        author, created = Author.objects.get_or_create(user=request.user)
+        if author in comment.likes.all():
+            print("Unliking comment")
+            comment.likes.remove(author)
+        else:
+            print("Liking comment")
+            comment.likes.add(author)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
 
 @api_view(['GET'])
 def authors(request):

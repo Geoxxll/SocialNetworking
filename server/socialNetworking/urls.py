@@ -1,5 +1,9 @@
 from django.urls import path
+<<<<<<< HEAD
 from .views import CommentDeleteView, PostDeleteView, PostListView, PostDetailView, AddPostView, ProfileView,PostEditView, FindFriendsView
+=======
+from .views import   AddCommentLike, AddLike, DashboardView, CommentDeleteView, PostDeleteView, PostListView, PostDetailView, AddPostView, ProfileEditView,PostEditView
+>>>>>>> refs/remotes/origin/2024
 from . import views
 
 urlpatterns = [
@@ -12,12 +16,19 @@ urlpatterns = [
 
     path('social/', PostListView.as_view(), name='post-list'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
+<<<<<<< HEAD
     path('social/find-friends/', FindFriendsView.as_view(), name='find-friends'),
     path('social/profile/', ProfileView.as_view(), name='profile-view'),
+=======
+>>>>>>> refs/remotes/origin/2024
     path('social/post/edit/<uuid:pk>/', PostEditView.as_view(), name='post-edit'),
     path('social/post/<uuid:pk>/', PostDetailView.as_view(), name='post-detail'),
 	path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
  	path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
+    path('social/profile/', DashboardView.as_view(), name='profile'),
+    path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
+    path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
+    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
     #path("api/authors/", views.authors, name="authors"),
     #path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
     #path("api/authors/<uuid:author_id>/followers/", views.followers, name="followers"),

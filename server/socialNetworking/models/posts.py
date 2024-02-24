@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from django.contrib.auth.models import User
 
 class Post (models.Model):
     contentTypesChoices = {
@@ -27,5 +28,5 @@ class Post (models.Model):
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)
     author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='posts_set')
-    
+    likes = models.ManyToManyField('Author', blank=True, related_name='likes')
 
