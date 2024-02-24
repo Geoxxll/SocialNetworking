@@ -70,7 +70,7 @@ class PostListView(View):
             comments = Comment.objects.filter(post=post)
             post_comments[post.post_id] = comments
             
-        # print(post_comments)
+        print(post_comments)
         context = {
             'post_list': posts,
             'form': form,
@@ -106,6 +106,7 @@ class PostDetailView(View):
             new_comment.comment_author = Author.objects.get(user=request.user)
             new_comment.post = post
             new_comment.save()
+            form = CommentForm()
 
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
@@ -122,7 +123,7 @@ class PostDetailView(View):
         return render(request, 'socialNetworking/post_detail.html', context)
 
 
-class ProfileView(View):
+class DashboardView(View):
     def get(self, request, *args, **kwargs):
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
         form = PostForm()
@@ -141,7 +142,7 @@ class PostEditView(UpdateView):
     
     def get_success_url(self):
         pk = self.kwargs['pk']
-        return reverse_lazy('profile-view')
+        return reverse_lazy('profile')
     
     # def test_func(self):
     #     post = self.get_object()
@@ -168,6 +169,29 @@ class CommentDeleteView(DeleteView):
     # def test_func(self):
     #     comment = self.get_object()
     #     return self.request.user == comment.author
+    
+class ProfileEditView(UpdateView):
+    def get(self, request, pk, *args, **kwargs):
+        model = Author
+        fields = ['displayName','github','url','host']
+        template_name = 'socialNetworking/profile_edit.html'
+        
+        def get_success_url(self):
+            pk = self.kwargs['pk']
+            return reverse_lazy('profile', kwargs={'pk': pk})
+
+        # profile = Author.objects.get(pk=pk)
+        # user = profile.user
+        # posts = Post.objects.filter(author_of_posts=user).order_by('-created_on')
+
+        # context = {
+        #     'user': user,
+        #     'profile': profile,
+        #     'posts': posts
+        # }
+
+        # return render(request, 'socialNetworking/profile_edit.html', context)
+
 
 @api_view(['GET'])
 def authors(request):

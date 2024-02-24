@@ -14,14 +14,14 @@
 </head>
 
 <body>
-
     <div id="content-container">
     
         <div class="navbar left-content">
             <button>Dashboard</button>
             <button>Find Friends</button>
-            <button><a href="{% url 'profile-view' %}">Profile</a></button>
+            <button><a href="{% url 'profile' %}">Profile</a></button>
             <button><a href="{% url 'add-post' %}">post</a></button>
+            
         </div>
         <!-- <div id="sidebar-container">
             <div class="sidebar">
@@ -77,11 +77,11 @@
             <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
             <div class="post-content">
                 
-                <h5>{{ post.author_of_posts.user.username }}</h5>
-                <p>{{ post.description }}</p>
-                {% for comment in post_comments%}
-                <p>{{ comment.comment }}</p>
-                <!-- Add more comment details as needed -->
+                <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                <p><b>Description: </b>{{ post.description }}</p>
+                <b>Comments:</b>
+                {% for comment in post.comment_set.all %}
+                    <p>{{ comment.comment }} - {{ comment.comment_author }}</p>
                 {% endfor %}
             </div>
             <div class="post-buttons">
