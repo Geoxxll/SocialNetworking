@@ -1,7 +1,9 @@
 {% extends 'landing/loggedin_base.html' %}
 {% load crispy_forms_tags %}
-
+{% load static %}
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'socialNetworking/post_detail.css' %}">
 <div class="container">
     <div class="row mt-5">
         <div class="col-md-3 col-sm-6">
@@ -37,6 +39,7 @@
         </div>
     </div>
 	{% for comment in comments %}
+	{% if comment.is_parent %}
     <div class="row justify-content-center mt-3 mb-5 border-bottom">
         <div class="col-md-5 col-sm-12">
             <p>
@@ -45,12 +48,44 @@
 				<!-- Need user access restriction -->
 				{% if request.user == comment.comment_author.user %}
 				<a href="{% url 'comment-delete' post.pk comment.pk %}">Delete</a>
-                <!-- <a href="{% url 'comment-delete' post.pk comment.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a> -->
+				<!-- <a href="{% url 'comment-delete' post.pk comment.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a> -->
                 {% endif %}
+				<div>
+                    <button class="btn btn-light btn-sm" type="button" onclick="commentReplyToggle('{{ comment.pk }}')">
+						...
+					</button>
+                </div>
             </p>
             <p>{{ comment.comment }}</p>
         </div>
+		<!-- Form for subcomment -->
+		<div class="row justify-content-center mt-3 mb-5 d-none" id="{{ comment.pk }}">
+			<div class="col-md-5 col-sm-12">
+				<form method="POST" action="{% url 'comment-reply' post.pk comment.pk %}">
+					{% csrf_token %}
+					{{ form | crispy }}
+					<div class="d-grid gap-2">
+						<button class="btn btn-success mt-3">Submit!</button>
+					</div>
+				</form>
+			</div>
+		</div>
+    </div>
+	{% for child_comment in comment.children %}
+    <div class="row justify-content-center mt-3 mb-5 child-comment">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <p>
+                {% if request.user == child_comment.comment_author.user %}
+                    <a href="{% url 'comment-delete' post.pk child_comment.pk %}" class="edit-color">Delete reply</a>
+                {% endif %}
+            </p>
+            <p>{{ child_comment.comment }} - {{ child_comment.comment_author }} </p>
+        </div>
     </div>
     {% endfor %}
+    {% endif %}
+    {% endfor %}
 </div>
+<script src="{% static 'JS/social.js' %}"></script>
+
 {% endblock content %}
