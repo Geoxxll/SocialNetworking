@@ -6,6 +6,9 @@ urlpatterns = [
     # serializer test url
     path('serializer/authors/', views.authors, name='authors'),
     path('serializer/authors/<uuid:author_id>/', views.authors_id, name='authorId'),
+    path('serializer/followers/<uuid:author_id>/', views.followers, name='followers'),
+    path('serializer/followers/<uuid:author_id>/<uuid:foreign_author_id>/', views.followers_id, name='followersId'),
+
 
     path('social/', PostListView.as_view(), name='post-list'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
