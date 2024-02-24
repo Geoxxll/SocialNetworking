@@ -1,6 +1,7 @@
 {% extends 'landing/loggedin_base.html' %}
 {% load static %}
 {% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,13 +17,43 @@
 <body>
 
     <div id="content-container">
-    
-        <div class="navbar left-content">
-            <button>Dashboard</button>
-            <button>Find Friends</button>
-            <button><a href="{% url 'profile-view' %}">Profile</a></button>
-            <button><a href="{% url 'add-post' %}">post</a></button>
+
+        <div id="left-content-container" class="left-content">
+
+            <div id="navigation-container" class="left-content">
+                <button><a href="">Dashboard</a></button>
+                <button><a href="">Find Friends</a></button>
+                <button><a href="{% url 'profile-view' %}">Profile</a></button>
+                <button><a href="{% url 'add-post' %}">Post</a></button>
+            </div>
+
+            {% for post in post_list %}
+            <!-- Post Container -->
+            <div class="post-container left-content">
+
+                <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+
+                <div class="post-content">
+                    
+                    <h5>{{ post.author_of_posts.user.username }}</h5>
+                    <p>{{ post.description }}</p>
+                    {% for comment in post_comments%}
+                    <p>{{ comment.comment }}</p>
+                    <!-- Add more comment details as needed -->
+                    {% endfor %}
+                </div>
+
+                <div class="post-buttons">
+                    <button>Like</button>
+                    <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
+                    <button>Repost</button>
+                </div>
+
+            </div>
+            {% endfor %}
+
         </div>
+    
         <div id="sidebar-container">
             <div class="sidebar">
                 <div id="follow_request" class="static-box">
@@ -51,6 +82,7 @@
                         <hr>
                     </div>
                 </div>
+
                 <div id="notification" class="static-box">
                     <h2>Notifications</h2>
                     <div>
@@ -71,28 +103,8 @@
     
         </div>
     
-        {% for post in post_list %}
-        <!-- Post Container -->
-        <div class="post-container left-content">
-            <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-            <div class="post-content">
-                
-                <h5>{{ post.author_of_posts.user.username }}</h5>
-                <p>{{ post.description }}</p>
-                {% for comment in post_comments%}
-                <p>{{ comment.comment }}</p>
-                <!-- Add more comment details as needed -->
-                {% endfor %}
-            </div>
-            <div class="post-buttons">
-                <button>Like</button>
-                <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
-                <button>Repost</button>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endblock %}
-    </body>
-    
-    </html>
+
+</body>
+
+</html>
+{% endblock %}
