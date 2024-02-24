@@ -22,34 +22,46 @@
             <div id="navigation-container" class="left-content">
                 <button><a href="">Dashboard</a></button>
                 <button><a href="">Find Friends</a></button>
-                <button><a href="{% url 'profile-view' %}">Profile</a></button>
+                <button><a href="{% url 'profile' %}">Profile</a></button>
                 <button><a href="{% url 'add-post' %}">Post</a></button>
             </div>
 
             {% for post in post_list %}
             <!-- Post Container -->
             <div class="post-container left-content">
-
                 <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-
                 <div class="post-content">
                     
-                    <h5>{{ post.author_of_posts.user.username }}</h5>
-                    <p>{{ post.description }}</p>
-                    {% for comment in post_comments%}
-                    <p>{{ comment.comment }}</p>
-                    <!-- Add more comment details as needed -->
+                    <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                    <p><b>Description: </b>{{ post.description }}</p>
+                    <b>Comments:</b>
+                    {% for comment in post.comment_set.all %}
+                        <p>{{ comment.comment }} - {{ comment.comment_author }} 
+                            <form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button class="btn btn-success btn-sm" type="submit">
+                                    <span>Like</span>
+                                    <span>{{ comment.likes.all.count }}</span>
+                                </button>
+                            </form>
+                        </p>
                     {% endfor %}
                 </div>
-
-                <div class="post-buttons">
-                    <button>Like</button>
+                <div class="post-buttons">                  
+                    <form method="POST" action="{% url 'like' post.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit">Likes</button>
+                        <span>{{ post.likes.all.count }}</span>
+                    </form>
                     <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
-                    <button>Repost</button>
+                    <button>Share</button>
                 </div>
-
             </div>
             {% endfor %}
+
+            
 
         </div>
     
@@ -100,28 +112,9 @@
                 </div>
             </div>
     
-        </div> -->
-    
-        {% for post in post_list %}
-        <!-- Post Container -->
-        <div class="post-container left-content">
-            <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-            <div class="post-content">
-                
-                <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
-                <p><b>Description: </b>{{ post.description }}</p>
-                <b>Comments:</b>
-                {% for comment in post.comment_set.all %}
-                    <p>{{ comment.comment }} - {{ comment.comment_author }}</p>
-                {% endfor %}
-            </div>
-            <div class="post-buttons">
-                <button>Like</button>
-                <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
-                <button>Repost</button>
-            </div>
         </div>
-        {% endfor %}
+    
+       
     <!-- </div> -->
     {% endblock %}
     </body>
@@ -131,4 +124,3 @@
 </body>
 
 </html>
-{% endblock %}

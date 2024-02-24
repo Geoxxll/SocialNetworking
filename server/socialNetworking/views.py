@@ -178,7 +178,7 @@ class ProfileEditView(UpdateView):
         
         def get_success_url(self):
             pk = self.kwargs['pk']
-            return reverse_lazy('profile', kwargs={'pk': pk})
+            return reverse_lazy('profile')
 
         # profile = Author.objects.get(pk=pk)
         # user = profile.user
@@ -191,6 +191,42 @@ class ProfileEditView(UpdateView):
         # }
 
         # return render(request, 'socialNetworking/profile_edit.html', context)
+
+class AddLike(View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+        author, created = Author.objects.get_or_create(user=request.user)
+        
+
+        if author in post.likes.all():
+            print("Unliking")
+            post.likes.remove(author)
+        else:
+            print("Liking")
+            post.likes.add(author)
+        
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+class AddCommentLike(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+            
+        author, created = Author.objects.get_or_create(user=request.user)
+        if author in comment.likes.all():
+            print("Unliking comment")
+            comment.likes.remove(author)
+        else:
+            print("Liking comment")
+            comment.likes.add(author)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
 
 
 @api_view(['GET'])
