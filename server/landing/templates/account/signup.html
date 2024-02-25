@@ -1,0 +1,75 @@
+{% extends "landing/loggedin_base.html" %}
+
+{% load allauth i18n %}
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
+{% block content %}
+    <style>
+        h1 {
+            font-size: 40px;
+            color: #333;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        p a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    {% element h1 %}
+        {% trans "Sign Up" %}
+    {% endelement %}
+    <p>
+        {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
+    </p>
+    {% url 'account_signup' as action_url %}
+    {% element form form=form method="post" action=action_url tags="entrance,signup" %}
+        {% slot body %}
+            {% csrf_token %}
+            {% element fields form=form unlabeled=True %}
+            {% endelement %}
+            {% if redirect_field_value %}
+                <input type="hidden"
+                       name="{{ redirect_field_name }}"
+                       value="{{ redirect_field_value }}" />
+            {% endif %}
+        {% endslot %}
+        {% slot actions %}
+            {% element button tags="prominent,signup" type="submit" %}
+                {% trans "Sign Up" %}
+            {% endelement %}
+        {% endslot %}
+    {% endelement %}
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    {% endif %}
+{% endblock content %}
