@@ -528,15 +528,26 @@ def send_friend_request(request, *args, **kwargs):
             try:
                 receiver = Author.objects.get(pk=user_id)
                 author = Author.objects.get(user=user)
+                
+                # Check if an active follow request already exists
+                existing_request = Follow.objects.filter(actor=author, object_of_follow=receiver, active=True).exists()
+                if existing_request:
+                    context['result'] = "follow request exists"
+                    return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Create a new follow request
                 friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
                 context['result'] = "Successful"
                 return Response(context, status=status.HTTP_200_OK)
+            
             except Author.DoesNotExist:
                 context['result'] = "Receiver user not found"
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
+        
         else:
             context['result'] = "Invalid data"
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+    
     else:
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)

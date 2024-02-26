@@ -9,6 +9,7 @@ class Follow(models.Model):
     summary = models.TextField(blank=True)
     actor = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='actor_follow_set')
     object_of_follow = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='object_of_follow_set')
+    active = models.BooleanField(default=True)
 
 
     def __str__(self):
