@@ -9,7 +9,9 @@
     </div>
     <!-- Added for ease of using -->
     <div>
-      <p>{{ request.user }}</p>
+      {% if request.user.username %}
+        <p>{{ request.user.username }}</p>
+      {% endif %}
     </div>
     <div class="right-section">
       <div class="username">
