@@ -1,0 +1,10 @@
+#post-container {
+    margin-top: 1.5rem;
+}
+
+#profile-container, #post-container {
+    margin-top: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #4d7b42;
+    padding: 16px;
+}

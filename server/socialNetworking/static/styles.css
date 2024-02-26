@@ -261,7 +261,6 @@ body {
     padding: 20px;
     overflow-y: auto;
     background: transparent;
-    align-self: end;
 }
 
 .static-box {

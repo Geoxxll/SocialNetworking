@@ -34,3 +34,16 @@ class Post (models.Model):
 
     class Meta:
         ordering = ['-published_at', '-shared_on']
+
+    def __str__(self) -> str:
+        return "title: {}, type: {}, source: {}, origin: {}, description: {}, contentType: {}, visibility: {}, published_at: {}".format(
+            self.title,
+            self.type,
+            self.source,
+            self.origin,
+            self.description,
+            self.contentType,
+            self.visibility,
+            self.published_at
+        )
+

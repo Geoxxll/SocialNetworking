@@ -1,8 +1,10 @@
 {% extends 'landing/loggedin_base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
-
 {% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/profile_view.css' %}">
+
 <div class="container">
 
 	<div class="row mt-5">
@@ -10,16 +12,33 @@
 			<a href="{% url 'post-list' %}" class="btn btn-light">Back to Feed</a>
 		</div>
 	</div>
-	<div class="container">
-		<div class="row justify-content-center mt-3">
-			<div class="col-md-5 col-sm-12 border-bottom">
+
+	<div id = "profile-container">
+
+		<div>
+			{% if not author.profileImage %}
+				<img src="{% static 'images/User_cicrle.png' %}">
+			{% else %}
+				<img src="{{ author.profileImage }}" width="84" height="84" style="border-radius: 42px;">
+			{% endif %}
+			<span>{{ author.displayName }}</span>
+		</div>
+		<span>Github: {{ author.github }}</span>
+
+	</div>
+
+	<div id="post-container" class="container">
+
+		<div class="row mt-3">
+			<div class="col-sm-12 border-bottom">
 				<h2>Posts you created:</h2>
+
 			</div>
 		</div>
 
 		{% for post in post_list %}
-		<div class="row justify-content-center mt-3">
-			<div class="col-md-5 col-sm-12 border-bottom position-relative">
+		<div class="row mt-3">
+			<div class="col-sm-12 border-bottom position-relative">
 				<a href="{% url 'post-edit' post.pk %}">Edit</a>
 				<a href="{% url 'post-delete' post.pk %}">Delete</a>
 				<p>{{ post.published_at }}</p>
@@ -30,6 +49,7 @@
 		{% endfor %}
 	</div>
 </div>
+
 {% endblock content %} 
 
 

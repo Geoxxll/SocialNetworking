@@ -72,8 +72,10 @@
                     <form method="POST" action="{% url 'like' post.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit">Likes</button>
-                        <span>{{ post.likes.all.count }}</span>
+                        <button type="submit">
+                            <span>Likes</span>
+                            <span>{{ post.likes.all.count }}</span>
+                        </button>
                     </form>
                     <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
                     <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>

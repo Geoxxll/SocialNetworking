@@ -13,7 +13,8 @@ class Author(models.Model):
     github = models.URLField(null=True, blank=True)
     # TODO: url for default profileImage
     profileImage = models.URLField(null=True, blank=True)
+    lastCommitFetch = models.DateTimeField(null=True, blank=True, editable=True)
 
     def __str__(self):
-        return self.displayName
+        return self.displayName + f": {self.lastCommitFetch}"
     
