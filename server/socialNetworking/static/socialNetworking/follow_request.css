@@ -12,7 +12,7 @@
 }
 
 #follow_request>div {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 216px;
 }
 

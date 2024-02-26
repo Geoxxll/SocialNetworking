@@ -102,13 +102,15 @@ class PostListView(View):
         for post in posts:
             comments = Comment.objects.filter(post=post).order_by('-published_at')
             post_comments[post.post_id] = comments
+
+        follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
             
-        print(post_comments)
         context = {
             'post_list': posts,
             'form': form,
             'post_comments': post_comments,
             'shareform': share_form,
+            'follow_requests' : follow_requests
         }
 
         return render(request, 'socialNetworking/dashboard.html', context)
@@ -219,6 +221,7 @@ class DashboardView(View):
 
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
         form = PostForm()
+        
 
         context = {
             'post_list': posts,
@@ -548,6 +551,52 @@ def send_friend_request(request, *args, **kwargs):
             context['result'] = "Invalid data"
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
     
+    else:
+        context['result'] = "Authentication required"
+        return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+@api_view(['POST']) 
+def accept_friend_request(request, *args, **kwargs):
+    user = request.user
+    context = {}
+
+    if request.method == "POST" and user.is_authenticated:
+        user_id = request.POST.get("receiver_user_id")
+        if user_id:
+            try:
+
+                actor = Author.objects.get(pk=user_id)
+                object_of_follow = Author.objects.get(user=user)
+                print(actor)
+                follow_request = Follow.objects.filter(actor=actor, object_of_follow=object_of_follow, active=True).first()
+
+                if follow_request:
+
+                    # Check if there's already a follower entry
+                    if Follower.objects.filter(follower=object_of_follow, followee=actor).exists():
+                        context['result'] = "You are already following this user"
+                        return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # Create Follower object
+                    follower = Follower.objects.create(follower=object_of_follow, followee=actor)
+                    serializer = FollowerSerializer(follower)
+                    context['result'] = "Successful"
+                    # Deactivate the friend request
+                    follow_request.active = False
+                    follow_request.save()
+
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    context['result'] = "Friend request not found or already accepted"
+                    return Response(context, status=status.HTTP_404_NOT_FOUND)
+            except Author.DoesNotExist:
+                context['result'] = "Actor user not found"
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        else:
+            context['result'] = "Invalid data"
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
     else:
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)

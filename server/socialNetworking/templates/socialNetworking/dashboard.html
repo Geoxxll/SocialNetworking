@@ -89,30 +89,18 @@
     
         <div id="sidebar-container">
             <div class="sidebar">
+                <!-- notification bar -->
                 <div id="follow_request" class="static-box">
                     <h2>Follow Requests</h2>
                     <div>
-                        <hr>
-                        <div>
-                            <h3>User 03</h3>
-                            <button>Accept</button>
-                        </div>
-                        <hr>
-                        <div>
-                            <h3>User 05</h3>
-                            <button>Accept</button>
-                        </div>
-                        <hr>
-                        <div>
-                            <h3>User 06</h3>
-                            <button>Accept</button>
-                        </div>
-                        <hr>
-                        <div>
-                            <h3>User 07</h3>
-                            <button>Accept</button>
-                        </div>
-                        <hr>
+                        {% for follow_request in follow_requests %}
+                            <hr>
+                            <div>
+                                <h3>{{ follow_request.actor.displayName }}</h3>
+                                <button class="accept-button" data-user-id="{{ follow_request.actor.id }}">Accept</button>
+        
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -137,11 +125,51 @@
         </div>
     
     <script src="{% static 'JS/social.js' %}"></script>
-    <!-- </div> -->
-    {% endblock %}
-    </body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".accept-button").on("click", function() {
+                var userId = $(this).data("user-id");
+                acceptFriendRequest(userId, onFriendRequestAccepted);
+            });
+        });
     
-    </html>
+        function onFriendRequestAccepted() {
+            location.reload()
+        }
+    
+        function acceptFriendRequest(id, uiUpdateFunction) {
+            var csrfToken = "{{ csrf_token }}";
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "csrfmiddlewaretoken": csrfToken,
+                    "receiver_user_id": id,
+                },
+                url: "{% url 'accept-friend-request' %}",  // Update the URL to match your view
+                timeout: 5000,
+                success: function(data) {
+                    if (data['result'] === "Successful") {
+                        // Handle success
+                        uiUpdateFunction();  // Call the UI update function
+                    }
+                },
+                error: function(data) {
+                    // Handle error
+                },
+                complete: function(data){
+                    uiUpdateFunction();
+                }
+
+            });
+        }
+    </script>
+    
+
+
+ {% endblock %}
+
 
 </body>
 

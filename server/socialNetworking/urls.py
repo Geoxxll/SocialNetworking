@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SharedPostView, CommentReplyView,  AddCommentLike, AddLike, DashboardView, CommentDeleteView, PostDeleteView, PostListView, PostDetailView, AddPostView, ProfileEditView,PostEditView,FindFriendsView, send_friend_request
+from .views import SharedPostView, CommentReplyView,  AddCommentLike, AddLike, DashboardView, CommentDeleteView, PostDeleteView, PostListView, PostDetailView, AddPostView, ProfileEditView,PostEditView,FindFriendsView, send_friend_request,accept_friend_request
 from . import views
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
 
 
     path('social/', PostListView.as_view(), name='post-list'),
+    path('social/accept-request', accept_friend_request, name='accept-friend-request'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
     path('social/find-friends/', FindFriendsView.as_view(), name='find-friends'),
     path('social/find-friends/send-request', send_friend_request, name='send-friend-request'),

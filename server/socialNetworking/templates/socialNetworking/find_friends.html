@@ -69,7 +69,6 @@
         });
 
         function sendFriendRequest(id, uiUpdateFunction){
-            console.log(id)
             var context = {
                 "csrfmiddlewaretoken" : "{{csrf_token}}",
                 "receiver_user_id" : id, 
