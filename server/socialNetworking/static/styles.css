@@ -173,7 +173,7 @@ body {
     margin-inline-end: 5%;
 }
 
-#user-container {
+.user-container {
     margin-top: 16px;
     margin-bottom: 16px;
     align-self: start;

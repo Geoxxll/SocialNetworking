@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 
+import json
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -10,6 +12,7 @@ from django.views import View
 from .models.posts import Post
 from .models.comments import Comment
 from .models.followers import Follower
+from .models.follow import Follow
 from .forms import PostForm, CommentForm, ShareForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
@@ -76,10 +79,10 @@ class FindFriendsView(View):
         
         if query:
             # Filter users based on the search query
-            all_users = User.objects.filter(username__icontains=query).order_by('-username')
+            all_users = Author.objects.filter(displayName__icontains=query).order_by('-displayName')
         else:
             # Retrieve all users if no search query provided
-            all_users = User.objects.all().order_by('-username')
+            all_users = Author.objects.all().order_by('-displayName')
         context = { 
             'user_list': all_users,
             # 'form' : form,
@@ -510,3 +513,30 @@ def inbox(request, author_id):
     
     elif request.method == 'DELETE':
         return
+
+
+
+
+@api_view(['POST']) 
+def send_friend_request(request, *args, **kwargs):
+    user = request.user
+    context = {}
+
+    if request.method == "POST" and user.is_authenticated:
+        user_id = request.POST.get("receiver_user_id")
+        if user_id:
+            try:
+                receiver = Author.objects.get(pk=user_id)
+                author = Author.objects.get(user=user)
+                friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
+                context['result'] = "Successful"
+                return Response(context, status=status.HTTP_200_OK)
+            except Author.DoesNotExist:
+                context['result'] = "Receiver user not found"
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        else:
+            context['result'] = "Invalid data"
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        context['result'] = "Authentication required"
+        return Response(context, status=status.HTTP_401_UNAUTHORIZED)

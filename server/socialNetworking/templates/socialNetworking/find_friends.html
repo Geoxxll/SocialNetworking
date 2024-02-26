@@ -27,31 +27,79 @@
                 <button><a href="{% url 'add-post' %}">Post</a></button>
             </div>
         
-        <!-- Search Bar Form -->
-        <div id="search-container" class="left-content">
-            <form method="GET">
-                <input type="text" name="query" placeholder="Search..." class="search-input">
-                <button type="submit" class="search-button">Search</button>
-            </form>
+            <!-- Search Bar Form -->
+            <div id="search-container" class="left-content">
+                <form method="GET">
+                    <input type="text" name="query" placeholder="Search..." class="search-input">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            </div>
+
+            <div id="userList-container" class="left-content">
+
+                <!-- user list -->
+                {% for user in user_list %}
+                    {% if user.displayName != request.user.username %}
+
+                        <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
+                            <span>{{ user.displayName }}</span>
+                            <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+
         </div>
 
-        <div id="userList-container" class="left-content">
+    </div>
 
-            <!-- user list -->
-            {% for user in user_list %}
-                {% if user.username != request.user.username %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        function onFriendRequestSent(){
+            location.reload();
+        }
 
-                    <div id="user-container" class="left-content">
-                        <span>{{ user.username }}</span>
-                        <button type="submit" class="send-request-button">Send Request</button>
+        $(document).ready(function() {
+            $(".send-request-button").on("click", function() {
+                
+                var userId = $(this).data("user-id");
+                sendFriendRequest(userId, onFriendRequestSent);
+            });
+        });
 
-                    </div>
-                {% endif %}
-            {% endfor %}
+        function sendFriendRequest(id, uiUpdateFunction){
+            console.log(id)
+            var context = {
+                "csrfmiddlewaretoken" : "{{csrf_token}}",
+                "receiver_user_id" : id, 
+            };
+            var csrfToken = "{{ csrf_token }}";
+            $.ajax({
+                type : "POST",
+                dataType : "json",
+                data: {
+                    "csrfmiddlewaretoken": csrfToken,
+                    "receiver_user_id": id,
+                },
+                url : "{% url 'send-friend-request' %}",
+                timeout : 5000,
+                success: function(data){
+                    if (data['result'] == "Successful"){
+                        // Handle success
+                    }
+                },
+                error: function(data){
+                    // Handle error
+                },
+                complete: function(data){
+                    uiUpdateFunction();
+                }
+            });
+        }
+    </script>
 
-        </div>
-
+</body>
 
 </html>
 {% endblock %}
-            
