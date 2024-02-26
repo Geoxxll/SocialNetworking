@@ -39,9 +39,14 @@
 
             <!-- user list -->
             {% for user in user_list %}
-                <div id="user-container" class="left-content">
-                    <span>{{ user.username }}</span>
-                </div>
+                {% if user.username != request.user.username %}
+
+                    <div id="user-container" class="left-content">
+                        <span>{{ user.username }}</span>
+                        <button type="submit" class="send-request-button">Send Request</button>
+
+                    </div>
+                {% endif %}
             {% endfor %}
 
         </div>
