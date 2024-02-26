@@ -28,3 +28,11 @@ class CommentForm(forms.ModelForm):
             'comment_author': forms.HiddenInput(),  # Hide the comment_author field
             'post': forms.HiddenInput(),  # Hide the post field
         }
+        
+class ShareForm(forms.Form):
+    body = forms.CharField(
+        label='',
+        widget=forms.Textarea(attrs={
+            'rows': '3',
+            'placeholder': 'Say Something...'
+            }))

@@ -16,7 +16,7 @@ class Post (models.Model):
         FRIENDS = 'FRIENDS', 'Friends'
         UNLISTED = 'UNLISTED', 'Unlisted'
 
-
+    shared_body = models.TextField(blank=True, null=True)
     title = models.CharField(max_length=100)
     type = models.CharField(max_length=15, default='post', editable=False)
     post_id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
@@ -27,6 +27,10 @@ class Post (models.Model):
     content = models.BinaryField(null=True, blank=True)
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)
+    shared_on = models.DateTimeField(blank=True, null=True)
     author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='posts_set')
+    shared_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
     likes = models.ManyToManyField('Author', blank=True, related_name='likes')
 
+    class Meta:
+        ordering = ['-published_at', '-shared_on']

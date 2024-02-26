@@ -1,5 +1,6 @@
 {% extends 'landing/loggedin_base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
 
 <!DOCTYPE html>
@@ -9,6 +10,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network</title>
+
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/follow_request.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/notification.css' %}">
@@ -28,13 +30,31 @@
 
             {% for post in post_list %}
             <!-- Post Container -->
-            <div class="post-container left-content">
+            <div class="post-container left-content" style="display: flex; justify-content: space-between;">
                 <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-                <div class="post-content">
-                    
-                    <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
-                    <p><b>Description: </b>{{ post.description }}</p>
-                    <b>Comments:</b>
+                <!-- When user shares a post -->
+                
+                {% if post.shared_body %}
+                    <div>
+                        <b>{{ post.shared_user }} </b> reposted at <i>{{ post.shared_on }}</i>
+                        <p><i>{{ post.shared_body }}</i></p>
+                    </div>
+                    <hr>
+                    <div>
+                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                        <p><b>Description: </b>{{ post.description }}</p>
+                        <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                    </div>
+                {% else %}
+                    <div class="post-content">
+                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                        <p><b>Description: </b>{{ post.description }}</p>
+                        <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                    </div>
+                {% endif %}
+                
+                <!-- To print child comments:
+                <b>Comments:</b>
                     {% for comment in post.comment_set.all %}
                         <p>{{ comment.comment }} - {{ comment.comment_author }} 
                             <form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
@@ -47,7 +67,7 @@
                             </form>
                         </p>
                     {% endfor %}
-                </div>
+                 -->
                 <div class="post-buttons">                  
                     <form method="POST" action="{% url 'like' post.pk %}">
                         {% csrf_token %}
@@ -55,14 +75,14 @@
                         <button type="submit">Likes</button>
                         <span>{{ post.likes.all.count }}</span>
                     </form>
-                    <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
-                    <button>Share</button>
+                    <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
+                    <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
+                    <!-- Form for reposting -->
+                    
+                    
                 </div>
             </div>
             {% endfor %}
-
-            
-
         </div>
     
         <div id="sidebar-container">
@@ -114,7 +134,7 @@
     
         </div>
     
-       
+    <script src="{% static 'JS/social.js' %}"></script>
     <!-- </div> -->
     {% endblock %}
     </body>

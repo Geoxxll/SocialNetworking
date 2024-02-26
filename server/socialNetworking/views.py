@@ -5,11 +5,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from django.utils import timezone
 from django.views import View
 from .models.posts import Post
 from .models.comments import Comment
 from .models.followers import Follower
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, ShareForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
 
@@ -38,6 +39,7 @@ class AddPostView(View):
     def post(self, request, *args, **kwargs):
         
         form = PostForm(request.POST)
+        share_form = ShareForm()
 
         if form.is_valid():
              # Retrieve the User instance associated with the request
@@ -56,6 +58,7 @@ class AddPostView(View):
         context = {
             'post_list': posts,
             'form': form,
+            'shareform': share_form,
         }
 
         return render(request, 'socialNetworking/dashboard.html', context)
@@ -64,10 +67,11 @@ class PostListView(View):
     def get(self, request, *args, **kwargs):
         posts = Post.objects.all().order_by('-published_at')
         form = PostForm()
+        share_form = ShareForm()
         
         post_comments = {}
         for post in posts:
-            comments = Comment.objects.filter(post=post)
+            comments = Comment.objects.filter(post=post).order_by('-published_at')
             post_comments[post.post_id] = comments
             
         print(post_comments)
@@ -75,6 +79,7 @@ class PostListView(View):
             'post_list': posts,
             'form': form,
             'post_comments': post_comments,
+            'shareform': share_form,
         }
 
         return render(request, 'socialNetworking/dashboard.html', context)
@@ -244,6 +249,37 @@ class CommentReplyView(View):
             new_comment.save()
 
         return redirect('post-detail', pk=post_pk)
+
+class SharedPostView(View):
+    def get(self, request, pk, *args, **kwargs):
+        original_post = get_object_or_404(Post, pk=pk)
+        shareForm = ShareForm()
+
+        context = {
+            'original_post': original_post,
+            'shareform': shareForm
+        }
+
+        return render(request, 'socialNetworking/share_post.html', context)
+    
+    def post(self, request, pk, *args, **kwargs):
+        original_post = Post.objects.get(pk=pk)
+        form = ShareForm(request.POST)
+        author, created = Author.objects.get_or_create(user=request.user)
+        
+        if form.is_valid():
+            new_post = Post(
+					shared_body=self.request.POST.get('body'),
+					description=original_post.description,
+					author_of_posts=original_post.author_of_posts,
+					published_at=original_post.published_at,
+					shared_user=request.user,
+					shared_on=timezone.now(),
+				)
+            new_post.save()
+            
+        return redirect('post-list')
+
     
 
 
