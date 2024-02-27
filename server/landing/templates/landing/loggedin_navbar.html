@@ -10,12 +10,13 @@
     <!-- Added for ease of using -->
     <div>
       {% if request.user.username %}
-        <p>{{ request.user.username }}</p>
+        <p><b>User: </b><i>{{ request.user.username }}</i></p>
       {% endif %}
     </div>
     <div class="right-section">
       <div class="username">
         <span>{{ user_data }}</span>
+        
         <div class="dropdown">
           <button class="dropbtn">
             <img src="{% static 'images/expand_down.png' %}" alt="Dropdown" style="width: 15px;">
@@ -26,6 +27,7 @@
           </div>
           {% endif %}
         </div>
+        
       </div>
       <div class="profile-pic">
         <a href=""><img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture"></a>

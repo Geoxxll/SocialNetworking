@@ -9,7 +9,7 @@ urlpatterns = [
     path('serializer/followers/<uuid:author_id>/', views.followers, name='followers'),
     path('serializer/followers/<uuid:author_id>/<uuid:foreign_author_id>/', views.followers_id, name='followersId'),
 
-
+	
     path('social/', PostListView.as_view(), name='post-list'),
     path('social/accept-request', accept_friend_request, name='accept-friend-request'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
