@@ -123,6 +123,16 @@
             </div>
     
         </div>
+        <div style="display: flex;margin-right: 10px; margin-top: 20px;">
+            <div>
+              {% if request.user.is_superuser %}
+              <a href="{% url 'admin:index' %}" style="text-decoration: none;">
+                <button class="btn btn-success btn-sm">Admin</button>
+              </a>
+              {% endif %}
+            </div>
+        </div>
+          
     
     <script src="{% static 'JS/social.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
