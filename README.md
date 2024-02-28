@@ -44,7 +44,7 @@ Sources/References
 API Documentation
 =================
 
-Retrieve list of authors, optionally paginated (GET)
+Retrieve list of authors, optionally paginated [GET]
 ----------------------------------------------------
 
 Request:
@@ -81,7 +81,7 @@ Sample Output Data:
     ]
     }
 
-Retrieve author with id (GET)
+Retrieve author with id [GET]
 -----------------------------
 
 Request:
@@ -152,3 +152,14 @@ Sample Output Data:
     // Image from a public domain
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
     }
+
+Retrieve list of authors following author_id, optionally paginated [GET]
+------------------------------------------------------------------------
+
+Request:
+
+    GET ://service/authors/{AUTHOR_ID}/followers/?page={int}&size={int} HTTP/1.1
+
+Sample Input Data:
+
+N/A
