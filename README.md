@@ -39,7 +39,11 @@ Contributors:
 Sources/References
 ==================
 
+https://www.youtube.com/watch?v=NyWY2OktDAs&ab_channel=SsaliJonathan
 
+https://www.django-rest-framework.org/
+
+https://docs.djangoproject.com/en/5.0/
 
 API Documentation
 =================
