@@ -49,7 +49,7 @@ Retrieve list of authors, optionally paginated (GET)
 
 Call:
 
-    GET ://service/authors/?page={int}&size={int}
+    GET ://service/authors/?page={int}&size={int}  HTTP/1.1
     
 Sample Input Data:
 
@@ -86,8 +86,8 @@ Retrieve author with id (GET)
 
 Call:
 
-    GET ://service/authors/{AUTHOR_ID}/
-
+    GET ://service/authors/{AUTHOR_ID} HTTP/1.1
+    
 Sample Input Data:
 
 N/A
