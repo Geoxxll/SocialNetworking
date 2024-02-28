@@ -47,5 +47,12 @@ API Documentation
 Retrieve list of authors, optionally paginated (GET)
 ----------------------------------------------------
 
+Call:
 
+    GET ://service/authors/
 
+Sample Input Data:
+
+N/A
+    
+Sample Output Data:
