@@ -110,7 +110,7 @@ Sample Output Data:
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
     }
 
-Update author information (PUT)
+Update author information [PUT]
 -------------------------------
 
 Request:
@@ -137,3 +137,18 @@ Sample Input Data:
 
 Sample Output Data:
 
+    {
+    "type":"author",
+    // ID of the Author
+    "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    // the home host of the author
+    "host":"http://127.0.0.1:5454/",
+    // the display name of the author
+    "displayName":"Lara Croft",
+    // url to the authors profile
+    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    // HATEOS url for Github API
+    "github": "http://github.com/laracroft",
+    // Image from a public domain
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+    }
