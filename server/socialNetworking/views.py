@@ -24,7 +24,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 
 from django.http import JsonResponse
-from .serializers import AuthorSerializer, FollowerSerializer
+from .serializers import AuthorSerializer, FollowerSerializer, TextPostSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -399,10 +399,10 @@ def authors(request):
 def authors_id(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)
+
         if request.method == 'GET':
             author_serializer = AuthorSerializer(author)
             return Response(author_serializer.data, status=status.HTTP_200_OK)
-        
          
         elif request.method == 'PUT':
             author_serializer = AuthorSerializer(author, data=request.data)
@@ -482,15 +482,30 @@ def posts(request, author_id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def posts_id(request, author_id, post_id):
+    if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
+        post = Post.objects.get(pk=post_id)    
 
-    if request.method == 'GET':
-        return
+        if request.method == 'GET':
+            post_serializer = TextPostSerializer(post)
+            return Response(post_serializer.data, status=status.HTTP_200_OK)
     
-    elif request.method == 'PUT':
-        return
+        elif request.method == 'PUT':
+            post_serializer = TextPostSerializer(post, data=request.data)
+            if post_serializer.is_valid():
+                post_serializer.save()
+                return Response(post_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    elif request.method == 'DELETE':
-        return
+        elif request.method == 'DELETE':
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])

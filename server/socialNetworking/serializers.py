@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models.authors import Author
 from .models.followers import Follower
+from .models.posts import Post
 from .models.comments import Comment
 from .models.likes import Like
 
@@ -15,6 +16,24 @@ class FollowerSerializer(serializers.ModelSerializer):
         model = Follower
         # fields can be reduced later if no need.
         fields = ['type', 'follower', 'followee', 'followed_at']
+
+class TextPostContentField(serializers.Field):
+    def to_representation(self, value):
+        return str(value, 'utf-8')
+    
+    def to_internal_value(self, data):
+        return bytes(data, 'utf-8')
+    
+class TextPostSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='post_id', read_only=True)
+    author = AuthorSerializer(source='author_of_posts', read_only=True)
+    published = serializers.DateTimeField(source='published_at')
+    content = TextPostContentField()
+
+    class Meta:
+        model = Post
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'published', 'visibility']
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(source='comment_author')
