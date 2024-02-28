@@ -385,9 +385,9 @@ def authors(request):
             paginated = Paginator(authors, page_size)
             authors = paginated.get_page(page_number)
 
-        author_serializer = AuthorSerializer(authors, many=True)
+        authors_serialized = AuthorSerializer(authors, many=True)
 
-        output = {'type': 'authors', 'items': author_serializer.data}
+        output = {'type': 'authors', 'items': authors_serialized.data}
         output = json.dumps(output)
         output = json.loads(output)
 
@@ -427,9 +427,14 @@ def followers(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            followers = Follower.objects.filter(followee=author)
-            followers_serializer = FollowerSerializer(followers, many=True)
-            return Response(followers_serializer.data, status=status.HTTP_200_OK)
+            followers = Follower.objects.filter(followee=author).values_list('follower')
+            followers_serialized = AuthorSerializer(followers, many=True)
+
+            output = {'type': 'followers', 'items': followers_serialized.data}
+            output = json.dumps(output)
+            output = json.loads(output)
+
+            return Response(output, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     else:
