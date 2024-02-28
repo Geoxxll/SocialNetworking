@@ -47,9 +47,9 @@ API Documentation
 Retrieve list of authors, optionally paginated (GET)
 ----------------------------------------------------
 
-Call:
+Request:
 
-    GET ://service/authors/?page={int}&size={int}  HTTP/1.1
+    GET ://service/api/authors/?page={int}&size={int}  HTTP/1.1
     
 Sample Input Data:
 
@@ -84,9 +84,9 @@ Sample Output Data:
 Retrieve author with id (GET)
 -----------------------------
 
-Call:
+Request:
 
-    GET ://service/authors/{AUTHOR_ID} HTTP/1.1
+    GET ://service/api/authors/{AUTHOR_ID} HTTP/1.1
     
 Sample Input Data:
 
@@ -109,3 +109,31 @@ Sample Output Data:
     // Image from a public domain
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
     }
+
+Update author information (PUT)
+-------------------------------
+
+Request:
+
+    PUT ://service/api/authors/{AUTHOR_ID} HTTP/1.1
+
+Sample Input Data:
+
+    {
+    "type":"author",
+    // ID of the Author
+    "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    // the home host of the author
+    "host":"http://127.0.0.1:5454/",
+    // the display name of the author
+    "displayName":"Lara Croft",
+    // url to the authors profile
+    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    // HATEOS url for Github API
+    "github": "http://github.com/laracroft",
+    // Image from a public domain
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+    }
+
+Sample Output Data:
+
