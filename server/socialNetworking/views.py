@@ -24,7 +24,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 
 from django.http import JsonResponse
-from .serializers import AuthorSerializer, FollowerSerializer, TextPostSerializer
+from .serializers import AuthorSerializer, FollowerSerializer, TextPostSerializer, CommentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -537,12 +537,34 @@ def image(request, author_id, post_id):
 
 @api_view(['GET', 'POST'])
 def comments(request, author_id, post_id):
+    if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
 
-    if request.method == 'GET':
-        return
+        if request.method == 'GET':
+            post_data = Post.objects.get(pk=post_id)
+            comments = Comment.objects.filter(post=post_data).order_by('-published_at')
+
+            if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
+                page_size = request.GET.get('size')
+                page_number = request.GET.get('page')
+                paginated = Paginator(comments, page_size)
+                comments = paginated.get_page(page_number)
+
+            comments_serialized = CommentSerializer(comments, many=True)
+
+            output = {'type': 'comments', 'items': comments_serialized.data}
+            output = json.dumps(output)
+            output = json.loads(output)
+
+            return Response(output, status=status.HTTP_200_OK)
     
-    elif request.method == 'POST':
-        return
+        elif request.method == 'POST':
+            return
+        
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])

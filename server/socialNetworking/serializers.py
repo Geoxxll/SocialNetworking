@@ -36,9 +36,9 @@ class TextPostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(source='comment_author')
+    author = AuthorSerializer(source='comment_author', read_only=True)
     published = serializers.DateTimeField(source='published_at')
-    id = serializers.UUIDField(source='comment_id')
+    id = serializers.UUIDField(source='comment_id', read_only=True)
 
     class Meta:
         model = Comment
