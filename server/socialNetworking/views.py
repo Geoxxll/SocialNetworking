@@ -472,12 +472,34 @@ def followers_id(request, author_id, foreign_author_id):
 
 @api_view(['GET', 'POST'])
 def posts(request, author_id):
+    if Author.objects.filter(pk=author_id).exists():
 
-    if request.method == 'GET':
-        return
+        if request.method == 'GET':
+            author = Author.objects.get(pk=author_id)
+            posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+
+            if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
+                page_size = request.GET.get('size')
+                page_number = request.GET.get('page')
+                paginated = Paginator(posts, page_size)
+                posts = paginated.get_page(page_number)
+
+            posts_serialized = TextPostSerializer(posts, many=True)
+
+            output = {'type': 'posts', 'items': posts_serialized.data}
+            output = json.dumps(output)
+            output = json.loads(output)
+
+            return Response(output, status=status.HTTP_200_OK)
     
-    elif request.method == 'POST':
-        return
+        elif request.method == 'POST':
+            return
+        
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
