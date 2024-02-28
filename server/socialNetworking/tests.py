@@ -1,3 +1,23 @@
-from django.test import TestCase
+from rest_framework.test import APITestCase, APIRequestFactory
+from django.urls import reverse
+from rest_framework import status
 
-# Create your tests here.
+class UserAuthorTestCase(APITestCase):
+
+    def setUp(self):
+        pass
+
+    def test_author_creation(self):
+        pass
+
+    def test_author_editing(self):
+        pass
+
+    def test_author_list(self):
+        pass
+
+class PostingTestCase(APITestCase):
+    pass
+
+class CommentingTestCase(APITestCase):
+    pass
