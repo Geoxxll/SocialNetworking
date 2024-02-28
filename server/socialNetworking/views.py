@@ -427,7 +427,10 @@ def followers(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            followers = Follower.objects.filter(followee=author).values_list('follower')
+            
+            followers = Author.objects.filter(follower_set__followee= author)
+            #for auth in followers:
+            #    auth = Author.objects.get(pk=auth)
             followers_serialized = AuthorSerializer(followers, many=True)
 
             output = {'type': 'followers', 'items': followers_serialized.data}
