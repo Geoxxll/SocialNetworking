@@ -575,12 +575,12 @@ def accept_friend_request(request, *args, **kwargs):
                 if follow_request:
 
                     # Check if there's already a follower entry
-                    if Follower.objects.filter(follower=object_of_follow, followee=actor).exists():
+                    if Follower.objects.filter(follower=actor, followee=object_of_follow).exists():
                         context['result'] = "You are already following this user"
                         return Response(context, status=status.HTTP_400_BAD_REQUEST)
                     
                     # Create Follower object
-                    follower = Follower.objects.create(follower=object_of_follow, followee=actor)
+                    follower = Follower.objects.create(follower=actor, followee=object_of_follow)
                     serializer = FollowerSerializer(follower)
                     context['result'] = "Successful"
                     # Deactivate the friend request
