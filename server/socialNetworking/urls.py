@@ -4,12 +4,12 @@ from . import views
 
 urlpatterns = [
     # serializer test url
-    path('serializer/authors/', views.authors, name='authors'),
-    path('serializer/authors/<uuid:author_id>/', views.authors_id, name='authorId'),
-    path('serializer/followers/<uuid:author_id>/', views.followers, name='followers'),
-    path('serializer/followers/<uuid:author_id>/<uuid:foreign_author_id>/', views.followers_id, name='followersId'),
+    # path('serializer/authors/', views.authors, name='authors'),
+    # path('serializer/authors/<uuid:author_id>/', views.authors_id, name='authorId'),
+    # path('serializer/followers/<uuid:author_id>/', views.followers, name='followers'),
+    # path('serializer/followers/<uuid:author_id>/<uuid:foreign_author_id>/', views.followers_id, name='followersId'),
 
-
+	
     path('social/', PostListView.as_view(), name='post-list'),
     path('social/accept-request', accept_friend_request, name='accept-friend-request'),
     path('social/post/', AddPostView.as_view(), name='add-post'),
@@ -26,9 +26,10 @@ urlpatterns = [
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/reply', CommentReplyView.as_view(), name='comment-reply'),
     path('social/post/<uuid:pk>/share', SharedPostView.as_view(), name='share-post'),
-    #path("api/authors/", views.authors, name="authors"),
-    #path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
-    #path("api/authors/<uuid:author_id>/followers/", views.followers, name="followers"),
+
+    path("api/authors/", views.authors, name="authors"),
+    path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
+    path("api/authors/<uuid:author_id>/followers/", views.followers, name="followers"),
     #path("api/authors/<uuid:author_id>/followers/<uuid:foreign_author_id>/", views.followers_id, name="followers_id"),
     #path("api/authors/<uuid:author_id>/posts/", views.posts, name="posts"),
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),

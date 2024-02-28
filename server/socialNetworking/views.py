@@ -21,7 +21,7 @@ from .models.authors import Author
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
-
+from django.core.paginator import Paginator
 
 from django.http import JsonResponse
 from .serializers import AuthorSerializer, FollowerSerializer
@@ -378,10 +378,22 @@ class SharedPostView(View):
 def authors(request):
     if request.method == 'GET':
         authors = Author.objects.all()
-        author_serializer = AuthorSerializer(authors, many=True)
-        return Response(author_serializer.data, status=status.HTTP_200_OK)
+
+        if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
+            page_size = request.GET.get('size')
+            page_number = request.GET.get('page')
+            paginated = Paginator(authors, page_size)
+            authors = paginated.get_page(page_number)
+
+        authors_serialized = AuthorSerializer(authors, many=True)
+
+        output = {'type': 'authors', 'items': authors_serialized.data}
+        output = json.dumps(output)
+        output = json.loads(output)
+
+        return Response(output, status=status.HTTP_200_OK)
     else:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET', 'PUT'])
 def authors_id(request, author_id):
@@ -415,9 +427,14 @@ def followers(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            followers = Follower.objects.filter(followee=author)
-            followers_serializer = FollowerSerializer(followers, many=True)
-            return Response(followers_serializer.data, status=status.HTTP_200_OK)
+            followers = Author.objects.filter(follower_set__followee= author)
+            followers_serialized = AuthorSerializer(followers, many=True)
+
+            output = {'type': 'followers', 'items': followers_serialized.data}
+            output = json.dumps(output)
+            output = json.loads(output)
+
+            return Response(output, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     else:
