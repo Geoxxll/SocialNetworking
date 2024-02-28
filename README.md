@@ -176,6 +176,99 @@ Sample Output Data:
     ]
     }
 
+Retrieve post at post_id [GET]
+------------------------------
+
+Request:
+
+    GET ://service/authors/{AUTHOR_ID}/posts/{POST_ID} HTTP/1.1
+
+Sample Input Data:
+
+N/A
+
+Sample Output Data:
+
+    {
+            "type":"post",
+            "title":"A Friendly post 2",
+            "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e"
+            "source":"http://lastplaceigotthisfrom.com/authors/xxxxxx/posts/yyyyy",
+            "origin":"http://whereitcamefrom.com/authors/yyyyyy/posts/zzzzz",
+            "description":"This post discusses nothing -- brief",
+            "contentType":"text/plain",
+            "content":"Much shorter post",
+            "author":{
+                "type":"author",
+                "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "host":"http://127.0.0.1:5454/",
+                "displayName":"Lara Croft",
+                "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "github": "http://github.com/laracroft",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+            },
+            "comments":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e/comments"
+            "published":"2015-03-09T13:07:04+00:00",
+            "visibility":"FRIENDS"
+    }
+
+Update/edit post content [PUT]
+------------------------------
+
+Request:
+
+    PUT ://service/authors/{AUTHOR_ID}/posts/{POST_ID} HTTP/1.1
+
+Sample Input Data:
+
+    {
+            "type":"post",
+            "title":"A Friendly post 2",
+            "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e"
+            "source":"http://lastplaceigotthisfrom.com/authors/xxxxxx/posts/yyyyy",
+            "origin":"http://whereitcamefrom.com/authors/yyyyyy/posts/zzzzz",
+            "description":"This post discusses nothing -- brief",
+            "contentType":"text/plain",
+            "content":"Much shorter post",
+            "author":{
+                "type":"author",
+                "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "host":"http://127.0.0.1:5454/",
+                "displayName":"Lara Croft",
+                "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "github": "http://github.com/laracroft",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+            },
+            "comments":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e/comments"
+            "published":"2015-03-09T13:07:04+00:00",
+            "visibility":"FRIENDS"
+    }
+
+Sample Output Data:
+
+    {
+            "type":"post",
+            "title":"A Friendly post 2",
+            "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e"
+            "source":"http://lastplaceigotthisfrom.com/authors/xxxxxx/posts/yyyyy",
+            "origin":"http://whereitcamefrom.com/authors/yyyyyy/posts/zzzzz",
+            "description":"This post discusses nothing -- brief",
+            "contentType":"text/plain",
+            "content":"Much shorter post",
+            "author":{
+                "type":"author",
+                "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "host":"http://127.0.0.1:5454/",
+                "displayName":"Lara Croft",
+                "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "github": "http://github.com/laracroft",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+            },
+            "comments":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/999999983dda1e11db47671c4a3bbd9e/comments"
+            "published":"2015-03-09T13:07:04+00:00",
+            "visibility":"FRIENDS"
+    }
+    
 Retrieve list of posts by author_id, optionally paginated [GET]
 ---------------------------------------------------------------
 
