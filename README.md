@@ -44,4 +44,8 @@ Sources/References
 API Documentation
 =================
 
+Retrieve list of authors, optionally paginated (GET)
+----------------------------------------------------
+
+
 
