@@ -14,7 +14,8 @@ class Comment(models.Model):
     likes = models.ManyToManyField('Author', blank=True, related_name='comment_likes')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     
-    
+    def __str__(self):
+        return f"{self.comment_id}"
     @property
     def children(self):
         return Comment.objects.filter(parent=self).order_by('-published_at').all()

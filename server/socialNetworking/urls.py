@@ -1,5 +1,22 @@
 from django.urls import path
-from .views import SharedPostView, CommentReplyView,  AddCommentLike, AddLike, DashboardView, CommentDeleteView, PostDeleteView, PostListView, PostDetailView, AddPostView, ProfileEditView,PostEditView,FindFriendsView, send_friend_request,accept_friend_request
+from .views import (
+  SharedPostView, 
+  CommentReplyView,  
+  AddCommentLike, 
+  AddLike, 
+  DashboardView, 
+  CommentDeleteView, 
+  PostDeleteView, 
+  PostListView, 
+  PostDetailView, 
+  AddPostView, 
+  ProfileEditView,
+  PostEditView,
+  FindFriendsView, 
+  send_friend_request,
+  accept_friend_request,
+  InboxView,
+  )
 from . import views
 
 urlpatterns = [
@@ -19,8 +36,8 @@ urlpatterns = [
     path('social/profile/', DashboardView.as_view(), name='profile'),
     path('social/post/edit/<uuid:pk>/', PostEditView.as_view(), name='post-edit'),
     path('social/post/<uuid:pk>/', PostDetailView.as_view(), name='post-detail'),
-	path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
- 	path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
+	  path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
+ 	  path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
     path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
     path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
@@ -38,6 +55,6 @@ urlpatterns = [
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", views.posts_likes, name="posts_likes"),
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
     #path("api/authors/<uuid:author_id>/liked/", views.liked, name="liked"),
-    #path("api/authors/<uuid:author_id>/inbox/", views.inbox, name="inbox"),
-    
+    path("api/authors/<uuid:author_id>/inbox/", InboxView.as_view(), name="get_inbox"),
+    path("api/authors/<uuid:author_id>/inbox/<uuid:item_id>", InboxView.as_view(), name="post_into_inbox"),
 ]

@@ -6,6 +6,7 @@ from .models.posts import Post
 from .models.comments import Comment
 from .models.likes import Like
 from .models.inbox import Inbox
+from .models.inbox_item import InboxItem
 # Register your models here.
 
 admin.site.register(Author)
@@ -15,3 +16,4 @@ admin.site.register(Post)
 admin.site.register(Comment)
 admin.site.register(Like)
 admin.site.register(Inbox)
+admin.site.register(InboxItem)

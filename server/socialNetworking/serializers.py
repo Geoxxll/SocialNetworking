@@ -4,6 +4,8 @@ from .models.followers import Follower
 from .models.posts import Post
 from .models.comments import Comment
 from .models.likes import Like
+from .models.inbox import Inbox
+from .models.inbox_item import InboxItem
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,3 +52,24 @@ class CommentSerializer(serializers.ModelSerializer):
 #    class Meta:
 #        model = Like
 #        fields = ['context', 'summary', 'type', 'author', 'object']
+
+
+class InboxItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InboxItem
+        fields = '__all__'
+
+    def to_representation(self, obj):
+        if isinstance(obj.items, Post):
+            return TextPostSerializer(obj.items).data
+        elif isinstance(obj.items, Comment):
+            return CommentSerializer(obj.items).data
+ 
+class InboxSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inbox
+        fields = '__all__'
+
+
+
+    

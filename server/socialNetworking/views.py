@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
+from rest_framework.views import APIView
 
 import json
 
@@ -13,6 +14,8 @@ from .models.posts import Post
 from .models.comments import Comment
 from .models.followers import Follower
 from .models.follow import Follow
+from .models.inbox import Inbox
+from .models.inbox_item import InboxItem
 from .forms import PostForm, CommentForm, ShareForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
@@ -24,7 +27,14 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 
 from django.http import JsonResponse
-from .serializers import AuthorSerializer, FollowerSerializer, TextPostSerializer, CommentSerializer
+from .serializers import (
+  AuthorSerializer, 
+  FollowerSerializer, 
+  TextPostSerializer, 
+  CommentSerializer,
+  InboxSerializer,
+  InboxItemSerializer,
+  )
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -581,21 +591,6 @@ def comments_likes(request, author_id, post_id, comment_id):
 def liked(request, author_id):
     return
 
-@api_view(['GET', 'POST', 'DELETE'])
-def inbox(request, author_id):
-
-    if request.method == 'GET':
-        return
-    
-    elif request.method == 'POST':
-        return
-    
-    elif request.method == 'DELETE':
-        return
-
-
-
-
 @api_view(['POST']) 
 def send_friend_request(request, *args, **kwargs):
     user = request.user
@@ -676,3 +671,30 @@ def accept_friend_request(request, *args, **kwargs):
     else:
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+    
+class InboxView(APIView):
+    def get(self, request, author_id):
+        author_obj = Author.objects.get(pk=author_id)
+        inbox_obj = self.getInbox(author_id)
+        items_obj = InboxItem.objects.filter(inbox=inbox_obj)
+        serializer = InboxItemSerializer(items_obj, many=True, context={'request':request})
+        data = {
+            'type': 'Inbox',
+            'Author': author_obj.url,
+            'Items': serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def delete(self, request, author_id):
+        inbox_obj = self.getInbox(author_id)
+        items_set = inbox_obj.items.all()
+        items_set.delete()
+        return Response({'message': 'delete successfully'}, status=status.HTTP_204_NO_CONTENT)
+    
+    def post(self, request, author_id):
+        pass
+    
+    def getInbox(self, author_id):
+        inbox_owner = Author.objects.get(pk=author_id)
+        inbox_obj = Inbox.objects.get(inbox_owner=inbox_owner)
+        return inbox_obj
