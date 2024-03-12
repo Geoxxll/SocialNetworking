@@ -74,7 +74,8 @@
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit">
                             <span>Likes</span>
-                            <span>{{ post.likes.all.count }}</span>
+                            <!-- <span>{{ post.likes.all.count }}</span> -->
+                            <span>{{ post.num_likes }}</span>
                         </button>
                     </form>
                     <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>

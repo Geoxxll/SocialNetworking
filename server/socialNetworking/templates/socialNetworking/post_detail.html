@@ -51,18 +51,19 @@
 					<!-- <a href="{% url 'comment-delete' post.pk comment.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a> -->
 					{% endif %}
 					<div>
-						<button class="btn btn-light btn-sm" type="button" onclick="commentReplyToggle('{{ comment.pk }}')">
-							...
+						<button class="btn btn-outline-secondary btn-sm" type="button" onclick="commentReplyToggle('{{ comment.pk }}')">
+							Reply
 						</button>
 					</div>
 				</p>
 				<p>{{ comment.comment }}</p> 
+				<!-- Liking comments -->
 				<form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
 					{% csrf_token %}
 					<input type="hidden" name="next" value="{{ request.path }}">
 					<button class="btn btn-success btn-sm" type="submit">
 						<span>Like</span>
-						<span>{{ comment.likes.all.count }}</span>
+						<span>{{ comment.num_likes }}</span>
 					</button>
 				</form>
 			</div>
@@ -79,6 +80,7 @@
 				</div>
 			</div>
 		</div>
+		<!-- To show child comments -->
 			{% for child_comment in comment.children %}
 			<div class="row justify-content-center mt-3 mb-5 child-comment">
 				<div class="col-md-5 col-sm-12 border-bottom">

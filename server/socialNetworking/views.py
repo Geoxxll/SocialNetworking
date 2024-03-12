@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
 from django.contrib.contenttypes.models import ContentType
@@ -16,6 +16,7 @@ from .models.posts import Post
 from .models.comments import Comment
 from .models.followers import Follower
 from .models.follow import Follow
+from .models.likes import Like
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
 from .forms import PostForm, CommentForm, ShareForm
@@ -337,6 +338,23 @@ class AddCommentLike(LoginRequiredMixin, View):
         next = request.POST.get('next', '/')
         return HttpResponseRedirect(next)
     
+def commentLike(request,post_pk, pk):
+    # post = get_object_or_404(Post, pk=post_pk)
+    author, created = Author.objects.get_or_create(user=request.user)
+    comment = Comment.objects.get(pk=pk)
+    current_likes = comment.num_likes
+    liked = Like.objects.filter(author_like = author, like_comment = comment).count()
+    
+    if not liked:
+        liked = Like.objects.create(author_like = author, like_comment = comment)
+        current_likes+=1
+    else:
+        liked = Like.objects.filter(author_like = author, like_comment = comment).delete()
+        current_likes-=1
+    comment.num_likes=current_likes 
+    comment.save()
+    return HttpResponseRedirect(reverse_lazy('post-detail', kwargs={'pk': post_pk}))
+
 class CommentReplyView(View):
     def post(self, request, post_pk, pk, *args, **kwargs):
         post = Post.objects.get(pk=post_pk)
@@ -384,8 +402,23 @@ class SharedPostView(View):
             
         return redirect('post-list')
 
+def like(request, pk,*args, **kwargs):
+    print("Hereee123")
+    author, created = Author.objects.get_or_create(user=request.user)
+    post = get_object_or_404(Post, pk=pk)
+    current_likes = post.num_likes
+    liked = Like.objects.filter(author_like = author, like_post = post).count()
     
-
+    if not liked:
+        liked = Like.objects.create(author_like = author, like_post = post)
+        current_likes+=1
+    else:
+        liked = Like.objects.filter(author_like = author, like_post = post).delete()
+        current_likes-=1
+    post.num_likes=current_likes 
+    post.save()
+    
+    return HttpResponseRedirect(reverse_lazy('post-list'))
 
 @api_view(['GET'])
 def authors(request):

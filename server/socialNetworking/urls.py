@@ -1,4 +1,5 @@
 from django.urls import path
+from socialNetworking import views
 from .views import (
   SharedPostView, 
   CommentReplyView,  
@@ -39,8 +40,13 @@ urlpatterns = [
 	  path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
  	  path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
     path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
-    path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
-    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
+    
+    # path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
+    path('social/post/<uuid:pk>/like', views.like, name='like'),
+    
+    # path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
+    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', views.commentLike, name='comment-like'),
+
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/reply', CommentReplyView.as_view(), name='comment-reply'),
     path('social/post/<uuid:pk>/share', SharedPostView.as_view(), name='share-post'),
 
