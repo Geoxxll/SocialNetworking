@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
+from django.contrib.contenttypes.models import ContentType
 
 import json
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 
 from django.utils import timezone
 from django.views import View
@@ -68,6 +70,7 @@ class AddPostView(View):
             author_instance = Author.objects.get(user=user_instance)
             new_post = form.save(commit=False)
             new_post.author_of_posts = author_instance
+            new_post.url = author_instance.url + "/posts/" + str(new_post.post_id)
             new_post.save()
             
             # Create a new, empty form after successfully saving the post
@@ -687,14 +690,46 @@ class InboxView(APIView):
 
     def delete(self, request, author_id):
         inbox_obj = self.getInbox(author_id)
-        items_set = inbox_obj.items.all()
+        items_set = inbox_obj.item.all()
         items_set.delete()
         return Response({'message': 'delete successfully'}, status=status.HTTP_204_NO_CONTENT)
     
     def post(self, request, author_id):
-        pass
+        author_obj = Author.objects.get(pk=author_id)
+        inbox_obj = self.getInbox(author_id)
+        data = request.data
+        item_url = data["id"]
+        if data["type"] == "post":
+            item_url_list = item_url.split("/")
+            index_of_posts = item_url_list.index("posts")
+            post_id = item_url_list[index_of_posts + 1]
+            post_obj = Post.objects.get(post_id=post_id)
+            post_serializer = TextPostSerializer(post_obj, data=data)
+            if post_serializer.is_valid():
+                content_type = ContentType.objects.get_for_model(post_obj)
+                new_inbox_item = InboxItem(
+                    items_content_type=content_type, 
+                    items_object_id=post_id
+                )
+                new_inbox_item.save()
+                inbox_obj.item.add(new_inbox_item)
+                inbox_serializer = InboxSerializer(inbox_obj)
+                inbox_data = inbox_serializer.data
+                inbox_data['inbox_owner'] = author_obj.url
+                return Response(inbox_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif data["type"] == "follow":
+            pass
+        elif data["type"] == "Like":
+            pass
+        elif data["type"] == "comment":
+            pass
+        else:
+            return Response({"error": "Item type is not indentified."}, status=status.HTTP_400_BAD_REQUEST)
     
     def getInbox(self, author_id):
-        inbox_owner = Author.objects.get(pk=author_id)
+        inbox_owner = get_object_or_404(Author, pk=author_id)
         inbox_obj = Inbox.objects.get(inbox_owner=inbox_owner)
         return inbox_obj

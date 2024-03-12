@@ -27,10 +27,10 @@ class TextPostContentField(serializers.Field):
         return bytes(data, 'utf-8')
     
 class TextPostSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(source='post_id', read_only=True)
+    id = serializers.URLField(source='url', read_only=True)
     author = AuthorSerializer(source='author_of_posts', read_only=True)
     published = serializers.DateTimeField(source='published_at')
-    content = TextPostContentField()
+
 
     class Meta:
         model = Post
@@ -64,11 +64,12 @@ class InboxItemSerializer(serializers.ModelSerializer):
             return TextPostSerializer(obj.items).data
         elif isinstance(obj.items, Comment):
             return CommentSerializer(obj.items).data
- 
+
 class InboxSerializer(serializers.ModelSerializer):
+    item = InboxItemSerializer(many=True, read_only=True)
     class Meta:
         model = Inbox
-        fields = '__all__'
+        fields = ['type', 'inbox_owner', 'item']
 
 
 
