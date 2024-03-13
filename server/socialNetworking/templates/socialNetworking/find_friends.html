@@ -52,6 +52,41 @@
 
         </div>
 
+        <div id="sidebar-container">
+            <div class="sidebar">
+                <!-- notification bar -->
+                <div id="follow_request" class="static-box">
+                    <h2>Follow Requests</h2>
+                    <div>
+                        {% for follow_request in follow_requests %}
+                            <hr>
+                            <div>
+                                <h3>{{ follow_request.actor.displayName }}</h3>
+                                <button class="accept-button" data-user-id="{{ follow_request.actor.id }}">Accept</button>
+        
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="notification" class="static-box">
+                    <h2>Notifications</h2>
+                    <div>
+                        <hr>
+                        <h4>User 01 liked your post</h4>
+                        <hr>
+                        <h4>User 07 liked your post</h4>
+                        <hr>
+                        <h4>User 08 liked your post</h4>
+                        <hr>
+                        <h4>User 09 liked your post</h4>
+                        <hr>
+                        <h4>User 10 liked your post</h4>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
