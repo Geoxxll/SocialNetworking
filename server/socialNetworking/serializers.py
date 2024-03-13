@@ -30,7 +30,7 @@ class TextPostSerializer(serializers.ModelSerializer):
     id = serializers.URLField(source='url', read_only=True)
     author = AuthorSerializer(source='author_of_posts', read_only=True)
     published = serializers.DateTimeField(source='published_at')
-
+    content = TextPostContentField()
 
     class Meta:
         model = Post
