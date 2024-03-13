@@ -49,10 +49,12 @@ class AddPostView(View):
     def get(self, request, *args, **kwargs):
         # posts = Post.objects.all().order_by('-published_at')
         form = PostForm()
+        follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
 
         context = {
             
             'form': form,
+            'follow_requests': follow_requests,
         }
 
         # return render(request, 'socialNetworking/post_list.html', context)
@@ -97,9 +99,12 @@ class FindFriendsView(View):
         else:
             # Retrieve all users if no search query provided
             all_users = Author.objects.all().order_by('-displayName')
+                
+        follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+
         context = { 
             'user_list': all_users,
-            # 'form' : form,
+            'follow_requests': follow_requests,
         }
 
         

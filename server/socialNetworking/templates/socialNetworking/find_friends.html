@@ -2,8 +2,7 @@
 {% load static %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
+
 
 <head>
     <meta charset="UTF-8">
@@ -14,126 +13,126 @@
     <link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/notification.css' %}">
 </head>
 
-<body>
 
-    <div id="content-container">
 
-        <div id="left-content-container" class="left-content">
+<div id="content-container">
 
-            <div id="navigation-container" class="left-content">
-                <button><a href="{% url 'post-list' %}">Dashboard</a></button>
-                <button style="background-color: #4d7b42;border-radius: 10px;"><a href="{% url 'find-friends' %}">Find Friends</a></button>
-                <!-- <button><a href="{% url 'profile' %}">Profile</a></button> -->
-                <button><a href="{% url 'add-post' %}">Post</a></button>
-            </div>
-        
-            <!-- Search Bar Form -->
-            <div id="search-container" class="left-content">
-                <form method="GET">
-                    <input type="text" name="query" placeholder="Search..." class="search-input">
-                    <button type="submit" class="search-button">Search</button>
-                </form>
-            </div>
+    <div id="left-content-container" class="left-content">
 
-            <div id="userList-container" class="left-content">
+        <div id="navigation-container" class="left-content">
+            <button><a href="{% url 'post-list' %}">Dashboard</a></button>
+            <button style="background-color: #4d7b42;border-radius: 10px;"><a href="{% url 'find-friends' %}">Find Friends</a></button>
+            <!-- <button><a href="{% url 'profile' %}">Profile</a></button> -->
+            <button><a href="{% url 'add-post' %}">Post</a></button>
+        </div>
+    
+        <!-- Search Bar Form -->
+        <div id="search-container" class="left-content">
+            <form method="GET">
+                <input type="text" name="query" placeholder="Search..." class="search-input">
+                <button type="submit" class="search-button">Search</button>
+            </form>
+        </div>
 
-                <!-- user list -->
-                {% for user in user_list %}
-                    {% if user.displayName != request.user.username %}
+        <div id="userList-container" class="left-content">
 
-                        <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
-                            <span>{{ user.displayName }}</span>
-                            <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
-                        </div>
-                    {% endif %}
-                {% endfor %}
+            <!-- user list -->
+            {% for user in user_list %}
+                {% if user.displayName != request.user.username %}
 
-            </div>
+                    <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
+                        <span>{{ user.displayName }}</span>
+                        <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                    </div>
+                {% endif %}
+            {% endfor %}
 
         </div>
 
-        <div id="sidebar-container">
-            <div class="sidebar">
-                <!-- notification bar -->
-                <div id="follow_request" class="static-box">
-                    <h2>Follow Requests</h2>
-                    <div>
-                        {% for follow_request in follow_requests %}
-                            <hr>
-                            <div>
-                                <h3>{{ follow_request.actor.displayName }}</h3>
-                                <button class="accept-button" data-user-id="{{ follow_request.actor.id }}">Accept</button>
-        
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+    </div>
 
-                <div id="notification" class="static-box">
-                    <h2>Notifications</h2>
-                    <div>
+    <div id="sidebar-container">
+        <div class="sidebar">
+            <!-- notification bar -->
+            <div id="follow_request" class="static-box">
+                <h2>Follow Requests</h2>
+                <div>
+                    {% for follow_request in follow_requests %}
                         <hr>
-                        <h4>User 01 liked your post</h4>
-                        <hr>
-                        <h4>User 07 liked your post</h4>
-                        <hr>
-                        <h4>User 08 liked your post</h4>
-                        <hr>
-                        <h4>User 09 liked your post</h4>
-                        <hr>
-                        <h4>User 10 liked your post</h4>
-                        <hr>
-                    </div>
+                        <div>
+                            <h3>{{ follow_request.actor.displayName }}</h3>
+                            <button class="accept-button" data-user-id="{{ follow_request.actor.id }}">Accept</button>
+    
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
 
-    </div>
+            <div id="notification" class="static-box">
+                <h2>Notifications</h2>
+                <div>
+                    <hr>
+                    <h4>User 01 liked your post</h4>
+                    <hr>
+                    <h4>User 07 liked your post</h4>
+                    <hr>
+                    <h4>User 08 liked your post</h4>
+                    <hr>
+                    <h4>User 09 liked your post</h4>
+                    <hr>
+                    <h4>User 10 liked your post</h4>
+                    <hr>
+                </div>
+            </div>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript">
-        function onFriendRequestSent(){
-            location.reload();
-        }
+</div>
+</div>
 
-        $(document).ready(function() {
-            $(".send-request-button").on("click", function() {
-                
-                var userId = $(this).data("user-id");
-                sendFriendRequest(userId, onFriendRequestSent);
-            });
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    function onFriendRequestSent(){
+        location.reload();
+    }
+
+    $(document).ready(function() {
+        $(".send-request-button").on("click", function() {
+            
+            var userId = $(this).data("user-id");
+            sendFriendRequest(userId, onFriendRequestSent);
         });
+    });
 
-        function sendFriendRequest(id, uiUpdateFunction){
-            var context = {
-                "csrfmiddlewaretoken" : "{{csrf_token}}",
-                "receiver_user_id" : id, 
-            };
-            var csrfToken = "{{ csrf_token }}";
-            $.ajax({
-                type : "POST",
-                dataType : "json",
-                data: {
-                    "csrfmiddlewaretoken": csrfToken,
-                    "receiver_user_id": id,
-                },
-                url : "{% url 'send-friend-request' %}",
-                timeout : 5000,
-                success: function(data){
-                    if (data['result'] == "Successful"){
-                        // Handle success
-                    }
-                },
-                error: function(data){
-                    // Handle error
-                },
-                complete: function(data){
-                    uiUpdateFunction();
+    function sendFriendRequest(id, uiUpdateFunction){
+        var context = {
+            "csrfmiddlewaretoken" : "{{csrf_token}}",
+            "receiver_user_id" : id, 
+        };
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type : "POST",
+            dataType : "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "receiver_user_id": id,
+            },
+            url : "{% url 'send-friend-request' %}",
+            timeout : 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
                 }
-            });
-        }
-    </script>
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+</script>
 
-</body>
 
-</html>
+
 {% endblock %}
