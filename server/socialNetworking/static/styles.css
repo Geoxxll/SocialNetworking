@@ -160,7 +160,7 @@ body {
     border-radius: 10px;
     margin-top: 20px;
     overflow: hidden;
-    justify-content: center;
+    justify-content: space-evenly;
 }
 
 #left-content-container {
@@ -240,7 +240,7 @@ body {
 }
 
 #navigation-container>button {
-    width: 25%;
+    width: 33.33%;
     padding: 16px;
     border: none;
     background-color: transparent;
