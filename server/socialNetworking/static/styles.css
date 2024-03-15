@@ -343,3 +343,21 @@ body {
     border-radius: 5px;
     cursor: pointer;
 }
+
+
+.toggleOption {
+    padding: 5px 10px; /* Add padding for better appearance */
+    cursor: pointer; /* Change cursor to pointer */
+    border: 1px solid transparent; /* Set default border */
+  }
+  
+  /* Styling for selected option */
+  .toggleOption.selected {
+    border: 2px solid green; /* Add border for selected option */
+    color: green; /* Change color to green for selected option */
+  }
+
+
+.postOption {
+    text-align: center;
+}

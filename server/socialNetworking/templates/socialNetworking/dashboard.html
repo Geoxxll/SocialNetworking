@@ -28,6 +28,18 @@
                 <button><a href="{% url 'add-post' %}">Post</a></button>
             </div>
 
+            <div class="postOption">           
+                <label class="toggleOption" id="toggleOptionFriends">
+                    <input type="radio" name="toggleOption" value="friends" checked> Friends
+                </label>
+                <label class="toggleOption" id="toggleOptionAll">
+                    <input type="radio" name="toggleOption" value="all"> All
+                </label>
+            </div>
+            
+            <div id="posts-section">
+                <!-- This is where the posts will be displayed -->
+
             {% for post in post_list %}
             <!-- Post Container -->
             <div class="post-container left-content" style="display: flex; justify-content: space-between;">
@@ -86,6 +98,9 @@
                 </div>
             </div>
             {% endfor %}
+
+        </div>
+
         </div>
     
         <div id="sidebar-container">
@@ -177,7 +192,27 @@
         }
     </script>
     
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('input[name="toggleOption"]').forEach(function(input) {
+            input.addEventListener('change', function() {
+              var showFriendsPosts = this.value === 'friends'; // true if toggle is on (friends' posts), false otherwise
+      
+              // Send an AJAX request to your Django view to fetch posts based on the user's choice
+              var xhr = new XMLHttpRequest();
+              xhr.open('GET', '/social/?toggleOption=' + (showFriendsPosts ? 'friends' : 'all'), true);
+              xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                  // Update the posts section of your page with the returned data
+                  document.getElementById('posts-section').innerHTML = xhr.responseText;
+                }
+              };
+              xhr.send();
+            });
+          });
+        });
+      </script>
+      
 
  {% endblock %}
 

@@ -113,7 +113,41 @@ class FindFriendsView(View):
 
 class PostListView(View):
     def get(self, request, *args, **kwargs):
+        toggle_option = request.GET.get('toggleOption')
+        print(toggle_option)
+        show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
+
         posts = Post.objects.all().order_by('-published_at')
+
+        friend_posts = []
+        visible_posts = []
+        print("Printing TYPE", type(request.user))
+        currentUser_asAuthor = Author.objects.get(user=request.user)
+
+        for post in posts:
+            if post.visibility == 'PUBLIC':
+                visible_posts.append(post)
+                if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                    friend_posts.append(post)
+            elif post.visibility == 'FRIENDS':
+                if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                    visible_posts.append(post)
+                    friend_posts.append(post)
+            elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                if post.author_of_posts.user == request.user:
+                    visible_posts.append(post)
+                    friend_posts.append(post)
+        
+        if toggle_option == 'friends':
+            posts = friend_posts
+            template_name = 'socialNetworking/replace_post.html'
+        elif toggle_option == 'all':
+            posts = visible_posts
+            template_name = 'socialNetworking/replace_post.html'
+        else:
+            posts = friend_posts
+            template_name = 'socialNetworking/dashboard.html'
+
         form = PostForm()
         share_form = ShareForm()
         
@@ -123,7 +157,7 @@ class PostListView(View):
             post_comments[post.post_id] = comments
 
         follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
-            
+
         context = {
             'post_list': posts,
             'form': form,
@@ -132,7 +166,10 @@ class PostListView(View):
             'follow_requests' : follow_requests
         }
 
-        return render(request, 'socialNetworking/dashboard.html', context)
+       
+        
+        return render(request, template_name, context)
+
     
 class PostDetailView(View):
     def get(self, request, pk, *args, **kwargs):
