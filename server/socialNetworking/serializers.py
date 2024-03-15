@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models.authors import Author
 from .models.followers import Follower
+from .models.follow import Follow
 from .models.posts import Post
 from .models.comments import Comment
 from .models.likes import Like
@@ -8,6 +9,8 @@ from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
 
 class AuthorSerializer(serializers.ModelSerializer):
+    id = serializers.URLField(source='url', read_only=True)
+
     class Meta:
         model = Author
         # fields can be reduced later if no need.
@@ -18,6 +21,14 @@ class FollowerSerializer(serializers.ModelSerializer):
         model = Follower
         # fields can be reduced later if no need.
         fields = ['type', 'follower', 'followee', 'followed_at']
+
+class FollowSerializer(serializers.ModelSerializer):
+    actor = AuthorSerializer(source='actor', read_only=True)
+    object = AuthorSerializer(source='object_of_follow', read_only=True)
+
+    class Meta:
+        model = Follow
+        fields = ['type', 'summary', 'actor', 'object']
 
 class TextPostContentField(serializers.Field):
     def to_representation(self, value):
@@ -40,18 +51,18 @@ class TextPostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(source='comment_author', read_only=True)
     published = serializers.DateTimeField(source='published_at')
-    id = serializers.UUIDField(source='comment_id', read_only=True)
+    id = serializers.URLField(source='url', read_only=True)
 
     class Meta:
         model = Comment
         fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
 
-# class LikeSerializer(serializers.ModelSerializer):
-#    author = AuthorSerializer(source='author_like')
-#
-#    class Meta:
-#        model = Like
-#        fields = ['context', 'summary', 'type', 'author', 'object']
+class LikeSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(source='author_like')
+
+    class Meta:
+        model = Like
+        fields = ['context', 'summary', 'type', 'author', 'object']
 
 
 class InboxItemSerializer(serializers.ModelSerializer):

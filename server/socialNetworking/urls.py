@@ -16,7 +16,6 @@ from .views import (
   FindFriendsView, 
   send_friend_request,
   accept_friend_request,
-  InboxView,
   )
 from . import views
 
@@ -61,6 +60,6 @@ urlpatterns = [
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", views.posts_likes, name="posts_likes"),
     #path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
     #path("api/authors/<uuid:author_id>/liked/", views.liked, name="liked"),
-    path("api/authors/<uuid:author_id>/inbox/", InboxView.as_view(), name="get_inbox"),
+    #path("api/authors/<uuid:author_id>/inbox/", views.inbox, name="inbox"),
     #path("api/authors/<uuid:author_id>/inbox/", InboxView.as_view(), name="post_into_inbox"),
 ]

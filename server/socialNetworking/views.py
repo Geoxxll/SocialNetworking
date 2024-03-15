@@ -439,8 +439,6 @@ def authors(request):
         authors_serialized = AuthorSerializer(authors, many=True)
 
         output = {'type': 'authors', 'items': authors_serialized.data}
-        output = json.dumps(output)
-        output = json.loads(output)
 
         return Response(output, status=status.HTTP_200_OK)
     else:
@@ -482,8 +480,6 @@ def followers(request, author_id):
             followers_serialized = AuthorSerializer(followers, many=True)
 
             output = {'type': 'followers', 'items': followers_serialized.data}
-            output = json.dumps(output)
-            output = json.loads(output)
 
             return Response(output, status=status.HTTP_200_OK)
         else:
@@ -538,8 +534,6 @@ def posts(request, author_id):
             posts_serialized = TextPostSerializer(posts, many=True)
 
             output = {'type': 'posts', 'items': posts_serialized.data}
-            output = json.dumps(output)
-            output = json.loads(output)
 
             return Response(output, status=status.HTTP_200_OK)
     
@@ -632,6 +626,30 @@ def comments_likes(request, author_id, post_id, comment_id):
 def liked(request, author_id):
     return
 
+@api_view(['GET', 'POST', 'DELETE'])
+def inbox(request, author_id):
+    if Author.objects.filter(pk=author_id).exists():
+        author = Author.objects.get(pk=author_id)
+
+        if request.method == 'GET':
+            inb_Posts = author.postInbox.all().order_by('published_at')
+            inb_Comments = author.commentInbox.all().order_by('published_at')
+            inb_Likes = author.likeInbox.all().order_by('date')
+            inb_Follows = author.followInbox.all().order_by('published_at')
+
+        elif request.method == 'POST':
+            pass
+
+        elif request.method == 'DELETE':
+            pass
+
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
 @api_view(['POST']) 
 def send_friend_request(request, *args, **kwargs):
     user = request.user
@@ -712,62 +730,3 @@ def accept_friend_request(request, *args, **kwargs):
     else:
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
-    
-class InboxView(APIView):
-    def get(self, request, author_id):
-        author_obj = Author.objects.get(pk=author_id)
-        inbox_obj = self.getInbox(author_id)
-        items_obj = InboxItem.objects.filter(inbox=inbox_obj)
-        serializer = InboxItemSerializer(items_obj, many=True, context={'request':request})
-        data = {
-            'type': 'Inbox',
-            'Author': author_obj.url,
-            'Items': serializer.data
-        }
-        return Response(data, status=status.HTTP_200_OK)
-
-    def delete(self, request, author_id):
-        inbox_obj = self.getInbox(author_id)
-        items_set = inbox_obj.item.all()
-        items_set.delete()
-        return Response({'message': 'delete successfully'}, status=status.HTTP_204_NO_CONTENT)
-    
-    def post(self, request, author_id):
-        author_obj = Author.objects.get(pk=author_id)
-        inbox_obj = self.getInbox(author_id)
-        data = request.data
-        item_url = data["id"]
-        if data["type"] == "post":
-            item_url_list = item_url.split("/")
-            index_of_posts = item_url_list.index("posts")
-            post_id = item_url_list[index_of_posts + 1]
-            post_obj = Post.objects.get(post_id=post_id)
-            post_serializer = TextPostSerializer(post_obj, data=data)
-            if post_serializer.is_valid():
-                content_type = ContentType.objects.get_for_model(post_obj)
-                new_inbox_item = InboxItem(
-                    items_content_type=content_type, 
-                    items_object_id=post_id
-                )
-                new_inbox_item.save()
-                inbox_obj.item.add(new_inbox_item)
-                inbox_serializer = InboxSerializer(inbox_obj)
-                inbox_data = inbox_serializer.data
-                inbox_data['inbox_owner'] = author_obj.url
-                return Response(inbox_data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        elif data["type"] == "follow":
-            pass
-        elif data["type"] == "Like":
-            pass
-        elif data["type"] == "comment":
-            pass
-        else:
-            return Response({"error": "Item type is not indentified."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def getInbox(self, author_id):
-        inbox_owner = get_object_or_404(Author, pk=author_id)
-        inbox_obj = Inbox.objects.get(inbox_owner=inbox_owner)
-        return inbox_obj
