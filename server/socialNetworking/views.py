@@ -114,14 +114,12 @@ class FindFriendsView(View):
 class PostListView(View):
     def get(self, request, *args, **kwargs):
         toggle_option = request.GET.get('toggleOption')
-        print(toggle_option)
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
 
         posts = Post.objects.all().order_by('-published_at')
 
         friend_posts = []
         visible_posts = []
-        print("Printing TYPE", type(request.user))
         currentUser_asAuthor = Author.objects.get(user=request.user)
 
         for post in posts:
