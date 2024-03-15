@@ -10,6 +10,7 @@ class Follow(models.Model):
     actor = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='actor_follow_set')
     object_of_follow = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='object_of_follow_set')
     active = models.BooleanField(default=True)
+    date = models.DateTimeField(auto_now_add=True, null=True)
 
 
     def __str__(self):
