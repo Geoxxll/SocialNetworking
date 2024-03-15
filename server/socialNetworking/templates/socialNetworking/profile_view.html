@@ -39,8 +39,10 @@
 		{% for post in post_list %}
 		<div class="row mt-3">
 			<div class="col-sm-12 border-bottom position-relative">
-				<a href="{% url 'post-edit' post.pk %}">Edit</a>
-				<a href="{% url 'post-delete' post.pk %}">Delete</a>
+				{% if author.user == request.user %}
+					<a href="{% url 'post-edit' post.pk %}">Edit</a>
+					<a href="{% url 'post-delete' post.pk %}">Delete</a>
+				{% endif %}
 				<p>{{ post.published_at }}</p>
 				<p>{{ post.description }}</p>
 				<!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->

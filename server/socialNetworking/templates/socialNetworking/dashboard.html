@@ -40,65 +40,64 @@
             <div id="posts-section">
                 <!-- This is where the posts will be displayed -->
 
-            {% for post in post_list %}
-            <!-- Post Container -->
-            <div class="post-container left-content" style="display: flex; justify-content: space-between;">
-                <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-                <!-- When user shares a post -->
-                
-                {% if post.shared_body %}
-                    <div>
-                        <b>{{ post.shared_user }} </b> reposted at <i>{{ post.shared_on }}</i>
-                        <p><i>{{ post.shared_body }}</i></p>
-                    </div>
-                    <hr>
-                    <div>
-                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
-                        <p><b>Description: </b>{{ post.description }}</p>
-                        <p><b>Date: </b><i>{{ post.published_at }}</i></p>
-                    </div>
-                {% else %}
-                    <div class="post-content">
-                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
-                        <p><b>Description: </b>{{ post.description }}</p>
-                        <p><b>Date: </b><i>{{ post.published_at }}</i></p>
-                    </div>
-                {% endif %}
-                
-                <!-- To print child comments:
-                <b>Comments:</b>
-                    {% for comment in post.comment_set.all %}
-                        <p>{{ comment.comment }} - {{ comment.comment_author }} 
-                            <form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.path }}">
-                                <button class="btn btn-success btn-sm" type="submit">
-                                    <span>Like</span>
-                                    <span>{{ comment.likes.all.count }}</span>
-                                </button>
-                            </form>
-                        </p>
-                    {% endfor %}
-                 -->
-                <div class="post-buttons">                  
-                    <form method="POST" action="{% url 'like' post.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit">
-                            <span>Likes</span>
-                            <!-- <span>{{ post.likes.all.count }}</span> -->
-                            <span>{{ post.num_likes }}</span>
-                        </button>
-                    </form>
-                    <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
-                    <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
-                    <!-- Form for reposting -->
+                {% for post in post_list %}
+                <!-- Post Container -->
+                <div class="post-container left-content" style="display: flex; justify-content: space-between;">
+                    <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+                    <!-- When user shares a post -->
                     
+                    {% if post.shared_body %}
+                        <div>
+                            <b>{{ post.shared_user }} </b> reposted at <i>{{ post.shared_on }}</i>
+                            <p><i>{{ post.shared_body }}</i></p>
+                        </div>
+                        <hr>
+                        <div>
+                            <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
+                            <p><b>Description: </b>{{ post.description }}</p>
+                            <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                        </div>
+                    {% else %}
+                        <div class="post-content">
+                            <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
+                            <p><b>Description: </b>{{ post.description }}</p>
+                            <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                        </div>
+                    {% endif %}
                     
+                    <!-- To print child comments:
+                    <b>Comments:</b>
+                        {% for comment in post.comment_set.all %}
+                            <p>{{ comment.comment }} - {{ comment.comment_author }} 
+                                <form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    <button class="btn btn-success btn-sm" type="submit">
+                                        <span>Like</span>
+                                        <span>{{ comment.likes.all.count }}</span>
+                                    </button>
+                                </form>
+                            </p>
+                        {% endfor %}
+                     -->
+                    <div class="post-buttons">                  
+                        <form method="POST" action="{% url 'like' post.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit">
+                                <span>Likes</span>
+                                <!-- <span>{{ post.likes.all.count }}</span> -->
+                                <span>{{ post.num_likes }}</span>
+                            </button>
+                        </form>
+                        <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
+                        <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
+                        <!-- Form for reposting -->
+                        
+                        
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
-
+        {% endfor %}
         </div>
 
         </div>
