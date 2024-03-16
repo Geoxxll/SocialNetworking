@@ -361,3 +361,12 @@ body {
 .postOption {
     text-align: center;
 }
+
+.profile-link {
+    text-decoration: none; 
+    color: black;
+}
+
+.profile-link:hover {
+    color: rgb(0, 70, 0); /* Change text color to dark green on hover */
+}

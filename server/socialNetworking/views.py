@@ -3,7 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
 from django.contrib.contenttypes.models import ContentType
-
+from django.db.models import F
 import json
 
 from rest_framework.decorators import api_view
@@ -117,56 +117,61 @@ class PostListView(View):
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
 
         posts = Post.objects.all().order_by('-published_at')
+        print("ALL POSTS:",posts)
 
         friend_posts = []
         visible_posts = []
         currentUser_asAuthor = Author.objects.get(user=request.user)
-
-        for post in posts:
-            if post.visibility == 'PUBLIC':
-                visible_posts.append(post)
-                if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                    friend_posts.append(post)
-            elif post.visibility == 'FRIENDS':
-                if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                    visible_posts.append(post)
-                    friend_posts.append(post)
-            elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
-                if post.author_of_posts.user == request.user:
-                    visible_posts.append(post)
-                    friend_posts.append(post)
         
-        if toggle_option == 'friends':
-            posts = friend_posts
-            template_name = 'socialNetworking/replace_post.html'
-        elif toggle_option == 'all':
-            posts = visible_posts
-            template_name = 'socialNetworking/replace_post.html'
+        # for admin access
+        if currentUser_asAuthor.is_approved:
+            for post in posts:
+                if post.visibility == 'PUBLIC':
+                    visible_posts.append(post)
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        friend_posts.append(post)
+                elif post.visibility == 'FRIENDS':
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        visible_posts.append(post)
+                        friend_posts.append(post)
+                elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                    if post.author_of_posts.user == request.user:
+                        visible_posts.append(post)
+                        friend_posts.append(post)
+            
+            if toggle_option == 'friends':
+                posts = friend_posts
+                template_name = 'socialNetworking/replace_post.html'
+            elif toggle_option == 'all':
+                posts = visible_posts
+                template_name = 'socialNetworking/replace_post.html'
+            else:
+                posts = friend_posts
+                template_name = 'socialNetworking/dashboard.html'
+            
+            form = PostForm()
+            share_form = ShareForm()
+            
+            post_comments = {}
+            for post in posts:
+                comments = Comment.objects.filter(post=post).order_by('-published_at')
+                post_comments[post.post_id] = comments
+
+            follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+
+            context = {
+                'post_list': posts,
+                'form': form,
+                'post_comments': post_comments,
+                'shareform': share_form,
+                'follow_requests' : follow_requests
+            }
+
+        
+            
+            return render(request, template_name, context)
         else:
-            posts = friend_posts
-            template_name = 'socialNetworking/dashboard.html'
-
-        form = PostForm()
-        share_form = ShareForm()
-        
-        post_comments = {}
-        for post in posts:
-            comments = Comment.objects.filter(post=post).order_by('-published_at')
-            post_comments[post.post_id] = comments
-
-        follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
-
-        context = {
-            'post_list': posts,
-            'form': form,
-            'post_comments': post_comments,
-            'shareform': share_form,
-            'follow_requests' : follow_requests
-        }
-
-       
-        
-        return render(request, template_name, context)
+            return render(request, 'socialNetworking/waiting_approval.html')
 
     
 class PostDetailView(View):
@@ -273,7 +278,112 @@ class DashboardView(View):
                 except:
                     print("Unable to fetch the commits!")
 
+        shared_posts  = Post.objects.filter(
+            shared_user=request.user,
+            
+        )
+        
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
+        form = PostForm()
+        
+        print("Shared",shared_posts)
+        context = {
+            'post_list': posts,
+            'form': form,
+            'author': author,
+            'shared_posts':shared_posts,
+        }
+
+        return render(request, 'socialNetworking/profile_view.html', context)
+    
+
+class User_Profile(View):
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        author = get_object_or_404(Author, pk=pk)
+        last_commit_fetch = author.lastCommitFetch
+        if author.github:
+            if not last_commit_fetch:
+                try:
+                    url = "https://api.github.com/search/commits?q=author:{} author-date:>={}&sort=author-date&order=desc".format(
+                        author.github.split("/")[-1],
+                        (datetime.now() + timedelta(weeks=-2)).strftime("%Y-%m-%d")
+                    )
+                    print(url)
+                    response = requests.get(url).json()
+                    for commit in response["items"]:
+                        Post(
+                            title = "Commit: " + commit["sha"],
+                            type = "post",
+                            origin = request.headers["Host"],
+                            description = "[{}]: {}".format(
+                                commit["repository"]["name"],
+                                commit["commit"]["message"]
+                            ),
+                            contentType = 'text/plain',
+                            visibility = "Public",
+                            published_at = commit["commit"]["author"]["date"],
+                            author_of_posts = author
+                        ).save()
+                    author.lastCommitFetch = timezone.now()
+                    author.save()
+                except:
+                    print("Unable to fetch the commits!")
+            else:
+                try:
+                    url = "https://api.github.com/search/commits?q=author:{} author-date:>{}&sort=author-date&order=desc".format(
+                        author.github.split("/")[-1],
+                        author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
+                    )
+                    print(url)
+                    response = requests.get(url).json()
+                    for commit in response["items"]:
+                        Post(
+                            title = "Commit: " + commit["sha"],
+                            type = "post",
+                            origin = request.headers["Host"],
+                            description = "[{}]: {}".format(
+                                commit["repository"]["name"],
+                                commit["commit"]["message"]
+                            ),
+                            contentType = 'text/plain',
+                            visibility = "Public",
+                            published_at = commit["commit"]["author"]["date"],
+                            author_of_posts = author
+                        ).save()
+                    author.lastCommitFetch = timezone.now()
+                    author.save()
+                except:
+                    print("Unable to fetch the commits!")
+
+        posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+
+        friend_posts = []
+        visible_posts = []
+        currentUser_asAuthor = Author.objects.get(user=request.user)
+
+        if not Follower.objects.filter(followee=author, follower=currentUser_asAuthor).exists():
+            for post in posts:
+                if post.visibility == 'PUBLIC':
+                    visible_posts.append(post)
+
+            posts = visible_posts
+
+        # for post in posts:
+        #     if post.visibility == 'PUBLIC':
+        #         visible_posts.append(post)
+        #         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+        #             friend_posts.append(post)
+        #     elif post.visibility == 'FRIENDS':
+        #         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+        #             visible_posts.append(post)
+        #             friend_posts.append(post)
+        #     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+        #         if post.author_of_posts.user == request.user:
+        #             visible_posts.append(post)
+        #             friend_posts.append(post)
+
         form = PostForm()
         
 
@@ -297,16 +407,35 @@ class PostEditView(UpdateView):
     # def test_func(self):
     #     post = self.get_object()
     #     return self.request.user == post.author_of_posts
+
+class SharedPostEditView(UpdateView):
+    model = Post
+    fields = ['shared_body',"visibility"]
+    template_name = 'socialNetworking/post_edit.html'
+    
+    def get_success_url(self):
+        pk = self.kwargs['pk']
+        return reverse_lazy('profile')
+    
     
 class PostDeleteView(DeleteView):
     model = Post
     template_name = 'socialNetworking/post_delete.html'
-    success_url = reverse_lazy('post-list')
+    success_url = reverse_lazy('profile')
 
     # def test_func(self):
     #     post = self.get_object()
     #     return self.request.user == post.author
-    
+
+class SharedPostDeleteView(DeleteView):
+    model = Post
+    template_name = 'socialNetworking/post_delete.html'
+    success_url = reverse_lazy('profile')
+
+    # def test_func(self):
+    #     post = self.get_object()
+    #     return self.request.user == post.author
+   
     
 class CommentDeleteView(DeleteView):
     model = Comment

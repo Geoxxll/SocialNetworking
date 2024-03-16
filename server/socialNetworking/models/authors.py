@@ -20,10 +20,13 @@ class Author(models.Model):
     profileImage = models.URLField(null=True, blank=True)
     lastCommitFetch = models.DateTimeField(null=True, blank=True, editable=True)
 
-    postInbox = models.ManyToManyField(Post)
-    commentInbox = models.ManyToManyField(Comment)
-    likeInbox = models.ManyToManyField(Like)
-    followInbox = models.ManyToManyField(Follow)
+    postInbox = models.ManyToManyField(Post, blank=True)
+    commentInbox = models.ManyToManyField(Comment, blank=True)
+    likeInbox = models.ManyToManyField(Like, blank=True)
+    followInbox = models.ManyToManyField(Follow, blank=True)
+    
+    # field for admin access
+    is_approved = models.BooleanField(default=False, editable=True)
 
     def __str__(self):
         return self.displayName + f": {self.lastCommitFetch}"
