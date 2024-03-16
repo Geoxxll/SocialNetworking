@@ -25,10 +25,11 @@ class FollowerSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     actor = AuthorSerializer(source='actor', read_only=True)
     object = AuthorSerializer(source='object_of_follow', read_only=True)
+    published = serializers.DateTimeField(source='date', read_only=True)
 
     class Meta:
         model = Follow
-        fields = ['type', 'summary', 'actor', 'object']
+        fields = ['type', 'summary', 'actor', 'object', 'published']
 
 class TextPostContentField(serializers.Field):
     def to_representation(self, value):
@@ -58,11 +59,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
 
 class LikeSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(source='author_like')
+    author = AuthorSerializer(source='author_like', read_only=True)
+    published = serializers.DateTimeField(source='date', read_only=True)
 
     class Meta:
         model = Like
-        fields = ['context', 'summary', 'type', 'author', 'object']
+        fields = ['summary', 'type', 'author', 'object', 'published']
 
 
 class InboxItemSerializer(serializers.ModelSerializer):
