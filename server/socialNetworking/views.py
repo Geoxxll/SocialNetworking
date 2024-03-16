@@ -78,6 +78,7 @@ class AddPostView(View):
             
             # Create a new, empty form after successfully saving the post
             form = PostForm()
+            return redirect('post-list')
             
         posts = Post.objects.all().order_by('-published_at')
         context = {
