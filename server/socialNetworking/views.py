@@ -608,8 +608,8 @@ def likeAction(request, post_pk):
         data = {
             "num_likes": post.num_likes,
         }
-        print(post.num_likes)
-        return Response(data, status=status.HTTP_200_OK)
+ 
+        return JsonResponse(data, status=200)
 
 @api_view(['GET'])
 def authors(request):
