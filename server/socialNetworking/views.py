@@ -843,10 +843,44 @@ def inbox(request, author_id):
                 pass
 
             elif request.data.get('type') == 'comment':
-                pass
+                comment_auth = request.data.get('author')
+                comment_url = request.data.get('id')
+                split_url = comment_url.rsplit('/', 2)
+                post_url = split_url[0]
+
+                if not Post.objects.filter(url=post_url).exists():
+                    return Response({'error': 'Post of comment does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if not Author.objects.filter(url=comment_auth.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=comment_auth)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    else:
+                        return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                comment_serializer = CommentSerializer(data=request.data)
+                if comment_serializer.is_valid():
+                    comment_serializer.save()
+                else:
+                    return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
+                comment_obj = Comment.objects.get(comment_author=None)
+                comment_obj.comment_author = Author.objects.get(url=comment_auth.get('id'))
+                comment_obj.post = Post.objects.get(url=post_url)
+                comment_obj.save()
+
+                author.commentInbox.add(comment_obj)
+                
+                output = CommentSerializer(comment_obj)
+
+                return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type') == 'like':
                 like_author = request.data.get('author')
+                obj_url = request.data.get('object')
+
+                if not Post.objects.filter(url=obj_url).exists() and not Comment.objects.filter(url=obj_url).exists():
+                    return Response({'error': 'Object of like does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if not Author.objects.filter(url=like_author.get('id')).exists():
                     author_serializer = AuthorSerializer(data=like_author)
@@ -861,9 +895,12 @@ def inbox(request, author_id):
                 else:
                     return Response(like_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 
-
                 like_obj = Like.objects.get(author_like=None)
                 like_obj.author_like = Author.objects.get(url=like_author.get('id'))
+                if Post.objects.filter(url=obj_url).exists():
+                    like_obj.like_post = Post.objects.get(url=obj_url)
+                else:
+                    like_obj.like_comment = Comment.objects.get(url=obj_url)
                 like_obj.save()
                 
                 author.likeInbox.add(like_obj)
