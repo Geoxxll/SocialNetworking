@@ -41,7 +41,7 @@
                 {% if user.displayName != request.user.username %}
 
                     <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
-                        <span>{{ user.displayName }}</span>
+                        <span><a href="{% url 'user-profile' pk=user.pk %}" class="profile-link">{{ user.displayName }}</a></span>
                         <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
                     </div>
                 {% endif %}

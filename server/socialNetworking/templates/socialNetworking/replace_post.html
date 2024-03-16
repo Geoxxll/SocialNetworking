@@ -13,13 +13,13 @@
                     </div>
                     <hr>
                     <div>
-                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                        <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
                         <p><b>Description: </b>{{ post.description }}</p>
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                     </div>
                 {% else %}
                     <div class="post-content">
-                        <p><b>Name: </b>{{ post.author_of_posts.user.username }}</p>
+                        <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
                         <p><b>Description: </b>{{ post.description }}</p>
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                     </div>
