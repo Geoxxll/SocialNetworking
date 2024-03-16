@@ -19,6 +19,7 @@ from .views import (
   send_friend_request,
   accept_friend_request,
   User_Profile,
+  likeAction,
   )
 from . import views
 
@@ -49,7 +50,7 @@ urlpatterns = [
     path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
     
     # path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
-    path('social/post/<uuid:pk>/like', views.like, name='like'),
+    path('social/post/<uuid:post_pk>/like', views.likeAction, name='like'),
     
     # path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', views.commentLike, name='comment-like'),

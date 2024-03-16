@@ -571,23 +571,44 @@ class SharedPostView(View):
             
         return redirect('post-list')
 
-def like(request, pk,*args, **kwargs):
-    print("Hereee123")
-    author, created = Author.objects.get_or_create(user=request.user)
-    post = get_object_or_404(Post, pk=pk)
-    current_likes = post.num_likes
-    liked = Like.objects.filter(author_like = author, like_post = post).count()
+# def like(request, pk,*args, **kwargs):
+#     print("Hereee123")
+#     author, created = Author.objects.get_or_create(user=request.user)
+#     post = get_object_or_404(Post, pk=pk)
+#     current_likes = post.num_likes
+#     liked = Like.objects.filter(author_like = author, like_post = post).count()
     
-    if not liked:
-        liked = Like.objects.create(author_like = author, like_post = post)
-        current_likes+=1
-    else:
-        liked = Like.objects.filter(author_like = author, like_post = post).delete()
-        current_likes-=1
-    post.num_likes=current_likes 
-    post.save()
+#     if not liked:
+#         liked = Like.objects.create(author_like = author, like_post = post)
+#         current_likes+=1
+#     else:
+#         liked = Like.objects.filter(author_like = author, like_post = post).delete()
+#         current_likes-=1
+#     post.num_likes=current_likes 
+#     post.save()
     
-    return HttpResponseRedirect(reverse_lazy('post-list'))
+#     return HttpResponseRedirect(reverse_lazy('post-list'))
+    
+@api_view(['POST'])
+def likeAction(request, post_pk):
+    if request.method == 'POST':
+        author, created = Author.objects.get_or_create(user=request.user)
+        post = get_object_or_404(Post, pk=post_pk)
+        current_likes = post.num_likes
+        liked = Like.objects.filter(author_like = author, like_post = post).count()
+        if not liked:
+            liked = Like.objects.create(author_like = author, like_post = post)
+            current_likes+=1
+        else:
+            liked = Like.objects.filter(author_like = author, like_post = post).delete()
+            current_likes-=1
+        post.num_likes=current_likes 
+        post.save()
+        data = {
+            "num_likes": post.num_likes,
+        }
+        print(post.num_likes)
+        return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def authors(request):
