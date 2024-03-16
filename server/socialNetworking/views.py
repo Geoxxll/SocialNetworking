@@ -3,7 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
 from django.contrib.contenttypes.models import ContentType
-
+from django.db.models import F
 import json
 
 from rest_framework.decorators import api_view
@@ -117,6 +117,7 @@ class PostListView(View):
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
 
         posts = Post.objects.all().order_by('-published_at')
+        print("ALL POSTS:",posts)
 
         friend_posts = []
         visible_posts = []
@@ -145,7 +146,7 @@ class PostListView(View):
         else:
             posts = friend_posts
             template_name = 'socialNetworking/dashboard.html'
-
+        
         form = PostForm()
         share_form = ShareForm()
         
@@ -273,14 +274,20 @@ class DashboardView(View):
                 except:
                     print("Unable to fetch the commits!")
 
+        shared_posts  = Post.objects.filter(
+            shared_user=request.user,
+            
+        )
+        
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
         form = PostForm()
         
-
+        print("Shared",shared_posts)
         context = {
             'post_list': posts,
             'form': form,
             'author': author,
+            'shared_posts':shared_posts,
         }
 
         return render(request, 'socialNetworking/profile_view.html', context)
@@ -297,16 +304,35 @@ class PostEditView(UpdateView):
     # def test_func(self):
     #     post = self.get_object()
     #     return self.request.user == post.author_of_posts
+
+class SharedPostEditView(UpdateView):
+    model = Post
+    fields = ['shared_body',"visibility"]
+    template_name = 'socialNetworking/post_edit.html'
+    
+    def get_success_url(self):
+        pk = self.kwargs['pk']
+        return reverse_lazy('profile')
+    
     
 class PostDeleteView(DeleteView):
     model = Post
     template_name = 'socialNetworking/post_delete.html'
-    success_url = reverse_lazy('post-list')
+    success_url = reverse_lazy('profile')
 
     # def test_func(self):
     #     post = self.get_object()
     #     return self.request.user == post.author
-    
+
+class SharedPostDeleteView(DeleteView):
+    model = Post
+    template_name = 'socialNetworking/post_delete.html'
+    success_url = reverse_lazy('profile')
+
+    # def test_func(self):
+    #     post = self.get_object()
+    #     return self.request.user == post.author
+   
     
 class CommentDeleteView(DeleteView):
     model = Comment

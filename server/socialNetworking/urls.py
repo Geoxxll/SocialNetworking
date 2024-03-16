@@ -13,6 +13,8 @@ from .views import (
   AddPostView, 
   ProfileEditView,
   PostEditView,
+  SharedPostEditView,
+  SharedPostDeleteView,
   FindFriendsView, 
   send_friend_request,
   accept_friend_request,
@@ -35,9 +37,12 @@ urlpatterns = [
 
     path('social/profile/', DashboardView.as_view(), name='profile'),
     path('social/post/edit/<uuid:pk>/', PostEditView.as_view(), name='post-edit'),
+    path('social/post/edit/share/<uuid:pk>/', SharedPostEditView.as_view(), name='shared-post-edit'),
+
     path('social/post/<uuid:pk>/', PostDetailView.as_view(), name='post-detail'),
 	  path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
- 	  path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
+ 	  path('social/post/delete/share/<uuid:pk>/', SharedPostDeleteView.as_view(), name='shared-post-delete'),
+    path('social/post/<uuid:post_pk>/comment/delete/<uuid:pk>/', CommentDeleteView.as_view(), name='comment-delete'),
     path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
     
     # path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
