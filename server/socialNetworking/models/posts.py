@@ -29,7 +29,7 @@ class Post (models.Model):
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
     published_at =models.DateTimeField(auto_now_add=True)
     shared_on = models.DateTimeField(blank=True, null=True)
-    author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='posts_set')
+    author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='posts_set')
     shared_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
     # To be changed
     likes = models.ManyToManyField('Author', blank=True, related_name='likes')

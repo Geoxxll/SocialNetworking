@@ -9,7 +9,7 @@ class Comment(models.Model):
     #TODO: possibly support multiple contentType (image? plain_text)
     contentType = models.CharField(max_length=20, default='text/markdown', editable=False)
     published_at = models.DateTimeField(auto_now_add=True)
-    comment_author = models.ForeignKey('Author', on_delete=models.CASCADE)
+    comment_author = models.ForeignKey('Author', on_delete=models.CASCADE, null=True)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     num_likes = models.IntegerField(default = 0) 
     # To be changed

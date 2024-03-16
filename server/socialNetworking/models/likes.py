@@ -6,7 +6,7 @@ class Like(models.Model):
     summary = models.TextField(blank=True)
     date = models.DateTimeField(auto_now_add=True, null=True)
 
-    author_like = models.ForeignKey('Author', on_delete=models.CASCADE, related_name = "user_likes")
+    author_like = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name = "user_likes")
     like_post = models.ForeignKey('Post', on_delete=models.CASCADE, null=True, blank=False, related_name = "post_likes")
     like_comment = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True, blank=True)
 

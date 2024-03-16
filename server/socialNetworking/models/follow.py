@@ -7,8 +7,8 @@ class Follow(models.Model):
     '''
     type = models.CharField(max_length=15, default='follow', editable=False)
     summary = models.TextField(blank=True)
-    actor = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='actor_follow_set')
-    object_of_follow = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='object_of_follow_set')
+    actor = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='actor_follow_set')
+    object_of_follow = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='object_of_follow_set')
     active = models.BooleanField(default=True)
     date = models.DateTimeField(auto_now_add=True, null=True)
 
