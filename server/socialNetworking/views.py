@@ -32,11 +32,11 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .serializers import (
   AuthorSerializer, 
-  FollowerSerializer, 
+  FollowerSerializer,
+  FollowSerializer, 
   TextPostSerializer, 
   CommentSerializer,
-  InboxSerializer,
-  InboxItemSerializer,
+  LikeSerializer
   )
 from rest_framework.response import Response
 from rest_framework import status
@@ -782,8 +782,6 @@ def comments(request, author_id, post_id):
             comments_serialized = CommentSerializer(comments, many=True)
 
             output = {'type': 'comments', 'items': comments_serialized.data}
-            output = json.dumps(output)
-            output = json.loads(output)
 
             return Response(output, status=status.HTTP_200_OK)
     
@@ -817,13 +815,65 @@ def inbox(request, author_id):
         author = Author.objects.get(pk=author_id)
 
         if request.method == 'GET':
-            inb_Posts = author.postInbox.all().order_by('published_at')
-            inb_Comments = author.commentInbox.all().order_by('published_at')
-            inb_Likes = author.likeInbox.all().order_by('date')
-            inb_Follows = author.followInbox.all().order_by('published_at')
+            inb_Posts = author.postInbox.all()
+            inb_Comments = author.commentInbox.all()
+            inb_Likes = author.likeInbox.all()
+            inb_Follows = author.followInbox.all()
+
+            ser_inb_Posts = TextPostSerializer(inb_Posts, many=True)
+            ser_inb_Comments = CommentSerializer(inb_Comments, many=True)
+            ser_inb_Likes = LikeSerializer(inb_Likes, many=True)
+            ser_inb_Follows = FollowSerializer(inb_Follows, many=True)
+
+            data_inb_Posts = ser_inb_Posts.data
+            data_inb_Comments = ser_inb_Comments.data
+            data_inb_Likes = ser_inb_Likes.data
+            data_inb_Follows = ser_inb_Follows.data
+
+            inbox_list = data_inb_Posts + data_inb_Comments + data_inb_Likes + data_inb_Follows
+            inbox_list = sorted(inbox_list, key=lambda x: x['published'], reverse=True)
+
+            output = {'type': 'inbox', 'author': getattr(author, 'url'), 'items': inbox_list}
+
+            return Response(output, status=status.HTTP_200_OK)
 
         elif request.method == 'POST':
-            pass
+            
+            if request.data.get('type') == 'post':
+                pass
+
+            elif request.data.get('type') == 'comment':
+                pass
+
+            elif request.data.get('type') == 'like':
+                like_author = request.data.get('author')
+
+                if not Author.objects.filter(url=like_author.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=like_author)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    else:
+                        return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                like_serializer = LikeSerializer(data=request.data)
+                if like_serializer.is_valid():
+                    like_serializer.save()
+                else:
+                    return Response(like_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
+
+                like_obj = Like.objects.get(author_like=None)
+                like_obj.author_like = Author.objects.get(url=like_author.get('id'))
+                like_obj.save()
+                
+                author.likeInbox.add(like_obj)
+                
+                output = LikeSerializer(like_obj)
+
+                return Response(output.data, status=status.HTTP_201_CREATED)
+
+            elif request.data.get('type') == 'follow':
+                pass
 
         elif request.method == 'DELETE':
             pass
