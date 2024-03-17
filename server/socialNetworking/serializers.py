@@ -23,7 +23,7 @@ class FollowerSerializer(serializers.ModelSerializer):
         fields = ['type', 'follower', 'followee', 'followed_at']
 
 class FollowSerializer(serializers.ModelSerializer):
-    actor = AuthorSerializer(source='actor', read_only=True)
+    actor = AuthorSerializer(read_only=True)
     object = AuthorSerializer(source='object_of_follow', read_only=True)
     published = serializers.DateTimeField(source='date', read_only=True)
 

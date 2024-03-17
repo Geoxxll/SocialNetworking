@@ -873,7 +873,6 @@ def inbox(request, author_id):
                 author.commentInbox.add(comment_obj)
                 
                 output = CommentSerializer(comment_obj)
-
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type') == 'like':
@@ -907,11 +906,37 @@ def inbox(request, author_id):
                 author.likeInbox.add(like_obj)
                 
                 output = LikeSerializer(like_obj)
-
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type') == 'follow':
-                pass
+                follow_auth = request.data.get('actor')
+                obj_auth = request.data.get('object')
+
+                if not getattr(author, 'url') == obj_auth.get('id'):
+                    return Response({'error': 'Improper inbox for object of follow'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if not Author.objects.filter(url=follow_auth.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=follow_auth)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    else:
+                        return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
+                follow_serializer = FollowSerializer(data=request.data)
+                if follow_serializer.is_valid():
+                    follow_serializer.save()
+                else:
+                    return Response(follow_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
+                follow_obj = Follow.objects.get(actor=None)
+                follow_obj.actor = Author.objects.get(url=follow_auth.get('id'))
+                follow_obj.object_of_follow = author
+                follow_obj.save()
+                
+                author.followInbox.add(follow_obj)
+                
+                output = FollowSerializer(follow_obj)
+                return Response(output.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE':
             pass
