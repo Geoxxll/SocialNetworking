@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 
 class Post (models.Model):
     contentTypesChoices = {
-        'COMMON_MARK':'text/markdown',
-        'PLAIN':'text/plain',
-        'BASE64':'application/base64',
-        'PNG':'image/png;base64',
-        'JPEG':'image/jpeg;base64',
+        'text/markdown':'text/markdown',
+        'text/plain':'text/plain',
+        'application/base64':'application/base64',
+        'image/png;base64':'image/png;base64',
+        'image/jpeg;base64':'image/jpeg;base64',
     }
 
     class VisibilityChoices(models.TextChoices):

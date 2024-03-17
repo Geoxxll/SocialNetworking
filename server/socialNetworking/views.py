@@ -614,7 +614,7 @@ def likeAction(request, post_pk):
 @api_view(['GET'])
 def authors(request):
     if request.method == 'GET':
-        authors = Author.objects.all()
+        authors = Author.objects.exclude(user=None)
 
         if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
             page_size = request.GET.get('size')
@@ -834,16 +834,53 @@ def inbox(request, author_id):
             inbox_list = data_inb_Posts + data_inb_Comments + data_inb_Likes + data_inb_Follows
             inbox_list = sorted(inbox_list, key=lambda x: x['published'], reverse=True)
 
+            if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
+                page_size = request.GET.get('size')
+                page_number = request.GET.get('page')
+                paginated = Paginator(inbox_list, page_size)
+                page = paginated.get_page(page_number)
+                inbox_list = page.object_list
+
             output = {'type': 'inbox', 'author': getattr(author, 'url'), 'items': inbox_list}
 
             return Response(output, status=status.HTTP_200_OK)
 
         elif request.method == 'POST':
             
-            if request.data.get('type') == 'post':
-                pass
+            if request.data.get('type').lower() == 'post':
+                post_auth = request.data.get('author')
+                cont_type = request.data.get('contentType')
+                post_obj = None
 
-            elif request.data.get('type') == 'comment':
+                if not Author.objects.filter(url=post_auth.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=post_auth)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    else:
+                        return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                if not Post.objects.filter(url=request.data.get('id')).exists():                                 
+                    if cont_type == 'text/plain':
+                        post_serializer = TextPostSerializer(data=request.data)
+
+                    if post_serializer.is_valid():
+                        post_serializer.save()
+                    else:
+                        return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    post_obj = Post.objects.get(url=request.data.get('id'))
+                    post_obj.author_of_posts = Author.objects.get(url=post_auth.get('id'))
+                    post_obj.save()
+                               
+                author.postInbox.add(post_obj)
+                output = None
+                if cont_type == 'text/plain':
+                    output = TextPostSerializer(post_obj)
+                   
+                return Response(output.data, status=status.HTTP_201_CREATED)
+
+
+            elif request.data.get('type').lower() == 'comment':
                 comment_auth = request.data.get('author')
                 comment_url = request.data.get('id')
                 split_url = comment_url.rsplit('/', 2)
@@ -875,7 +912,7 @@ def inbox(request, author_id):
                 output = CommentSerializer(comment_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
-            elif request.data.get('type') == 'like':
+            elif request.data.get('type').lower() == 'like':
                 like_author = request.data.get('author')
                 obj_url = request.data.get('object')
 
@@ -908,7 +945,7 @@ def inbox(request, author_id):
                 output = LikeSerializer(like_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
-            elif request.data.get('type') == 'follow':
+            elif request.data.get('type').lower() == 'follow':
                 follow_auth = request.data.get('actor')
                 obj_auth = request.data.get('object')
 
@@ -937,6 +974,9 @@ def inbox(request, author_id):
                 
                 output = FollowSerializer(follow_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
+            
+            else:
+                return Response({'error': 'Unrecognized object type'}, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
             pass
