@@ -1106,7 +1106,7 @@ def accept_friend_request(request, *args, **kwargs):
                     # Deactivate the friend request
                     # follow_request.active = False
                     follow_request.delete()
-                    follow_request.save()
+                    # follow_request.save()
 
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:
