@@ -1,6 +1,7 @@
 from django import forms
 from .models.posts import Post
 from .models.comments import Comment
+from .models.authors import Author
 
 class PostForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
@@ -37,3 +38,24 @@ class ShareForm(forms.Form):
             'rows': '3',
             'placeholder': 'Say Something...'
             }))
+    
+class DraftForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Author
+        fields = [
+            "id",
+            "draftProfileImage",
+            "draftDisplayName",
+            "draftGithub"
+        ]
+        labels = {
+            "draftProfileImage": "Profile Image",
+            "draftDisplayName": "Username",
+            "draftGithub": "Github"
+        }
+        widgets = {
+            "id": forms.TextInput(attrs={"type": "hidden"}),
+        }        
+   

@@ -19,7 +19,7 @@ from .models.follow import Follow
 from .models.likes import Like
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
-from .forms import PostForm, CommentForm, ShareForm
+from .forms import PostForm, CommentForm, ShareForm, DraftForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
 
@@ -257,35 +257,37 @@ class DashboardView(View):
                     print("Unable to fetch the commits!")
             else:
                 try:
-                    url = "https://api.github.com/search/commits?q=author:{} author-date:>{}&sort=author-date&order=desc".format(
-                        author.github.split("/")[-1],
-                        author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
-                    )
-                    print(url)
-                    response = requests.get(url).json()
-                    for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
-                            type = "post",
-                            origin = request.headers["Host"],
-                            description = "[{}]: {}".format(
-                                commit["repository"]["name"],
-                                commit["commit"]["message"]
-                            ),
-                            contentType = 'text/plain',
-                            visibility = "Public",
-                            published_at = commit["commit"]["author"]["date"],
-                            author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
+                    if ((author.lastCommitFetch + timedelta(seconds=5)) < timezone.now()):
+                        url = "https://api.github.com/search/commits?q=author:{} author-date:>{}&sort=author-date&order=desc".format(
+                            author.github.split("/")[-1],
+                            author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
+                        )
+                        print(url)
+                        response = requests.get(url).json()
+                        for commit in response["items"]:
+                            Post(
+                                title = "Commit: " + commit["sha"],
+                                type = "post",
+                                origin = request.headers["Host"],
+                                description = "[{}]: {}".format(
+                                    commit["repository"]["name"],
+                                    commit["commit"]["message"]
+                                ),
+                                contentType = 'text/plain',
+                                visibility = "Public",
+                                published_at = commit["commit"]["author"]["date"],
+                                author_of_posts = author
+                            ).save()
+                        author.lastCommitFetch = timezone.now()
+                        author.save()
                 except:
                     print("Unable to fetch the commits!")
 
         shared_posts  = Post.objects.filter(
             shared_user=request.user,
-            
         )
+
+        draft = DraftForm(request.POST or None, instance=author)
         
         posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
         form = PostForm()
@@ -296,10 +298,33 @@ class DashboardView(View):
             'form': form,
             'author': author,
             'shared_posts':shared_posts,
+            'draft': draft
         }
 
         return render(request, 'socialNetworking/profile_view.html', context)
     
+    def post(self, request, *args, **kwargs):
+
+        author = Author.objects.get(id= request.POST.get("id"))
+
+        if ('Update' in request.POST):
+            author.displayName = request.POST.get("draftDisplayName")
+            author.draftDisplayName = request.POST.get("draftDisplayName")
+            author.draftProfileImage = request.FILES.get("draftProfileImage")
+            author.profileImagePicture = request.FILES.get("draftProfileImage")
+            author.github = request.POST.get("draftGithub")
+            author.draftGithub = request.POST.get("draftGithub")
+            author.save()
+            author.profileImage = author.host + author.profileImagePicture.url
+
+        elif ('Save as Draft' in request.POST):
+            author.draftDisplayName = request.POST.get("draftDisplayName")
+            author.draftProfileImage = request.FILES.get("draftProfileImage")
+            author.draftGithub = request.POST.get("draftGithub")
+        
+        author.save()
+
+        return redirect("profile")
 
 class User_Profile(View):
 
