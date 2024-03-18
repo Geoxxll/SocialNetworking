@@ -41,6 +41,7 @@ from .serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 
+import base64
 import requests
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -62,7 +63,7 @@ class AddPostView(View):
     
     def post(self, request, *args, **kwargs):
         
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         share_form = ShareForm()
 
         if form.is_valid():
@@ -76,6 +77,16 @@ class AddPostView(View):
             new_post.url = author_instance.url + "/posts/" + str(new_post.post_id)
             new_post.source = new_post.url
             new_post.origin = new_post.url
+            if new_post.contentType in ['image/png;base64', 'image/jpeg;base64']:
+                # Handle image file; convert to base64
+                if 'content' in request.FILES:
+                    image = request.FILES['content']
+                    new_post.content = base64.b64encode(image.read())
+                elif new_post.contentType == 'application/base64':
+                # If content is text but encoded in base64, decode it for storage
+                # Assuming you want to store decoded content; otherwise, remove decoding
+                    decoded_content = base64.b64decode(request.POST['content'])
+                    new_post.content = decoded_content
             new_post.save()
             
             # Create a new, empty form after successfully saving the post

@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filter %}
 {% load crispy_forms_tags %}
 {% for post in post_list %}
             <!-- Post Container -->
@@ -7,21 +8,39 @@
                 <!-- When user shares a post -->
                 
                 {% if post.shared_body %}
+                    <!-- info of the sharer -->
                     <div>
                         <b>{{ post.shared_user }} </b> reposted at <i>{{ post.shared_on }}</i>
                         <p><i>{{ post.shared_body }}</i></p>
                     </div>
                     <hr>
+                    <!-- original post -->
                     <div>
                         <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
-                        <p><b>Description: </b>{{ post.description }}</p>
+                        <p><b>Title: </b>{{ post.Title }}</p>
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                        {% if post.content %}
+                            {% if post.contentType == 'image/jpeg;base64' %}
+                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'image/png;base64' %}
+                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% endif %}
+                        {% endif %}
+
                     </div>
+                
                 {% else %}
                     <div class="post-content">
                         <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
-                        <p><b>Description: </b>{{ post.description }}</p>
+                        <p><b>Title: </b> {{ post.title }}</p>
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                        {% if post.content %}
+                            {% if post.contentType == 'image/jpeg;base64' %}
+                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'image/png;base64' %}
+                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% endif %}
+                        {% endif %}
                     </div>
                 {% endif %}
                 

@@ -2,6 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
+{% load custom_filter %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,6 +63,12 @@
                             <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
                             <p><b>Title: </b>{{ post.title }}</p>
                             <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                            {% if post.contentType == 'image/jpeg;base64' %}
+                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'image/png;base64' %}
+                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% endif %}
+
                         </div>
                     {% endif %}
                     
