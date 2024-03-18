@@ -110,27 +110,52 @@
 
     $(document).ready(function() {
         $(".send-request-button").on("click", function() {
-            
             var userId = $(this).data("user-id");
             sendFriendRequest(userId, onFriendRequestSent);
+        });
+
+        $(".cancel-request-button").on("click", function() {
+            var requestId = $(this).data("user-id");
+            cancelFriendRequest(requestId, onFriendRequestSent);
         });
     });
 
     function sendFriendRequest(id, uiUpdateFunction){
-        var context = {
-            "csrfmiddlewaretoken" : "{{csrf_token}}",
-            "receiver_user_id" : id, 
-        };
         var csrfToken = "{{ csrf_token }}";
         $.ajax({
-            type : "POST",
-            dataType : "json",
+            type: "POST",
+            dataType: "json",
             data: {
                 "csrfmiddlewaretoken": csrfToken,
                 "receiver_user_id": id,
             },
-            url : "{% url 'send-friend-request' %}",
-            timeout : 5000,
+            url: "{% url 'send-friend-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function cancelFriendRequest(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'cancel-follow-request' %}",
+            timeout: 5000,
             success: function(data){
                 if (data['result'] == "Successful"){
                     // Handle success
