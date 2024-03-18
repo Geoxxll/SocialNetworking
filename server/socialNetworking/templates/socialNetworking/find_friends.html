@@ -42,8 +42,21 @@
 
                     <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
                         <span><a href="{% url 'user-profile' pk=user.pk %}" class="profile-link">{{ user.displayName }}</a></span>
-                        <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                        {% if user.id in following_set %}
+                            <button type="button" class="unfollow-button" data-user-id="{{ user.id }}">Unfollow</button>
+
+                        
+                        {% elif user.id in sent_requests_set %}
+                        <!-- User is in the list of sent follow requests -->
+                            <!-- Your HTML code for handling this case, e.g., display a cancel request button -->
+                            <button type="button" class="cancel-request-button" data-user-id="{{ user.id }}">Cancel Request</button>
+                        {% else %}
+                            <!-- User is not in the list of sent follow requests -->
+                            <!-- Your HTML code for handling this case, e.g., display a send request button -->
+                            <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                        {% endif %}
                     </div>
+                
                 {% endif %}
             {% endfor %}
 

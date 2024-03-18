@@ -104,10 +104,22 @@ class FindFriendsView(View):
             all_users = Author.objects.all().order_by('-displayName')
                 
         follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+        sent_follow_requests = Follow.objects.filter(actor__user = request.user, active = True)
+        sent_requests_set = set(follow.object_of_follow_id for follow in sent_follow_requests)  
+
+
+
+        followers = Follower.objects.filter(follower__user=request.user)
+        following_set = set(follower_user.followee_id for follower_user in followers)
+
+        print("printingg", followers)
 
         context = { 
             'user_list': all_users,
-            'follow_requests': follow_requests,
+            'follow_requests': follow_requests,             
+            'sent_requests_set': sent_requests_set,
+            'following_set' : following_set,
+
         }
 
         
