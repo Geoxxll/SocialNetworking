@@ -4,8 +4,8 @@ from .models.comments import Comment
 
 class PostForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
-    source = forms.URLField()
-    origin = forms.URLField()
+    # source = forms.URLField()
+    # origin = forms.URLField()
     description = forms.CharField(widget=forms.Textarea)
     contentType = forms.ChoiceField(choices=Post.contentTypesChoices.items())
     content = forms.ImageField(required=False)  # Use ImageField for binary images
@@ -13,7 +13,8 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ['title', 'source', 'origin', 'description', 'contentType', 'visibility']
+        fields = ['title', 'description', 'contentType', 'visibility']
+        exclude = ['origin', 'source']
         
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(
