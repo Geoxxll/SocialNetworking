@@ -23,9 +23,7 @@
           </button>
           {% if user.is_authenticated %}
           <div class="dropdown-content">
-            {% if request.user.is_approved %}
-              <a href="{% url 'profile' %}">Profile</a>
-            {% endif %}
+            <a href="{% url 'profile' %}">Profile</a>
             <a href="{% url 'account_logout' %}">Logout</a>
           </div>
           {% endif %}
