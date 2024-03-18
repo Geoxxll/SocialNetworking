@@ -286,10 +286,14 @@ class DashboardView(View):
         shared_posts  = Post.objects.filter(
             shared_user=request.user,
         )
+        
+        unlisted_post = Post.objects.filter(
+            author_of_posts=author,visibility=Post.VisibilityChoices.UNLISTED
+        )
 
         draft = DraftForm(request.POST or None, instance=author)
         
-        posts = Post.objects.filter(author_of_posts__user=request.user).order_by('-published_at')
+        posts = Post.objects.filter(author_of_posts__user=request.user).exclude(visibility=Post.VisibilityChoices.UNLISTED).order_by('-published_at')
         form = PostForm()
         
         print("Shared",shared_posts)
@@ -298,7 +302,8 @@ class DashboardView(View):
             'form': form,
             'author': author,
             'shared_posts':shared_posts,
-            'draft': draft
+            'draft': draft,
+            'unlisted_posts':unlisted_post,
         }
 
         return render(request, 'socialNetworking/profile_view.html', context)
@@ -426,7 +431,7 @@ class User_Profile(View):
     
 class PostEditView(UpdateView):
     model = Post
-    fields = ['description',"visibility"]
+    fields = ['title',"visibility"]
     template_name = 'socialNetworking/post_edit.html'
     
     def get_success_url(self):
@@ -440,6 +445,15 @@ class PostEditView(UpdateView):
 class SharedPostEditView(UpdateView):
     model = Post
     fields = ['shared_body',"visibility"]
+    template_name = 'socialNetworking/post_edit.html'
+    
+    def get_success_url(self):
+        pk = self.kwargs['pk']
+        return reverse_lazy('profile')
+
+class UnlistedPostEditView(UpdateView):
+    model = Post
+    fields = ['title',"visibility"]
     template_name = 'socialNetworking/post_edit.html'
     
     def get_success_url(self):

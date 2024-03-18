@@ -1,95 +1,107 @@
-{% extends 'landing/loggedin_base.html' %}
-{% load crispy_forms_tags %}
-{% load static %}
+{% extends 'landing/loggedin_base.html' %} 
+{% load crispy_forms_tags %} 
+{% load static %} 
 {% block content %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'socialNetworking/profile_view.css' %}">
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'socialNetworking/profile_view.css' %}"
+/>
 
 <div class="container">
+  <div class="row mt-5">
+    <div class="col-md-3 col-sm-6">
+      <a href="{% url 'post-list' %}" class="btn btn-light">Back to Feed</a>
+    </div>
+  </div>
 
-	<div class="row mt-5">
-		<div class="col-md-3 col-sm-6">
-			<a href="{% url 'post-list' %}" class="btn btn-light">Back to Feed</a>
-		</div>
-	</div>
+  <div id="profile-container">
+    <div>
+      <div>
+        {% if not author.profileImagePicture %}
+        <img src="{% static 'images/User_cicrle.png' %}" />
+        {% else %}
+        <img src="{{ author.profileImagePicture.url }}" />
+        {% endif %}
+      </div>
+      <span>Username: {{ author.displayName }}</span>
+    </div>
 
-	<div id = "profile-container">
+    <span>Github: {{ author.github }}</span>
+  </div>
 
-		<div>
-			<div>
-				{% if not author.profileImagePicture %}
-					<img src="{% static 'images/User_cicrle.png' %}">
-				{% else %}
-					<img src="{{ author.profileImagePicture.url }}">
-				{% endif %}
-			</div>
-			<span>Username: {{ author.displayName }}</span>
-		</div>
-
-		<span>Github: {{ author.github }}</span>
-
-	</div>
-
-	<div id="draft-container">
-
-		<form id="draft-post" method="POST" enctype="multipart/form-data"> {% csrf_token %}
-			{{ draft.as_p }}
-			<input id="profile-update" type="submit" name="Update" value="Update">
-			<input type="submit" name="Save as Draft" value="Save as Draft">
-		</form>
-
-	</div>
+  <div id="draft-container">
+    <form id="draft-post" method="POST" enctype="multipart/form-data">
+      {% csrf_token %} {{ draft.as_p }}
+      <input id="profile-update" type="submit" name="Update" value="Update" />
+      <input type="submit" name="Save as Draft" value="Save as Draft" />
+    </form>
+  </div>
 
 	<div id="post-container" class="container">
-			<div class="row mt-3">
-				<div class="col-sm-12 border-bottom">
-					<h2>Posts you created:</h2>
+		<div class="row mt-3">
+		<div class="col-sm-12 border-bottom">
+			<h2>Posts you created(check unlisted posts below):</h2>
+		</div>
+		</div>
 
-				</div>
-			</div>
-			
-			{% for post in post_list %}
-			{% if not post.shared_user %}
-			<div class="row mt-3">
-				<div class="col-sm-12 border-bottom position-relative">
-				{% if author.user == request.user %}
-						<a href="{% url 'post-edit' post.pk %}">Edit</a>
-						<a href="{% url 'post-delete' post.pk %}">Delete</a>
-				{% endif %}
-					<p>{{ post.published_at }}</p>
-					<p>{{ post.description }}</p>
-					<!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
-				</div>
-			</div>
+		{% for post in post_list %} {% if not post.shared_user %}
+		<div class="row mt-3">
+		<div class="col-sm-12 border-bottom position-relative">
+			{% if author.user == request.user %}
+			<a href="{% url 'post-edit' post.pk %}">Edit</a>
+			<a href="{% url 'post-delete' post.pk %}">Delete</a>
 			{% endif %}
-			{% endfor %}
-
-		{% if shared_posts %}
-		<div class="row mt-3">
-			<div class="col-sm-12 border-bottom">
-				<h2>Posts you shared:</h2>
-			</div>
+			<p><b>Created on:</b> {{ post.published_at }}</p>
+			<p>
+			<b>Title:</b> {{ post.title }}
+			</p>
+			<!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
 		</div>
-		{% for post in shared_posts %}
-		<div class="row mt-3">
-			<div class="col-sm-12 border-bottom position-relative">
-				<a href="{% url 'shared-post-edit' post.pk %}">Edit</a>
-				<a href="{% url 'shared-post-delete' post.pk %}">Delete</a>
-				<p>{{ post.shared_on }}</p>
-				<p>{{ post.shared_body }}</p>
-				<!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
-			</div>
 		</div>
-		{% endfor %}
 		{% endif %}
-		
-	</div>
+		{% endfor %}
+	{% if shared_posts %}
+    <div class="row mt-3">
+      <div class="col-sm-12 border-bottom">
+        <h2>Posts you shared:</h2>
+      </div>
+    </div>
+    {% for post in shared_posts %}
+    <div class="row mt-3">
+      <div class="col-sm-12 border-bottom position-relative">
+        <a href="{% url 'shared-post-edit' post.pk %}">Edit</a>
+        <a href="{% url 'shared-post-delete' post.pk %}">Delete</a>
+        <p><b>Shared on:</b> {{ post.shared_on }}</p>
+        <p><b>Title:</b> {{ post.shared_body }}</p>
+        <!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
+      </div>
+    </div>
+    {% endfor %} {% endif %} {% if unlisted_posts %}
+    <div class="row mt-3">
+      <div class="col-sm-12 border-bottom">
+        <h2>Your unlisted posts:</h2>
+      </div>
+    </div>
+    {% endif %} 
+	{% for post in unlisted_posts %}
+    <div class="row mt-3">
+      <div class="col-sm-12 border-bottom position-relative">
+        <a href="{% url 'unlisted-post-edit' post.pk %}">Edit</a>
+        <a href="{% url 'post-delete' post.pk %}">Delete</a>
+        <p><b>Created on:</b> {{ post.published_at }}</p>
+        <p><b>Title:</b> {{ post.title }}</p>
+        <!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 
-{% endblock content %} 
+{% endblock content %}
 
-
-		<!-- <div class="row justify-content-center mt-3 mb-5">
+<!-- <div class="row justify-content-center mt-3 mb-5">
 			<div class="col-md-5 col-sm-12 border-bottom">
 				<form method="POST">
 					{% csrf_token %}

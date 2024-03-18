@@ -16,6 +16,7 @@ from .views import (
   SharedPostEditView,
   SharedPostDeleteView,
   FindFriendsView, 
+  UnlistedPostEditView,
   send_friend_request,
   accept_friend_request,
   User_Profile,
@@ -42,7 +43,8 @@ urlpatterns = [
 
     path('social/post/edit/<uuid:pk>/', PostEditView.as_view(), name='post-edit'),
     path('social/post/edit/share/<uuid:pk>/', SharedPostEditView.as_view(), name='shared-post-edit'),
-
+    path('social/post/edit/unlisted/<uuid:pk>/', UnlistedPostEditView.as_view(), name='unlisted-post-edit'),
+    
     path('social/post/<uuid:pk>/', PostDetailView.as_view(), name='post-detail'),
 	  path('social/post/delete/<uuid:pk>/', PostDeleteView.as_view(), name='post-delete'),
  	  path('social/post/delete/share/<uuid:pk>/', SharedPostDeleteView.as_view(), name='shared-post-delete'),
