@@ -1139,3 +1139,20 @@ def cancel_follow_request(request):
             return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
         return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def unfollow_user(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        user_id = request.POST.get("user_id")
+        try:
+            followee = Author.objects.get(pk=user_id)
+            follower = Author.objects.get(user=request.user)
+            follower_object = Follower.objects.filter(follower=follower, followee=followee).first()
+            print(follower_object)
+            follower_object.delete()
+
+            return JsonResponse({'result': 'Successful'})
+        except Follow.DoesNotExist:
+            return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -115,9 +115,14 @@
         });
 
         $(".cancel-request-button").on("click", function() {
-            var requestId = $(this).data("user-id");
-            cancelFriendRequest(requestId, onFriendRequestSent);
+            var userId = $(this).data("user-id");
+            cancelFriendRequest(userId, onFriendRequestSent);
         });
+
+        $(".unfollow-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            unfollow(userId, onFriendRequestSent);
+        })
     });
 
     function sendFriendRequest(id, uiUpdateFunction){
@@ -155,6 +160,31 @@
                 "user_id": id,
             },
             url: "{% url 'cancel-follow-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function unfollow(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'unfollow-user' %}",
             timeout: 5000,
             success: function(data){
                 if (data['result'] == "Successful"){
