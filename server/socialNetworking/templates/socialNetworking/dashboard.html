@@ -67,6 +67,8 @@
                                 <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'image/png;base64' %}
                                 <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'text/plain' %}
+                                <pre>{{ post.content|decode_utf8}}</pre>
                             {% endif %}
 
                         </div>

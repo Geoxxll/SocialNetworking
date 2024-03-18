@@ -87,6 +87,12 @@ class AddPostView(View):
                 # Assuming you want to store decoded content; otherwise, remove decoding
                     decoded_content = base64.b64decode(request.POST['content'])
                     new_post.content = decoded_content
+            elif new_post.contentType in ['text/markdown', 'text/plain']:
+            # Handle text and markdown files
+                if 'content' in request.FILES:
+                    text_file = request.FILES['content']
+                    new_post.content = text_file.read()
+            
             new_post.save()
             
             # Create a new, empty form after successfully saving the post
@@ -141,7 +147,7 @@ class PostListView(View):
         toggle_option = request.GET.get('toggleOption')
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
 
-        posts = Post.objects.all().order_by('-published_at')
+        posts = Post.objects.all().order_by('-published_at').exclude(visibility=Post.VisibilityChoices.UNLISTED)
         print("ALL POSTS:",posts)
 
         friend_posts = []

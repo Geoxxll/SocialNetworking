@@ -16,6 +16,16 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'contentType', 'visibility']
         exclude = ['origin', 'source', 'description']
+    
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        # Determine if there's initial or submitted content type
+        content_type = self.initial.get('contentType') or self.data.get('contentType')
+        
+        if content_type in ['image/png;base64', 'image/jpeg;base64']:
+            self.fields['content'] = forms.ImageField(required=False)
+        else:
+            self.fields['content'] = forms.FileField(required=False)
         
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(
