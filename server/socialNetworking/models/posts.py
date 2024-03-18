@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Post (models.Model):
     contentTypesChoices = {
@@ -24,10 +25,10 @@ class Post (models.Model):
     source = models.URLField()
     origin = models.URLField()
     description = models.TextField()
-    contentType = models.CharField(max_length=30, choices=contentTypesChoices.items(), default='PLAIN')
+    contentType = models.CharField(max_length=30, choices=contentTypesChoices.items(), default='text/plain')
     content = models.BinaryField(null=True, blank=True)
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)
-    published_at =models.DateTimeField(auto_now_add=True)
+    published_at =models.DateTimeField(default=timezone.now)
     shared_on = models.DateTimeField(blank=True, null=True)
     author_of_posts = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='posts_set')
     shared_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
