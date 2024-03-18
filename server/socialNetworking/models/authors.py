@@ -8,6 +8,12 @@ from .likes import Like
 from .follow import Follow
 # Create your models here.
 
+def get_upload_path(instance, filename):
+    return f"images/{instance.user}/{filename}"
+
+def get_draft_upload_path(instance, filename):
+    return f"images/draft/{instance.user}/{filename}"
+
 class Author(models.Model):
     type = models.CharField(max_length=15, default='author', editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -16,7 +22,10 @@ class Author(models.Model):
     host = models.URLField()
     displayName = models.CharField(max_length=100)
     github = models.URLField(null=True, blank=True)
-    # TODO: url for default profileImage
+    profileImagePicture = models.ImageField(null=True, blank=True, default=None, upload_to=get_upload_path)
+    draftProfileImage = models.ImageField(null=True, blank=True, default=None, upload_to=get_draft_upload_path)
+    draftDisplayName = models.CharField(max_length=100, null=True, blank=True, default="")
+    draftGithub = models.CharField(max_length=100, null=True, blank=True, default="")
     profileImage = models.URLField(null=True, blank=True)
     lastCommitFetch = models.DateTimeField(null=True, blank=True, editable=True)
 

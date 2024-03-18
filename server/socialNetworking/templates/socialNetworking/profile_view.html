@@ -16,14 +16,27 @@
 	<div id = "profile-container">
 
 		<div>
-			{% if not author.profileImage %}
-				<img src="{% static 'images/User_cicrle.png' %}">
-			{% else %}
-				<img src="{{ author.profileImage }}" width="84" height="84" style="border-radius: 42px;">
-			{% endif %}
-			<span>{{ author.displayName }}</span>
+			<div>
+				{% if not author.profileImagePicture %}
+					<img src="{% static 'images/User_cicrle.png' %}">
+				{% else %}
+					<img src="{{ author.profileImagePicture.url }}">
+				{% endif %}
+			</div>
+			<span>Username: {{ author.displayName }}</span>
 		</div>
+
 		<span>Github: {{ author.github }}</span>
+
+	</div>
+
+	<div id="draft-container">
+
+		<form id="draft-post" method="POST" enctype="multipart/form-data"> {% csrf_token %}
+			{{ draft.as_p }}
+			<input id="profile-update" type="submit" name="Update" value="Update">
+			<input type="submit" name="Save as Draft" value="Save as Draft">
+		</form>
 
 	</div>
 
