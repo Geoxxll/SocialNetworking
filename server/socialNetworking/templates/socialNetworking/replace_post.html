@@ -59,21 +59,17 @@
                         </p>
                     {% endfor %}
                  -->
-                <div class="post-buttons">                  
-                    <form method="POST" action="{% url 'like' post.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit">
+                <form id="like-form">
+                    {% csrf_token %}
+                    <div class="post-buttons" id="{{ post.pk }}">
+                        <button type="button" onclick="likeAction('{{ post.pk }}', 'numLikes-{{ post.pk }}')" id="like-btn">
                             <span>Likes</span>
-                            <!-- <span>{{ post.likes.all.count }}</span> -->
-                            <span>{{ post.num_likes }}</span>
+                            <!-- attach each the numLikes element to its own post in order to update number accordingly -->
+                            <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
                         </button>
-                    </form>
-                    <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
-                    <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
-                    <!-- Form for reposting -->
-                    
-                    
-                </div>
+                        <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
+                        <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
+                    </div>
+                </form> 
             </div>
     {% endfor %}

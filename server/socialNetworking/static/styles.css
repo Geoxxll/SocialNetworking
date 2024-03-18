@@ -234,6 +234,29 @@ body {
     margin-left: auto;  
 }
 
+.cancel-request-button {
+    border-radius: 10px; 
+    padding: 8px 15px; 
+    background-color: #6b1509; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    outline: none; 
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    margin-left: auto;  
+}
+
+.unfollow-button {
+    border-radius: 10px; 
+    padding: 8px 15px; 
+    background-color: #dfdfa3; 
+    color: rgb(0, 0, 0); 
+    border: none; 
+    cursor: pointer; 
+    outline: none; 
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    margin-left: auto;  
+}
 /* Hover effect for the search button */
 .search-button:hover  .send-request-button {
     background-color: #416837; 

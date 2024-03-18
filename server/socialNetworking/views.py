@@ -115,10 +115,21 @@ class FindFriendsView(View):
             all_users = Author.objects.all().order_by('-displayName')
                 
         follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+        sent_follow_requests = Follow.objects.filter(actor__user = request.user, active = True)
+        sent_requests_set = set(follow.object_of_follow_id for follow in sent_follow_requests)  
+
+
+
+        followers = Follower.objects.filter(follower__user=request.user)
+        following_set = set(follower_user.followee_id for follower_user in followers)
+
 
         context = { 
             'user_list': all_users,
-            'follow_requests': follow_requests,
+            'follow_requests': follow_requests,             
+            'sent_requests_set': sent_requests_set,
+            'following_set' : following_set,
+
         }
 
         
@@ -1090,7 +1101,6 @@ def accept_friend_request(request, *args, **kwargs):
 
                 actor = Author.objects.get(pk=user_id)
                 object_of_follow = Author.objects.get(user=user)
-                print(actor)
                 follow_request = Follow.objects.filter(actor=actor, object_of_follow=object_of_follow, active=True).first()
 
                 if follow_request:
@@ -1105,8 +1115,9 @@ def accept_friend_request(request, *args, **kwargs):
                     serializer = FollowerSerializer(follower)
                     context['result'] = "Successful"
                     # Deactivate the friend request
-                    follow_request.active = False
-                    follow_request.save()
+                    # follow_request.active = False
+                    follow_request.delete()
+                    # follow_request.save()
 
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:
@@ -1121,3 +1132,38 @@ def accept_friend_request(request, *args, **kwargs):
     else:
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+def cancel_follow_request(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        user_id = request.POST.get("user_id")
+        try:
+            object_of_follow = Author.objects.get(pk=user_id)
+            actor = Author.objects.get(user=request.user)
+            print(actor)
+            follow_request = Follow.objects.filter(actor=actor, object_of_follow=object_of_follow, active=True).first()
+            print(follow_request)
+            follow_request.delete()
+            return JsonResponse({'result': 'Successful'})
+        except Follow.DoesNotExist:
+            return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def unfollow_user(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        user_id = request.POST.get("user_id")
+        try:
+            followee = Author.objects.get(pk=user_id)
+            follower = Author.objects.get(user=request.user)
+            follower_object = Follower.objects.filter(follower=follower, followee=followee).first()
+            print(follower_object)
+            follower_object.delete()
+
+            return JsonResponse({'result': 'Successful'})
+        except Follow.DoesNotExist:
+            return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)

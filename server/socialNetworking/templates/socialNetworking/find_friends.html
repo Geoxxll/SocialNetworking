@@ -42,8 +42,21 @@
 
                     <div class="user-container" id="user-container-{{ user.id }}" class="left-content">
                         <span><a href="{% url 'user-profile' pk=user.pk %}" class="profile-link">{{ user.displayName }}</a></span>
-                        <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                        {% if user.id in following_set %}
+                            <button type="button" class="unfollow-button" data-user-id="{{ user.id }}">Unfollow</button>
+
+                        
+                        {% elif user.id in sent_requests_set %}
+                        <!-- User is in the list of sent follow requests -->
+                            <!-- Your HTML code for handling this case, e.g., display a cancel request button -->
+                            <button type="button" class="cancel-request-button" data-user-id="{{ user.id }}">Cancel Request</button>
+                        {% else %}
+                            <!-- User is not in the list of sent follow requests -->
+                            <!-- Your HTML code for handling this case, e.g., display a send request button -->
+                            <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
+                        {% endif %}
                     </div>
+                
                 {% endif %}
             {% endfor %}
 
@@ -97,27 +110,82 @@
 
     $(document).ready(function() {
         $(".send-request-button").on("click", function() {
-            
             var userId = $(this).data("user-id");
             sendFriendRequest(userId, onFriendRequestSent);
         });
+
+        $(".cancel-request-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            cancelFriendRequest(userId, onFriendRequestSent);
+        });
+
+        $(".unfollow-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            unfollow(userId, onFriendRequestSent);
+        })
     });
 
     function sendFriendRequest(id, uiUpdateFunction){
-        var context = {
-            "csrfmiddlewaretoken" : "{{csrf_token}}",
-            "receiver_user_id" : id, 
-        };
         var csrfToken = "{{ csrf_token }}";
         $.ajax({
-            type : "POST",
-            dataType : "json",
+            type: "POST",
+            dataType: "json",
             data: {
                 "csrfmiddlewaretoken": csrfToken,
                 "receiver_user_id": id,
             },
-            url : "{% url 'send-friend-request' %}",
-            timeout : 5000,
+            url: "{% url 'send-friend-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function cancelFriendRequest(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'cancel-follow-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function unfollow(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'unfollow-user' %}",
+            timeout: 5000,
             success: function(data){
                 if (data['result'] == "Successful"){
                     // Handle success
