@@ -1,17 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
     var contentTypeSelect = document.getElementById('id_contentType');
-    var contentTextInput = document.getElementById('id_text_content');
-    var contentFileInput = document.getElementById('id_image_content');
+    var contentInputWrapper = document.getElementById('content-input-wrapper');
+    var contentTextArea = document.getElementById('id_text_content');
 
     // Function to toggle field visibility
     function toggleContentInput() {
         var contentType = contentTypeSelect.value;
         if (contentType === 'text/markdown' || contentType === 'text/plain') {
-            contentTextInput.style.display = 'block';  // Show text area
-            contentFileInput.style.display = 'none';   // Hide file input
+            contentTextArea.style.display = 'block' //show text area
         } else {
-            contentTextInput.style.display = 'none';   // Hide text area
-            contentFileInput.style.display = 'block';  // Show file input
+            contentTextArea.style.display = 'none' // hide text area
+            contentInputWrapper.innerHTML = '<input type="file" id="id_image_content" name="content">';
         }
     }
 

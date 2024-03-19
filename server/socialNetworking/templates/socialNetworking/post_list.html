@@ -38,6 +38,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form | crispy }}
+                    <div id="content-input-wrapper"></div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-success mt-3">Submit!</button>
                     </div>
@@ -83,7 +84,6 @@
     </div>
 </div>
 
-<script src="{% static 'JS/post_list.js' %}" defer></script>
 <script src="{% static 'JS/social.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
@@ -125,6 +125,7 @@
             });
         }
     </script>
+    <script src="{% static 'JS/post_list.js' %}" defer></script>
 
 
 {% endblock content %} 

@@ -57,6 +57,17 @@
                             <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.user.username }}</a></p>
                             <p><b>Title: </b>{{ post.title }}</p>
                             <p><b>Date: </b><i>{{ post.published_at }}</i></p>
+                            {% if post.content %}
+                            {% if post.contentType == 'image/jpeg;base64' %}
+                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'image/png;base64' %}
+                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                            {% elif post.contentType == 'text/plain' %}
+                                <pre>{{ post.content|decode_utf8}}</pre>
+                            {% elif post.contentType == 'text/markdown'%}
+                                <pre>{{ post.content|decode_markdown_to_html|safe }}</pre>
+                            {% endif %}
+                        {% endif %}
                         </div>
                     {% else %}
                         <div class="post-content">
@@ -69,6 +80,8 @@
                                 <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'text/plain' %}
                                 <pre>{{ post.content|decode_utf8}}</pre>
+                            {% elif post.contentType == 'text/markdown'%}
+                                <pre>{{ post.content|decode_markdown_to_html|safe }}</pre>
                             {% endif %}
 
                         </div>
