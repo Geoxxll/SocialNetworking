@@ -4,14 +4,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.decorators import authentication_classes, permission_classes, api_view
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 import json
-
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
 
 from django.utils import timezone
 from django.views import View
@@ -20,6 +18,7 @@ from .models.comments import Comment
 from .models.followers import Follower
 from .models.follow import Follow
 from .models.likes import Like
+from .models.nodes import Node
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
 from .forms import PostForm, CommentForm, ShareForm, DraftForm
@@ -46,6 +45,7 @@ from rest_framework import status
 
 import base64
 import requests
+from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -251,6 +251,9 @@ class PostDetailView(View):
             new_comment.save()
             form = CommentForm()
 
+            node = Node.objects.get(host_url=post.author_of_posts.host)
+            output = CommentSerializer(new_comment)
+            response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
         
@@ -604,6 +607,11 @@ def commentLike(request,post_pk, pk):
     if not liked:
         liked = Like.objects.create(author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
+
+        node = Node.objects.get(host_url=comment.comment_author.host)
+        output = LikeSerializer(liked)
+        response = requests.post(comment.comment_author.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
     else:
         liked = Like.objects.filter(author_like = author, like_comment = comment).delete()
         current_likes-=1
@@ -686,6 +694,11 @@ def likeAction(request, post_pk):
         if not liked:
             liked = Like.objects.create(author_like = author, like_post = post, object = post.url)
             current_likes+=1
+
+            node = Node.objects.get(host_url=post.author_of_posts.host)
+            output = LikeSerializer(liked)
+            response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
         else:
             liked = Like.objects.filter(author_like = author, like_post = post).delete()
             current_likes-=1
@@ -934,7 +947,6 @@ def inbox(request, author_id):
             return Response(output, status=status.HTTP_200_OK)
 
         elif request.method == 'POST':
-            
             if request.data.get('type').lower() == 'post':
                 post_auth = request.data.get('author')
                 cont_type = request.data.get('contentType')
@@ -964,11 +976,10 @@ def inbox(request, author_id):
                 
                 author.postInbox.add(post_obj)
                 output = None
-                if cont_type == 'text/plain':
+                if cont_type == 'text/plain' or cont_type == 'text/markdown':
                     output = TextPostSerializer(post_obj)
                    
                 return Response(output.data, status=status.HTTP_201_CREATED)
-
 
             elif request.data.get('type').lower() == 'comment':
                 comment_auth = request.data.get('author')
@@ -976,7 +987,7 @@ def inbox(request, author_id):
                 split_url = comment_url.rsplit('/', 2)
                 post_url = split_url[0]
                 comment_obj = None
-
+                
                 if not Post.objects.filter(url=post_url).exists():
                     return Response({'error': 'Post of comment does not exist'}, status=status.HTTP_400_BAD_REQUEST)
                 
@@ -986,7 +997,7 @@ def inbox(request, author_id):
                         author_serializer.save()
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+                
                 if not Comment.objects.filter(url=comment_url).exists():    
                     comment_serializer = CommentSerializer(data=request.data)
                     if comment_serializer.is_valid():
@@ -1107,6 +1118,11 @@ def send_friend_request(request, *args, **kwargs):
                 
                 # Create a new follow request
                 friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
+
+                node = Node.objects.get(host_url=receiver.host)
+                output = FollowSerializer(friend_request)
+                response = requests.post(receiver.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
                 context['result'] = "Successful"
                 return Response(context, status=status.HTTP_200_OK)
             
