@@ -77,21 +77,32 @@ class AddPostView(View):
             new_post.url = author_instance.url + "/posts/" + str(new_post.post_id)
             new_post.source = new_post.url
             new_post.origin = new_post.url
-            if new_post.contentType in ['image/png;base64', 'image/jpeg;base64']:
-                # Handle image file; convert to base64
+            content_type = form.cleaned_data.get('contentType')
+            if content_type in ['image/png;base64', 'image/jpeg;base64','application/base64']:
+                # For images, convert to base64 and store as bytes
                 if 'content' in request.FILES:
                     image = request.FILES['content']
                     new_post.content = base64.b64encode(image.read())
-                elif new_post.contentType == 'application/base64':
-                # If content is text but encoded in base64, decode it for storage
-                # Assuming you want to store decoded content; otherwise, remove decoding
-                    decoded_content = base64.b64decode(request.POST['content'])
-                    new_post.content = decoded_content
-            elif new_post.contentType in ['text/markdown', 'text/plain']:
-            # Handle text and markdown files
-                if 'content' in request.FILES:
-                    text_file = request.FILES['content']
-                    new_post.content = text_file.read()
+            else:
+                # For text/markdown, encode as utf-8 to store as bytes
+                if 'content' in request.POST:
+                    new_post.content = request.POST['content'].encode('utf-8')
+            
+            # if new_post.contentType in ['image/png;base64', 'image/jpeg;base64']:
+            #     # Handle image file; convert to base64
+            #     if 'content' in request.FILES:
+            #         image = request.FILES['content']
+            #         new_post.content = base64.b64encode(image.read())
+            #     elif new_post.contentType == 'application/base64':
+            #     # If content is text but encoded in base64, decode it for storage
+            #     # Assuming you want to store decoded content; otherwise, remove decoding
+            #         decoded_content = base64.b64decode(request.POST['content'])
+            #         new_post.content = decoded_content
+            # elif new_post.contentType in ['text/markdown', 'text/plain']:
+            # # Handle text and markdown files
+            #     if 'content' in request.FILES:
+            #         text_file = request.FILES['content']
+            #         new_post.content = text_file.read()
             
             new_post.save()
             

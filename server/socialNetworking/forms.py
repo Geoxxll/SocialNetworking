@@ -8,8 +8,9 @@ class PostForm(forms.ModelForm):
     # source = forms.URLField()
     # origin = forms.URLField()
     # description = forms.CharField(widget=forms.Textarea)
+    # text_content = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=False)
+    # image_content = forms.ImageField(required=False)
     contentType = forms.ChoiceField(choices=Post.contentTypesChoices.items())
-    content = forms.ImageField(required=False)  # Use ImageField for binary images
     visibility = forms.ChoiceField(choices=Post.VisibilityChoices.choices)
 
     class Meta:
@@ -20,12 +21,13 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
         # Determine if there's initial or submitted content type
+        # self.fields['text_content'].widget = forms.HiddenInput()
+        # self.fields['image_content'].widget = forms.HiddenInput()
         content_type = self.initial.get('contentType') or self.data.get('contentType')
-        
-        if content_type in ['image/png;base64', 'image/jpeg;base64']:
-            self.fields['content'] = forms.ImageField(required=False)
+        if content_type in ['image/png;base64', 'image/jpeg;base64', 'application/base64']:
+            self.fields['content'] = forms.ImageField(required=False, widget=forms.FileInput(attrs={'id': 'id_image_content'}))
         else:
-            self.fields['content'] = forms.FileField(required=False)
+            self.fields['content'] = forms.CharField(required=False, widget=forms.Textarea(attrs={'id': 'id_text_content'}))
         
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(
