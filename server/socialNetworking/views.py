@@ -111,6 +111,7 @@ class AddPostView(View):
             return redirect('post-list')
             
         posts = Post.objects.all().order_by('-published_at')
+        print("Post: ", posts)
         context = {
             'post_list': posts,
             'form': form,
