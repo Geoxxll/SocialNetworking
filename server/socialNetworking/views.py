@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 import json
@@ -892,6 +895,8 @@ def liked(request, author_id):
     return
 
 @api_view(['GET', 'POST', 'DELETE'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def inbox(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)

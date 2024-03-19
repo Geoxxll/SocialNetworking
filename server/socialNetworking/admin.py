@@ -7,8 +7,10 @@ from .models.comments import Comment
 from .models.likes import Like
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
+from .models.nodes import Node
 # Register your models here.
 
+admin.site.register(Node)
 admin.site.register(Author)
 admin.site.register(Follower)
 admin.site.register(Follow)
