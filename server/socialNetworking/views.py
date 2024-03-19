@@ -108,7 +108,21 @@ class AddPostView(View):
             #         new_post.content = text_file.read()
             
             new_post.save()
+
+            # HTTP Request to POST new public post to inbox of followers
+            if new_post.visibility == 'PUBLIC':
+                follower_list = Author.objects.filter(follower_set__followee=author_instance)
+                for flwr in follower_list:
+                    node = Node.objects.get(host_url=flwr.host)
+                    output = None
+                    if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
+                        output = TextPostSerializer(new_post)
+                    else:
+                        pass # TODO: Create ImagePostSerializer and add it here
+                    response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
             
+            # TODO: HTTP Requests to POST new friends-only post to inbox of friends
+
             # Create a new, empty form after successfully saving the post
             form = PostForm()
             return redirect('post-list')
@@ -127,6 +141,9 @@ class FindFriendsView(View):
     def get(self, request, *args, **kwargs):
         User = get_user_model()
         query = request.GET.get('query')
+
+        # TODO: HTTP Requests to GET list of authors from remote servers, then add them to database
+        # (Maybe should be somewhere else where it is called earlier and less often)
         
         if query:
             # Filter users based on the search query
@@ -251,6 +268,7 @@ class PostDetailView(View):
             new_comment.save()
             form = CommentForm()
 
+            # HTTP Request to POST new comment to inbox of post author
             node = Node.objects.get(host_url=post.author_of_posts.host)
             output = CommentSerializer(new_comment)
             response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
@@ -608,6 +626,7 @@ def commentLike(request,post_pk, pk):
         liked = Like.objects.create(author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
 
+        # HTTP Request to POST new comment like to inbox of comment author
         node = Node.objects.get(host_url=comment.comment_author.host)
         output = LikeSerializer(liked)
         response = requests.post(comment.comment_author.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
@@ -695,6 +714,7 @@ def likeAction(request, post_pk):
             liked = Like.objects.create(author_like = author, like_post = post, object = post.url)
             current_likes+=1
 
+            # HTTP Request to POST new post like to inbox of post author
             node = Node.objects.get(host_url=post.author_of_posts.host)
             output = LikeSerializer(liked)
             response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
@@ -1119,6 +1139,7 @@ def send_friend_request(request, *args, **kwargs):
                 # Create a new follow request
                 friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
 
+                # HTTP Request to POST new follow request to inbox of receipient author
                 node = Node.objects.get(host_url=receiver.host)
                 output = FollowSerializer(friend_request)
                 response = requests.post(receiver.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
