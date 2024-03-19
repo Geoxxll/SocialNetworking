@@ -4,3 +4,4 @@ django-crispy-forms==1.12.0
 crispy-bootstrap5
 djangorestframework
 Pillow
+django-markdown2

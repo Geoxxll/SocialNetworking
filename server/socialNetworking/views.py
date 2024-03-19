@@ -77,7 +77,7 @@ class AddPostView(View):
             author_instance = Author.objects.get(user=user_instance)
             new_post = form.save(commit=False)
             new_post.author_of_posts = author_instance
-            new_post.url = author_instance.url + "/posts/" + str(new_post.post_id)
+            new_post.url = author_instance.url + "posts/" + str(new_post.post_id)
             new_post.source = new_post.url
             new_post.origin = new_post.url
             content_type = form.cleaned_data.get('contentType')
@@ -247,6 +247,7 @@ class PostDetailView(View):
             new_comment = form.save(commit=False)
             new_comment.comment_author = Author.objects.get(user=request.user)
             new_comment.post = post
+            new_comment.url = post.url + '/comments/' + str(new_comment.comment_id)
             new_comment.save()
             form = CommentForm()
 
@@ -601,7 +602,7 @@ def commentLike(request,post_pk, pk):
     liked = Like.objects.filter(author_like = author, like_comment = comment).count()
     
     if not liked:
-        liked = Like.objects.create(author_like = author, like_comment = comment)
+        liked = Like.objects.create(author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
     else:
         liked = Like.objects.filter(author_like = author, like_comment = comment).delete()
@@ -683,7 +684,7 @@ def likeAction(request, post_pk):
         current_likes = post.num_likes
         liked = Like.objects.filter(author_like = author, like_post = post).count()
         if not liked:
-            liked = Like.objects.create(author_like = author, like_post = post)
+            liked = Like.objects.create(author_like = author, like_post = post, object = post.url)
             current_likes+=1
         else:
             liked = Like.objects.filter(author_like = author, like_post = post).delete()
@@ -947,7 +948,7 @@ def inbox(request, author_id):
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
                 if not Post.objects.filter(url=request.data.get('id')).exists():                                 
-                    if cont_type == 'text/plain':
+                    if cont_type == 'text/plain' or cont_type == 'text/markdown':
                         post_serializer = TextPostSerializer(data=request.data)
 
                     if post_serializer.is_valid():
@@ -958,7 +959,9 @@ def inbox(request, author_id):
                     post_obj = Post.objects.get(url=request.data.get('id'))
                     post_obj.author_of_posts = Author.objects.get(url=post_auth.get('id'))
                     post_obj.save()
-                               
+                else:
+                    post_obj = Post.objects.get(url=request.data.get('id'))              
+                
                 author.postInbox.add(post_obj)
                 output = None
                 if cont_type == 'text/plain':
@@ -972,6 +975,7 @@ def inbox(request, author_id):
                 comment_url = request.data.get('id')
                 split_url = comment_url.rsplit('/', 2)
                 post_url = split_url[0]
+                comment_obj = None
 
                 if not Post.objects.filter(url=post_url).exists():
                     return Response({'error': 'Post of comment does not exist'}, status=status.HTTP_400_BAD_REQUEST)
@@ -982,26 +986,29 @@ def inbox(request, author_id):
                         author_serializer.save()
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    
-                comment_serializer = CommentSerializer(data=request.data)
-                if comment_serializer.is_valid():
-                    comment_serializer.save()
-                else:
-                    return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-                comment_obj = Comment.objects.get(comment_author=None)
-                comment_obj.comment_author = Author.objects.get(url=comment_auth.get('id'))
-                comment_obj.post = Post.objects.get(url=post_url)
-                comment_obj.save()
 
-                author.commentInbox.add(comment_obj)
+                if not Comment.objects.filter(url=comment_url).exists():    
+                    comment_serializer = CommentSerializer(data=request.data)
+                    if comment_serializer.is_valid():
+                        comment_serializer.save()
+                    else:
+                        return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    comment_obj = Comment.objects.get(comment_author=None)
+                    comment_obj.comment_author = Author.objects.get(url=comment_auth.get('id'))
+                    comment_obj.post = Post.objects.get(url=post_url)
+                    comment_obj.save()
+                else:
+                    comment_obj = Comment.objects.get(url=comment_url)
                 
+                author.commentInbox.add(comment_obj)
                 output = CommentSerializer(comment_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type').lower() == 'like':
                 like_author = request.data.get('author')
                 obj_url = request.data.get('object')
+                like_obj = None
 
                 if not Post.objects.filter(url=obj_url).exists() and not Comment.objects.filter(url=obj_url).exists():
                     return Response({'error': 'Object of like does not exist'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1012,29 +1019,32 @@ def inbox(request, author_id):
                         author_serializer.save()
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                if not Like.objects.filter(object=obj_url).filter(author_like__url=like_author.get('id')).exists():
+                    like_serializer = LikeSerializer(data=request.data)
+                    if like_serializer.is_valid():
+                        like_serializer.save()
+                    else:
+                        return Response(like_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
-                like_serializer = LikeSerializer(data=request.data)
-                if like_serializer.is_valid():
-                    like_serializer.save()
-                else:
-                    return Response(like_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-                like_obj = Like.objects.get(author_like=None)
-                like_obj.author_like = Author.objects.get(url=like_author.get('id'))
-                if Post.objects.filter(url=obj_url).exists():
-                    like_obj.like_post = Post.objects.get(url=obj_url)
-                else:
-                    like_obj.like_comment = Comment.objects.get(url=obj_url)
-                like_obj.save()
+                    like_obj = Like.objects.get(author_like=None)
+                    like_obj.author_like = Author.objects.get(url=like_author.get('id'))
+                    if Post.objects.filter(url=obj_url).exists():
+                        like_obj.like_post = Post.objects.get(url=obj_url)
+                    else:
+                        like_obj.like_comment = Comment.objects.get(url=obj_url)
+                    like_obj.save()
+                else:                
+                    like_obj = Like.objects.filter(object=obj_url).filter(author_like__url=like_author.get('id')).get()
                 
                 author.likeInbox.add(like_obj)
-                
                 output = LikeSerializer(like_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type').lower() == 'follow':
                 follow_auth = request.data.get('actor')
                 obj_auth = request.data.get('object')
+                follow_obj = None
 
                 if not getattr(author, 'url') == obj_auth.get('id'):
                     return Response({'error': 'Improper inbox for object of follow'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1046,19 +1056,21 @@ def inbox(request, author_id):
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 
-                follow_serializer = FollowSerializer(data=request.data)
-                if follow_serializer.is_valid():
-                    follow_serializer.save()
+                if not Follow.objects.filter(actor__url=follow_auth.get('id')).filter(object_of_follow__url=obj_auth.get('id')).exists():
+                    follow_serializer = FollowSerializer(data=request.data)
+                    if follow_serializer.is_valid():
+                        follow_serializer.save()
+                    else:
+                        return Response(follow_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    follow_obj = Follow.objects.get(actor=None)
+                    follow_obj.actor = Author.objects.get(url=follow_auth.get('id'))
+                    follow_obj.object_of_follow = author
+                    follow_obj.save()
                 else:
-                    return Response(follow_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-                follow_obj = Follow.objects.get(actor=None)
-                follow_obj.actor = Author.objects.get(url=follow_auth.get('id'))
-                follow_obj.object_of_follow = author
-                follow_obj.save()
+                    follow_obj = Follow.objects.filter(actor__url=follow_auth.get('id')).filter(object_of_follow__url=obj_auth.get('id')).get()
                 
                 author.followInbox.add(follow_obj)
-                
                 output = FollowSerializer(follow_obj)
                 return Response(output.data, status=status.HTTP_201_CREATED)
             
