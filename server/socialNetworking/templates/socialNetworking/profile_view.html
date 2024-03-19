@@ -30,19 +30,26 @@
 
     <span>Github: {{ author.github }}</span>
   </div>
-
-  <div id="draft-container">
-    <form id="draft-post" method="POST" enctype="multipart/form-data">
-      {% csrf_token %} {{ draft.as_p }}
-      <input id="profile-update" type="submit" name="Update" value="Update" />
-      <input type="submit" name="Save as Draft" value="Save as Draft" />
-    </form>
-  </div>
+  
+  {% if author.user == request.user %}
+    <div id="draft-container">
+      <form id="draft-post" method="POST" enctype="multipart/form-data">
+        {% csrf_token %} {{ draft.as_p }}
+        <input id="profile-update" type="submit" name="Update" value="Update" />
+        <input type="submit" name="Save as Draft" value="Save as Draft" />
+      </form>
+    </div>
+  {% endif %}
 
 	<div id="post-container" class="container">
 		<div class="row mt-3">
 		<div class="col-sm-12 border-bottom">
-			<h2>Posts you created(check unlisted posts below):</h2>
+			{% if author.user == request.user %}
+			  <h2>Posts you created(check unlisted posts below):</h2>
+      {% else %}
+        <h2>Posts </h2>
+      {% endif %}
+
 		</div>
 		</div>
 
