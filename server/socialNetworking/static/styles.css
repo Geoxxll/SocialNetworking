@@ -346,6 +346,7 @@ body {
     height: 50px;
     border-radius: 50%;
     margin-right: 10px;
+    border: 2px solid #1a2c15;
 }
 
 .post-content {

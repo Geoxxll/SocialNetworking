@@ -4,8 +4,11 @@
 {% for post in post_list %}
             <!-- Post Container -->
             <div class="post-container left-content" style="display: flex; justify-content: space-between;">
-                <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
-                <!-- When user shares a post -->
+                {% if not post.author_of_posts.profileImagePicture %}
+                    <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+                {% else %}
+                    <img src="{{ post.author_of_posts.profileImagePicture.url }}" alt="Profile Picture" class="post-profile-pic">
+                {% endif %}
                 
                 {% if post.shared_body %}
                     <!-- info of the sharer -->
