@@ -19,6 +19,7 @@
         
         <div class="dropdown">
           <button class="dropbtn">
+             
             <img src="{% static 'images/expand_down.png' %}" alt="Dropdown" style="width: 15px;">
           </button>
           {% if user.is_authenticated %}
@@ -31,8 +32,11 @@
         
       </div>
       <div class="profile-pic">
-        <a href=""><img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture"></a>
+        <!-- <a href=""><img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture"></a> -->
         
+        <!-- <div class="profile-pic"> -->
+          <a href=""><img src="{% if user.is_authenticated and author.profileImagePicture %}{{ user.author.profileImagePicture.url }}{% else %}{% static 'images/User_cicrle.png' %}{% endif %}" alt="Profile Picture"></a>
+        <!-- </div> -->
       </div>
     </div>
 </div>

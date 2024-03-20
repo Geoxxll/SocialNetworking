@@ -44,7 +44,11 @@
                 {% for post in post_list %}
                 <!-- Post Container -->
                 <div class="post-container left-content" style="display: flex; justify-content: space-between;">
-                    <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+                    {% if not post.author_of_posts.profileImagePicture %}
+                        <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+                    {% else %}
+                        <img src="{{ post.author_of_posts.profileImagePicture.url }}" alt="Profile Picture" class="post-profile-pic">
+                    {% endif %}
                     <!-- When user shares a post -->
                     
                     {% if post.shared_body %}
@@ -137,7 +141,7 @@
                     </div>
                 </div>
 
-                <div id="notification" class="static-box">
+                <!-- <div id="notification" class="static-box">
                     <h2>Notifications</h2>
                     <div>
                         <hr>
@@ -152,7 +156,7 @@
                         <h4>User 10 liked your post</h4>
                         <hr>
                     </div>
-                </div>
+                </div> -->
             </div>
     
         </div>

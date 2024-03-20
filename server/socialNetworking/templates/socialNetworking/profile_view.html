@@ -26,23 +26,46 @@
         {% endif %}
       </div>
       <span>Username: {{ author.displayName }}</span>
+
+      {% if not author.user == request.user %}
+      {% if author.id in following_set %}
+        <button type="button" class="unfollow-button" data-user-id="{{ author.id }}">Unfollow</button>
+
+
+      {% elif author.id in sent_requests_set %}
+
+        <button type="button" class="cancel-request-button" data-user-id="{{ author.id }}">Cancel Request</button>
+      {% else %}
+    
+        <button type="button" class="send-request-button" data-user-id="{{ author.id }}">Send Request</button>
+      {% endif %}
+    {% endif %}
     </div>
 
     <span>Github: {{ author.github }}</span>
-  </div>
 
-  <div id="draft-container">
-    <form id="draft-post" method="POST" enctype="multipart/form-data">
-      {% csrf_token %} {{ draft.as_p }}
-      <input id="profile-update" type="submit" name="Update" value="Update" />
-      <input type="submit" name="Save as Draft" value="Save as Draft" />
-    </form>
+    
   </div>
+  
+  {% if myProfile %}
+    <div id="draft-container">
+      <form id="draft-post" method="POST" enctype="multipart/form-data">
+        {% csrf_token %} {{ draft.as_p }}
+        <input id="profile-update" type="submit" name="Update" value="Update" />
+        <input type="submit" name="Save as Draft" value="Save as Draft" />
+      </form>
+    </div>
+  {% endif %}
 
 	<div id="post-container" class="container">
 		<div class="row mt-3">
 		<div class="col-sm-12 border-bottom">
-			<h2>Posts you created(check unlisted posts below):</h2>
+			{% if author.user == request.user %}
+			  <h2>Posts you created(check unlisted posts below):</h2>
+      {% else %}
+        <h2>Posts </h2>
+      {% endif %}
+
 		</div>
 		</div>
 
@@ -98,6 +121,106 @@
     {% endfor %}
   </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    function onFriendRequestSent(){
+        location.reload();
+    }
+
+    $(document).ready(function() {
+        $(".send-request-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            sendFriendRequest(userId, onFriendRequestSent);
+        });
+
+        $(".cancel-request-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            cancelFriendRequest(userId, onFriendRequestSent);
+        });
+
+        $(".unfollow-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            unfollow(userId, onFriendRequestSent);
+        })
+    });
+
+    function sendFriendRequest(id, uiUpdateFunction){
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "receiver_user_id": id,
+            },
+            url: "{% url 'send-friend-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function cancelFriendRequest(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'cancel-follow-request' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+
+    function unfollow(id, uiUpdateFunction) {
+        var csrfToken = "{{ csrf_token }}";
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfToken,
+                "user_id": id,
+            },
+            url: "{% url 'unfollow-user' %}",
+            timeout: 5000,
+            success: function(data){
+                if (data['result'] == "Successful"){
+                    // Handle success
+                }
+            },
+            error: function(data){
+                // Handle error
+            },
+            complete: function(data){
+                uiUpdateFunction();
+            }
+        });
+    }
+</script>
+
 
 {% endblock content %}
 

@@ -4,14 +4,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.decorators import authentication_classes, permission_classes, api_view
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 import json
-
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
 
 from django.utils import timezone
 from django.views import View
@@ -20,6 +18,7 @@ from .models.comments import Comment
 from .models.followers import Follower
 from .models.follow import Follow
 from .models.likes import Like
+from .models.nodes import Node
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
 from .forms import PostForm, CommentForm, ShareForm, DraftForm
@@ -46,6 +45,7 @@ from rest_framework import status
 
 import base64
 import requests
+from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -108,7 +108,21 @@ class AddPostView(View):
             #         new_post.content = text_file.read()
             
             new_post.save()
+
+            # HTTP Request to POST new public post to inbox of followers
+            if new_post.visibility == 'PUBLIC':
+                follower_list = Author.objects.filter(follower_set__followee=author_instance)
+                for flwr in follower_list:
+                    node = Node.objects.get(host_url=flwr.host)
+                    output = None
+                    if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
+                        output = TextPostSerializer(new_post)
+                    else:
+                        pass # TODO: Create ImagePostSerializer and add it here
+                    response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
             
+            # TODO: HTTP Requests to POST new friends-only post to inbox of friends
+
             # Create a new, empty form after successfully saving the post
             form = PostForm()
             return redirect('post-list')
@@ -127,6 +141,9 @@ class FindFriendsView(View):
     def get(self, request, *args, **kwargs):
         User = get_user_model()
         query = request.GET.get('query')
+
+        # TODO: HTTP Requests to GET list of authors from remote servers, then add them to database
+        # (Maybe should be somewhere else where it is called earlier and less often)
         
         if query:
             # Filter users based on the search query
@@ -251,6 +268,10 @@ class PostDetailView(View):
             new_comment.save()
             form = CommentForm()
 
+            # HTTP Request to POST new comment to inbox of post author
+            node = Node.objects.get(host_url=post.author_of_posts.host)
+            output = CommentSerializer(new_comment)
+            response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
         
@@ -291,7 +312,7 @@ class DashboardView(View):
                                 commit["commit"]["message"]
                             ),
                             contentType = 'text/plain',
-                            visibility = "Public",
+                            visibility = "PUBLIC",
                             published_at = commit["commit"]["author"]["date"],
                             author_of_posts = author
                         ).save()
@@ -347,6 +368,7 @@ class DashboardView(View):
             'author': author,
             'shared_posts':shared_posts,
             'draft': draft,
+            'myProfile': True,
             'unlisted_posts':unlisted_post,
         }
 
@@ -357,14 +379,20 @@ class DashboardView(View):
         author = Author.objects.get(id= request.POST.get("id"))
 
         if ('Update' in request.POST):
-            author.displayName = request.POST.get("draftDisplayName")
-            author.draftDisplayName = request.POST.get("draftDisplayName")
-            author.draftProfileImage = request.FILES.get("draftProfileImage")
-            author.profileImagePicture = request.FILES.get("draftProfileImage")
+            if (request.POST.get("draftDisplayName").strip()):
+                author.displayName = request.POST.get("draftDisplayName")
+                author.draftDisplayName = request.POST.get("draftDisplayName")
+            if (request.FILES.get("draftProfileImage")):
+                author.draftProfileImage = request.FILES.get("draftProfileImage")
+                author.profileImagePicture = request.FILES.get("draftProfileImage")
+                author.save()
+                author.profileImage = author.host + author.profileImagePicture.url
+            else:
+                author.draftProfileImage = None
+                author.profileImagePicture = None
+                author.profileImage = None
             author.github = request.POST.get("draftGithub")
             author.draftGithub = request.POST.get("draftGithub")
-            author.save()
-            author.profileImage = author.host + author.profileImagePicture.url
 
         elif ('Save as Draft' in request.POST):
             author.draftDisplayName = request.POST.get("draftDisplayName")
@@ -380,62 +408,12 @@ class User_Profile(View):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         author = get_object_or_404(Author, pk=pk)
-        last_commit_fetch = author.lastCommitFetch
-        if author.github:
-            if not last_commit_fetch:
-                try:
-                    url = "https://api.github.com/search/commits?q=author:{} author-date:>={}&sort=author-date&order=desc".format(
-                        author.github.split("/")[-1],
-                        (datetime.now() + timedelta(weeks=-2)).strftime("%Y-%m-%d")
-                    )
-                    print(url)
-                    response = requests.get(url).json()
-                    for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
-                            type = "post",
-                            origin = request.headers["Host"],
-                            description = "[{}]: {}".format(
-                                commit["repository"]["name"],
-                                commit["commit"]["message"]
-                            ),
-                            contentType = 'text/plain',
-                            visibility = "Public",
-                            published_at = commit["commit"]["author"]["date"],
-                            author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
-                except:
-                    print("Unable to fetch the commits!")
-            else:
-                try:
-                    url = "https://api.github.com/search/commits?q=author:{} author-date:>{}&sort=author-date&order=desc".format(
-                        author.github.split("/")[-1],
-                        author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
-                    )
-                    print(url)
-                    response = requests.get(url).json()
-                    for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
-                            type = "post",
-                            origin = request.headers["Host"],
-                            description = "[{}]: {}".format(
-                                commit["repository"]["name"],
-                                commit["commit"]["message"]
-                            ),
-                            contentType = 'text/plain',
-                            visibility = "Public",
-                            published_at = commit["commit"]["author"]["date"],
-                            author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
-                except:
-                    print("Unable to fetch the commits!")
 
         posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+
+        myProfile = author.user == request.user
+        if (myProfile):
+            return redirect('profile')
 
         friend_posts = []
         visible_posts = []
@@ -447,6 +425,7 @@ class User_Profile(View):
                     visible_posts.append(post)
 
             posts = visible_posts
+
 
         # for post in posts:
         #     if post.visibility == 'PUBLIC':
@@ -463,9 +442,24 @@ class User_Profile(View):
         #             friend_posts.append(post)
 
         form = PostForm()
+
+        follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+        sent_follow_requests = Follow.objects.filter(actor__user = request.user, active = True)
+        sent_requests_set = set(follow.object_of_follow_id for follow in sent_follow_requests)  
+
+
+
+        followers = Follower.objects.filter(follower__user=request.user)
+        following_set = set(follower_user.followee_id for follower_user in followers)
+
         
 
         context = {
+            # 'user_list': all_users,
+            'follow_requests': follow_requests,             
+            'sent_requests_set': sent_requests_set,
+            'following_set' : following_set,
+            'myProfile': False,
             'post_list': posts,
             'form': form,
             'author': author,
@@ -604,6 +598,12 @@ def commentLike(request,post_pk, pk):
     if not liked:
         liked = Like.objects.create(author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
+
+        # HTTP Request to POST new comment like to inbox of comment author
+        node = Node.objects.get(host_url=comment.comment_author.host)
+        output = LikeSerializer(liked)
+        response = requests.post(comment.comment_author.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
     else:
         liked = Like.objects.filter(author_like = author, like_comment = comment).delete()
         current_likes-=1
@@ -686,6 +686,12 @@ def likeAction(request, post_pk):
         if not liked:
             liked = Like.objects.create(author_like = author, like_post = post, object = post.url)
             current_likes+=1
+
+            # HTTP Request to POST new post like to inbox of post author
+            node = Node.objects.get(host_url=post.author_of_posts.host)
+            output = LikeSerializer(liked)
+            response = requests.post(post.author_of_posts.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
         else:
             liked = Like.objects.filter(author_like = author, like_post = post).delete()
             current_likes-=1
@@ -934,7 +940,6 @@ def inbox(request, author_id):
             return Response(output, status=status.HTTP_200_OK)
 
         elif request.method == 'POST':
-            
             if request.data.get('type').lower() == 'post':
                 post_auth = request.data.get('author')
                 cont_type = request.data.get('contentType')
@@ -964,11 +969,10 @@ def inbox(request, author_id):
                 
                 author.postInbox.add(post_obj)
                 output = None
-                if cont_type == 'text/plain':
+                if cont_type == 'text/plain' or cont_type == 'text/markdown':
                     output = TextPostSerializer(post_obj)
                    
                 return Response(output.data, status=status.HTTP_201_CREATED)
-
 
             elif request.data.get('type').lower() == 'comment':
                 comment_auth = request.data.get('author')
@@ -976,7 +980,7 @@ def inbox(request, author_id):
                 split_url = comment_url.rsplit('/', 2)
                 post_url = split_url[0]
                 comment_obj = None
-
+                
                 if not Post.objects.filter(url=post_url).exists():
                     return Response({'error': 'Post of comment does not exist'}, status=status.HTTP_400_BAD_REQUEST)
                 
@@ -986,7 +990,7 @@ def inbox(request, author_id):
                         author_serializer.save()
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+                
                 if not Comment.objects.filter(url=comment_url).exists():    
                     comment_serializer = CommentSerializer(data=request.data)
                     if comment_serializer.is_valid():
@@ -1107,6 +1111,12 @@ def send_friend_request(request, *args, **kwargs):
                 
                 # Create a new follow request
                 friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
+
+                # HTTP Request to POST new follow request to inbox of receipient author
+                node = Node.objects.get(host_url=receiver.host)
+                output = FollowSerializer(friend_request)
+                response = requests.post(receiver.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
                 context['result'] = "Successful"
                 return Response(context, status=status.HTTP_200_OK)
             

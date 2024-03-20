@@ -47,12 +47,10 @@
 
                         
                         {% elif user.id in sent_requests_set %}
-                        <!-- User is in the list of sent follow requests -->
-                            <!-- Your HTML code for handling this case, e.g., display a cancel request button -->
+                     
                             <button type="button" class="cancel-request-button" data-user-id="{{ user.id }}">Cancel Request</button>
                         {% else %}
-                            <!-- User is not in the list of sent follow requests -->
-                            <!-- Your HTML code for handling this case, e.g., display a send request button -->
+                           
                             <button type="button" class="send-request-button" data-user-id="{{ user.id }}">Send Request</button>
                         {% endif %}
                     </div>
@@ -81,7 +79,7 @@
                 </div>
             </div>
 
-            <div id="notification" class="static-box">
+            <!-- <div id="notification" class="static-box">
                 <h2>Notifications</h2>
                 <div>
                     <hr>
@@ -96,7 +94,7 @@
                     <h4>User 10 liked your post</h4>
                     <hr>
                 </div>
-            </div>
+            </div> -->
         </div>
 
 </div>
