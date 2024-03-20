@@ -397,18 +397,12 @@ class DashboardView(View):
                 author.profileImagePicture = request.FILES.get("draftProfileImage")
                 author.save()
                 author.profileImage = author.host + author.profileImagePicture.url
-<<<<<<< HEAD
-            if (request.POST.get("draftGithub").strip()):
-                author.github = request.POST.get("draftGithub")
-                author.draftGithub = request.POST.get("draftGithub")
-=======
             else:
                 author.draftProfileImage = None
                 author.profileImagePicture = None
                 author.profileImage = None
             author.github = request.POST.get("draftGithub")
             author.draftGithub = request.POST.get("draftGithub")
->>>>>>> 29f3f3a25daf611a999181344746f703ae5e1916
 
         elif ('Save as Draft' in request.POST):
             if (request.POST.get("draftDisplayName").strip()):
