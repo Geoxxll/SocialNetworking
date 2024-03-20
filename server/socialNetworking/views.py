@@ -368,6 +368,7 @@ class DashboardView(View):
             'author': author,
             'shared_posts':shared_posts,
             'draft': draft,
+            'myProfile': True,
             'unlisted_posts':unlisted_post,
         }
 
@@ -401,62 +402,12 @@ class User_Profile(View):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         author = get_object_or_404(Author, pk=pk)
-        last_commit_fetch = author.lastCommitFetch
-        if author.github:
-            if not last_commit_fetch:
-                try:
-                    url = "https://api.github.com/search/commits?q=author:{} author-date:>={}&sort=author-date&order=desc".format(
-                        author.github.split("/")[-1],
-                        (datetime.now() + timedelta(weeks=-2)).strftime("%Y-%m-%d")
-                    )
-                    print(url)
-                    response = requests.get(url).json()
-                    for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
-                            type = "post",
-                            origin = request.headers["Host"],
-                            description = "[{}]: {}".format(
-                                commit["repository"]["name"],
-                                commit["commit"]["message"]
-                            ),
-                            contentType = 'text/plain',
-                            visibility = "Public",
-                            published_at = commit["commit"]["author"]["date"],
-                            author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
-                except:
-                    print("Unable to fetch the commits!")
-            else:
-                try:
-                    url = "https://api.github.com/search/commits?q=author:{} author-date:>{}&sort=author-date&order=desc".format(
-                        author.github.split("/")[-1],
-                        author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
-                    )
-                    print(url)
-                    response = requests.get(url).json()
-                    for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
-                            type = "post",
-                            origin = request.headers["Host"],
-                            description = "[{}]: {}".format(
-                                commit["repository"]["name"],
-                                commit["commit"]["message"]
-                            ),
-                            contentType = 'text/plain',
-                            visibility = "Public",
-                            published_at = commit["commit"]["author"]["date"],
-                            author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
-                except:
-                    print("Unable to fetch the commits!")
 
         posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+
+        myProfile = author.user == request.user
+        if (myProfile):
+            return redirect('profile')
 
         friend_posts = []
         visible_posts = []
@@ -502,7 +453,7 @@ class User_Profile(View):
             'follow_requests': follow_requests,             
             'sent_requests_set': sent_requests_set,
             'following_set' : following_set,
-
+            'myProfile': False,
             'post_list': posts,
             'form': form,
             'author': author,

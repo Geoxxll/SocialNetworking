@@ -47,7 +47,7 @@
     
   </div>
   
-  {% if author.user == request.user %}
+  {% if myProfile %}
     <div id="draft-container">
       <form id="draft-post" method="POST" enctype="multipart/form-data">
         {% csrf_token %} {{ draft.as_p }}
