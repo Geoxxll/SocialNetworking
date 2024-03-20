@@ -1,0 +1,357 @@
+openapi: 3.0.3
+info:
+  title: Social Network 404
+  version: 1.0.0
+  description: CMPUT404 Group Project
+paths:
+  /api/authors/:
+    get:
+      operationId: api_authors_retrieve
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/:
+    get:
+      operationId: api_authors_retrieve_2
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_authors_update
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/followers/:
+    get:
+      operationId: api_authors_followers_retrieve
+      description: return all follower of author_id as json
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/inbox/:
+    get:
+      operationId: api_authors_inbox_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_authors_inbox_create
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_authors_inbox_destroy
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/authors/{author_id}/posts/:
+    get:
+      operationId: api_authors_posts_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_authors_posts_create
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/:
+    get:
+      operationId: api_authors_posts_retrieve_2
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_authors_posts_update
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_authors_posts_destroy
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/comments/:
+    get:
+      operationId: api_authors_posts_comments_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_authors_posts_comments_create
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /social/accept-request:
+    post:
+      operationId: social_accept_request_create
+      tags:
+      - social
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /social/cancel-request:
+    post:
+      operationId: social_cancel_request_create
+      tags:
+      - social
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /social/find-friends/send-request:
+    post:
+      operationId: social_find_friends_send_request_create
+      tags:
+      - social
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /social/post/{post_pk}/like:
+    post:
+      operationId: social_post_like_create
+      parameters:
+      - in: path
+        name: post_pk
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - social
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /social/unfollow:
+    post:
+      operationId: social_unfollow_create
+      tags:
+      - social
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
