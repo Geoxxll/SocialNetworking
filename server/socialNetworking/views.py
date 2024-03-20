@@ -312,7 +312,7 @@ class DashboardView(View):
                                 commit["commit"]["message"]
                             ),
                             contentType = 'text/plain',
-                            visibility = "Public",
+                            visibility = "PUBLIC",
                             published_at = commit["commit"]["author"]["date"],
                             author_of_posts = author
                         ).save()
@@ -379,19 +379,25 @@ class DashboardView(View):
         author = Author.objects.get(id= request.POST.get("id"))
 
         if ('Update' in request.POST):
-            author.displayName = request.POST.get("draftDisplayName")
-            author.draftDisplayName = request.POST.get("draftDisplayName")
-            author.draftProfileImage = request.FILES.get("draftProfileImage")
-            author.profileImagePicture = request.FILES.get("draftProfileImage")
-            author.github = request.POST.get("draftGithub")
-            author.draftGithub = request.POST.get("draftGithub")
-            author.save()
-            author.profileImage = author.host + author.profileImagePicture.url
+            if (request.POST.get("draftDisplayName").strip()):
+                author.displayName = request.POST.get("draftDisplayName")
+                author.draftDisplayName = request.POST.get("draftDisplayName")
+            if (request.FILES.get("draftProfileImage")):
+                author.draftProfileImage = request.FILES.get("draftProfileImage")
+                author.profileImagePicture = request.FILES.get("draftProfileImage")
+                author.save()
+                author.profileImage = author.host + author.profileImagePicture.url
+            if (request.POST.get("draftGithub").strip()):
+                author.github = request.POST.get("draftGithub")
+                author.draftGithub = request.POST.get("draftGithub")
 
         elif ('Save as Draft' in request.POST):
-            author.draftDisplayName = request.POST.get("draftDisplayName")
-            author.draftProfileImage = request.FILES.get("draftProfileImage")
-            author.draftGithub = request.POST.get("draftGithub")
+            if (request.POST.get("draftDisplayName").strip()):
+                author.draftDisplayName = request.POST.get("draftDisplayName")
+            if (request.FILES.get("draftProfileImage")):
+                author.draftProfileImage = request.FILES.get("draftProfileImage")
+            if (request.POST.get("draftGithub").strip()):
+                author.draftGithub = request.POST.get("draftGithub")
         
         author.save()
 
