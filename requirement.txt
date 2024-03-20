@@ -5,3 +5,5 @@ crispy-bootstrap5
 djangorestframework
 Pillow
 django-markdown2
+gunicorn
+django-on-heroku
