@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'rest_framework',
+    'drf_spectacular',
     
     'allauth',
     'allauth.account',
@@ -175,5 +176,15 @@ ACCOUNT_EMAIL_REQUIRED = True
 # for testing purpose
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Social Network 404',
+    'DESCRIPTION': 'CMPUT404 Group Project',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 django_on_heroku.settings(locals())

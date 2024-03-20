@@ -7,3 +7,4 @@ Pillow
 django-markdown2
 gunicorn
 django-on-heroku
+drf_spectacular
