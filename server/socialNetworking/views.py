@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 import json
-from rest_framework.response import Response
 
 from django.utils import timezone
 from django.views import View
@@ -19,8 +18,6 @@ from .models.followers import Follower
 from .models.follow import Follow
 from .models.likes import Like
 from .models.nodes import Node
-from .models.inbox import Inbox
-from .models.inbox_item import InboxItem
 from .forms import PostForm, CommentForm, ShareForm, DraftForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
@@ -144,6 +141,19 @@ class FindFriendsView(View):
 
         # TODO: HTTP Requests to GET list of authors from remote servers, then add them to database
         # (Maybe should be somewhere else where it is called earlier and less often)
+
+        nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
+        remote_authors = []
+        for node in nodes:
+            response = requests.get(node.api_url + 'authors/', auth=HTTPBasicAuth(node.username_out, node.password_out))
+            json_data = response.json()
+            remote_authors = remote_authors + json_data.get('items')
+        for author in remote_authors:
+            if not Author.objects.filter(url=author.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=author)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    
         
         if query:
             # Filter users based on the search query
@@ -395,9 +405,12 @@ class DashboardView(View):
             author.draftGithub = request.POST.get("draftGithub")
 
         elif ('Save as Draft' in request.POST):
-            author.draftDisplayName = request.POST.get("draftDisplayName")
-            author.draftProfileImage = request.FILES.get("draftProfileImage")
-            author.draftGithub = request.POST.get("draftGithub")
+            if (request.POST.get("draftDisplayName").strip()):
+                author.draftDisplayName = request.POST.get("draftDisplayName")
+            if (request.FILES.get("draftProfileImage")):
+                author.draftProfileImage = request.FILES.get("draftProfileImage")
+            if (request.POST.get("draftGithub").strip()):
+                author.draftGithub = request.POST.get("draftGithub")
         
         author.save()
 
@@ -704,6 +717,8 @@ def likeAction(request, post_pk):
         return JsonResponse(data, status=200)
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def authors(request):
     if request.method == 'GET':
         authors = Author.objects.exclude(user=None)

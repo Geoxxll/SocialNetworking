@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.filter
 def decode_markdown_to_html(value):
-    return markdown2.markdown(value.decode('utf-8'))
+    return markdown2.markdown(str(value, 'utf-8'))
 
 @register.filter
 def base64_image(value, content_type):
@@ -24,8 +24,8 @@ def base64_image(value, content_type):
         # return 'path/to/your/placeholder/image.png'
     if isinstance(value, bytes):
         # If value is bytes, decode to string
-        value = value.decode('utf-8')
-        
+        value = str(value, 'utf-8')
+
     prefix = f'data:{content_type};base64,'
     if not value.startswith(prefix):
         return prefix + value
@@ -34,4 +34,4 @@ def base64_image(value, content_type):
 @register.filter
 def decode_utf8(value):
     """Decodes a bytes-like object to a UTF-8 string, removing b'...'."""
-    return value.decode('utf-8') if value else ''
+    return str(value, 'utf-8') if value else ''
