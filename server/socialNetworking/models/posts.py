@@ -24,7 +24,7 @@ class Post (models.Model):
     url = models.URLField()
     source = models.URLField()
     origin = models.URLField()
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     contentType = models.CharField(max_length=30, choices=contentTypesChoices.items(), default='text/plain')
     content = models.BinaryField(null=True, blank=True)
     visibility = models.CharField(max_length=10, choices=VisibilityChoices.choices, default=VisibilityChoices.PUBLIC)

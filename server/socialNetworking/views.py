@@ -142,17 +142,17 @@ class FindFriendsView(View):
         # TODO: HTTP Requests to GET list of authors from remote servers, then add them to database
         # (Maybe should be somewhere else where it is called earlier and less often)
 
-        # nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
-        # remote_authors = []
-        # for node in nodes:
-        #     response = requests.get(node.api_url + 'authors/', auth=HTTPBasicAuth(node.username_out, node.password_out))
-        #     json_data = response.json()
-        #     remote_authors = remote_authors + json_data.get('items')
-        # for author in remote_authors:
-        #     if not Author.objects.filter(url=author.get('id')).exists():
-        #             author_serializer = AuthorSerializer(data=author)
-        #             if author_serializer.is_valid():
-        #                 author_serializer.save()
+        nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
+        remote_authors = []
+        for node in nodes:
+            response = requests.get(node.api_url + 'authors/', auth=HTTPBasicAuth(node.username_out, node.password_out))
+            json_data = response.json()
+            remote_authors = remote_authors + json_data.get('items')
+        for author in remote_authors:
+            if not Author.objects.filter(url=author.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=author)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
                     
         
         if query:
@@ -717,6 +717,8 @@ def likeAction(request, post_pk):
         return JsonResponse(data, status=200)
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def authors(request):
     if request.method == 'GET':
         authors = Author.objects.exclude(user=None)
