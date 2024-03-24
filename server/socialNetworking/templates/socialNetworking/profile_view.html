@@ -19,10 +19,10 @@
   <div id="profile-container">
     <div>
       <div>
-        {% if not author.profileImagePicture %}
+        {% if not author.profileImage %}
         <img src="{% static 'images/User_cicrle.png' %}" />
         {% else %}
-        <img src="{{ author.profileImagePicture.url }}" />
+        <img src="{{ author.profileImage }}" />
         {% endif %}
       </div>
       <span>Username: {{ author.displayName }}</span>

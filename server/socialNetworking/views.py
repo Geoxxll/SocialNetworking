@@ -409,6 +409,8 @@ class DashboardView(View):
                 author.draftDisplayName = request.POST.get("draftDisplayName")
             if (request.FILES.get("draftProfileImage")):
                 author.draftProfileImage = request.FILES.get("draftProfileImage")
+            else:
+                author.draftProfileImage = None
             if (request.POST.get("draftGithub").strip()):
                 author.draftGithub = request.POST.get("draftGithub")
         
