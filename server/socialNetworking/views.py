@@ -238,7 +238,8 @@ class PostListView(View):
                 'form': form,
                 'post_comments': post_comments,
                 'shareform': share_form,
-                'follow_requests' : follow_requests
+                'follow_requests' : follow_requests,
+                'author': Author.objects.get(user= request.user)
             }
 
         

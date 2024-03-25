@@ -18,14 +18,11 @@
 
   <div id="profile-container">
     <div>
-      <div>
-        {% if not author.profileImage %}
-        <img src="{% static 'images/User_cicrle.png' %}" />
-        {% else %}
-        <img src="{{ author.profileImage }}" />
-        {% endif %}
-      </div>
-      <span>Username: {{ author.displayName }}</span>
+      {% if not author.profileImage %}
+      <img src="{% static 'images/User_cicrle.png' %}" />
+      {% else %}
+      <img src="{{ author.profileImage }}" />
+      {% endif %}
 
       {% if not author.user == request.user %}
       {% if author.id in following_set %}
@@ -42,8 +39,12 @@
     {% endif %}
     </div>
 
-    <span>Github: {{ author.github }}</span>
-
+    <p style="padding-top: 1em;">Username: {{ author.displayName }}</p>
+    {% if author.github %}
+      <p>Github: {{ author.github }}</p>
+    {% else %}
+      <p>Github: None</p>
+    {% endif %}
     
   </div>
   
