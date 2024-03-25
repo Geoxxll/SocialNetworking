@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F
 import json
+from urllib.parse import unquote
 
 from django.utils import timezone
 from django.views import View
@@ -784,28 +785,45 @@ def followers(request, author_id):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def followers_id(request, author_id, foreign_author_id):
-    if Author.objects.filter(pk=author_id).exists() and Author.objects.filter(pk=foreign_author_id).exists():
+    if Author.objects.filter(pk=author_id):
         followee = Author.objects.get(pk=author_id)
-        follower = Author.objects.get(pk=foreign_author_id)
-        obj_follow = Follower.objects.get(followee=followee, follower=follower)
-        if request.method == 'GET':
-            follower_serializer = FollowerSerializer(obj_follow)
-            return Response(follower_serializer.data, status=status.HTTP_200_OK)
-        
-        elif request.method == 'PUT':
-            follower_serializer = FollowerSerializer(request.data)
-            if follower_serializer.is_valid():
-                follower_serializer.save()
-                return Response(follower_serializer.data, status=status.HTTP_200_OK)
-        
-        elif request.method == 'DELETE':
-            obj_follow.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        if not Author.objects.filter(pk=author_id).exists():
-            return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
+        decoded_fid = unquote(foreign_author_id)
+
+        if Author.objects.filter(url=decoded_fid).exists():
+            follower = Author.objects.get(url=decoded_fid)
+
+            if request.method == 'GET':
+                if Follower.objects.filter(followee=followee, follower=follower).exists():
+                    follower_obj = Follower.objects.get(followee=followee, follower=follower)
+                    f_obj_str = follower_obj.__str__()
+                    followee_ser = AuthorSerializer(followee)
+                    follower_ser = AuthorSerializer(follower)
+
+                    output = {'type': 'Follow', 'summary': f_obj_str, 'actor': follower_ser.data, 'object': followee_ser.data}
+
+                    return Response(output, status=status.HTTP_200_OK)
+                
+                else:
+                    return Response({'error': 'Foreign author not a follower'}, status=status.HTTP_404_NOT_FOUND)
+            
+            elif request.method == 'PUT':
+                # follower_serializer = FollowerSerializer(request.data)
+                # if follower_serializer.is_valid():
+                #     follower_serializer.save()
+                #     return Response(follower_serializer.data, status=status.HTTP_200_OK)
+                pass
+            
+            elif request.method == 'DELETE':
+                # obj_follow.delete()
+                # return Response(status=status.HTTP_204_NO_CONTENT)
+                pass
+
         else:
-            return Response({'error': 'Follower not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Foreign author not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    else:
+        return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 
@@ -905,17 +923,61 @@ def comments(request, author_id, post_id):
 
 @api_view(['GET'])
 def posts_likes(request, author_id, post_id):
-    return
+    if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
+        author = Author.objects.get(pk=author_id)
+        post = Post.objects.get(pk=post_id)
+
+        if request.method == 'GET':
+            likes = Like.objects.filter(like_post=post).order_by('-date')
+            likes_serialized = LikeSerializer(likes, many=True)
+            output = {'type': 'likes', 'items': likes_serialized.data}
+
+            return Response(output, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def comments_likes(request, author_id, post_id, comment_id):
-    return
+    if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists() and Comment.objects.filter(pk=comment_id).exists():
+        author = Author.objects.get(pk=author_id)
+        comment = Comment.objects.get(pk=comment_id)
+
+        if request.method == 'GET':
+            likes = Like.objects.filter(like_comment=comment).order_by('-date')
+            likes_serialized = LikeSerializer(likes, many=True)
+            output = {'type': 'likes', 'items': likes_serialized.data}
+
+            return Response(output, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def liked(request, author_id):
-    return
+    if Author.objects.filter(pk=author_id).exists():
+        author = Author.objects.get(pk=author_id)
+
+        if request.method == 'GET':
+            likes = Like.objects.filter(author_like=author).order_by('-date')
+            likes_serialized = LikeSerializer(likes, many=True)
+            output = {'type': 'liked', 'items': likes_serialized.data}
+
+            return Response(output, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+    else:
+        return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([BasicAuthentication])
