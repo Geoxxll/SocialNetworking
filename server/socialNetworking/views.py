@@ -305,30 +305,38 @@ class DashboardView(View):
         author = Author.objects.get(user= request.user)
         last_commit_fetch = author.lastCommitFetch
         if author.github:
+
+            follower_list = Author.objects.filter(follower_set__followee=author)
+
             if not last_commit_fetch:
                 try:
                     url = "https://api.github.com/search/commits?q=author:{} author-date:>={}&sort=author-date&order=desc".format(
                         author.github.split("/")[-1],
                         (datetime.now() + timedelta(weeks=-2)).strftime("%Y-%m-%d")
                     )
-                    print(url)
                     response = requests.get(url).json()
+                    print(response)
+                    author.lastCommitFetch = timezone.now()
+                    author.save()
                     for commit in response["items"]:
-                        Post(
-                            title = "Commit: " + commit["sha"],
+                        new_post = Post(
+                            title = "[{}]: {}".format(commit["repository"]["name"], commit["commit"]["message"]),
                             type = "post",
                             origin = request.headers["Host"],
                             description = "[{}]: {}".format(
                                 commit["repository"]["name"],
-                                commit["commit"]["message"]
+                                commit["sha"]
                             ),
                             contentType = 'text/plain',
                             visibility = "PUBLIC",
                             published_at = commit["commit"]["author"]["date"],
                             author_of_posts = author
-                        ).save()
-                    author.lastCommitFetch = timezone.now()
-                    author.save()
+                        )
+                        new_post.save()
+                        for flwr in follower_list:
+                            node = Node.objects.get(host_url=flwr.host)
+                            output = TextPostSerializer(new_post)
+                            response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
                 except:
                     print("Unable to fetch the commits!")
             else:
@@ -338,24 +346,29 @@ class DashboardView(View):
                             author.github.split("/")[-1],
                             author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
                         )
-                        print(url)
                         response = requests.get(url).json()
+                        print(response)
+                        author.lastCommitFetch = timezone.now()
+                        author.save()
                         for commit in response["items"]:
-                            Post(
-                                title = "Commit: " + commit["sha"],
+                            new_post = Post(
+                                title = "[{}]: {}".format(commit["repository"]["name"], commit["commit"]["message"]),
                                 type = "post",
                                 origin = request.headers["Host"],
                                 description = "[{}]: {}".format(
                                     commit["repository"]["name"],
-                                    commit["commit"]["message"]
+                                    commit["sha"]
                                 ),
                                 contentType = 'text/plain',
-                                visibility = "Public",
+                                visibility = "PUBLIC",
                                 published_at = commit["commit"]["author"]["date"],
                                 author_of_posts = author
-                            ).save()
-                        author.lastCommitFetch = timezone.now()
-                        author.save()
+                            )
+                            new_post.save()
+                            for flwr in follower_list:
+                                node = Node.objects.get(host_url=flwr.host)
+                                output = TextPostSerializer(new_post)
+                                response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
                 except:
                     print("Unable to fetch the commits!")
 
