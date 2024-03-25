@@ -71,6 +71,79 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/authors/{author_id}/followers/{foreign_author_id}/:
+    get:
+      operationId: api_authors_followers_retrieve_2
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_authors_followers_update
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_authors_followers_destroy
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
   /api/authors/{author_id}/inbox/:
     get:
       operationId: api_authors_inbox_retrieve
@@ -119,6 +192,25 @@ paths:
       - basicAuth: []
       responses:
         '204':
+          description: No response body
+  /api/authors/{author_id}/liked/:
+    get:
+      operationId: api_authors_liked_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
           description: No response body
   /api/authors/{author_id}/posts/:
     get:
@@ -257,6 +349,87 @@ paths:
           description: No response body
     post:
       operationId: api_authors_posts_comments_create
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/comments/{comment_id}/likes/:
+    get:
+      operationId: api_authors_posts_comments_likes_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/image/:
+    get:
+      operationId: api_authors_posts_image_retrieve
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/likes/:
+    get:
+      operationId: api_authors_posts_likes_retrieve
       parameters:
       - in: path
         name: author_id
