@@ -178,15 +178,12 @@
         $(document).ready(function() {
             $(".accept-button").on("click", function() {
                 var userId = $(this).data("user-id");
-                acceptFriendRequest(userId, onFriendRequestAccepted);
+                var container = $(this).parent(); // Get the parent div containing the button
+                acceptFriendRequest(userId, container);
             });
         });
-    
-        function onFriendRequestAccepted() {
-            location.reload()
-        }
-    
-        function acceptFriendRequest(id, uiUpdateFunction) {
+
+        function acceptFriendRequest(id, container) {
             var csrfToken = "{{ csrf_token }}";
             $.ajax({
                 type: "POST",
@@ -197,21 +194,25 @@
                 },
                 url: "{% url 'accept-friend-request' %}",  // Update the URL to match your view
                 timeout: 5000,
-                success: function(data) {
-                    if (data['result'] === "Successful") {
-                        // Handle success
-                        uiUpdateFunction();  // Call the UI update function
-                    }
-                },
+                // success: function(data) {
+                //     container.prev('hr').remove();
+                //     container.remove();
+                //     if (data['result'] === "Successful") {
+                //         // Remove the parent <div> element and its preceding <hr> element
+                //         container.prev('hr').remove();
+                //         container.remove();
+                //     }
+                // },
                 error: function(data) {
                     // Handle error
                 },
-                complete: function(data){
-                    uiUpdateFunction();
+                complete: function(data) {
+                    container.prev('hr').remove();
+                    container.remove();
                 }
-
             });
         }
+
     </script>
     
     <script>
