@@ -36,7 +36,8 @@ from .serializers import (
   FollowSerializer, 
   TextPostSerializer, 
   CommentSerializer,
-  LikeSerializer
+  LikeSerializer,
+  ImagePostSerializer
   )
 from rest_framework.response import Response
 from rest_framework import status
@@ -755,6 +756,8 @@ def authors(request):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET', 'PUT'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def authors_id(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -779,6 +782,8 @@ def authors_id(request, author_id):
 
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def followers(request, author_id):
     '''
         return all follower of author_id as json
@@ -800,6 +805,8 @@ def followers(request, author_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def followers_id(request, author_id, foreign_author_id):
     if Author.objects.filter(pk=author_id):
         followee = Author.objects.get(pk=author_id)
@@ -845,6 +852,8 @@ def followers_id(request, author_id, foreign_author_id):
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def posts(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
 
@@ -875,12 +884,18 @@ def posts(request, author_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def posts_id(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
         post = Post.objects.get(pk=post_id)    
 
         if request.method == 'GET':
-            post_serializer = TextPostSerializer(post)
+            post_serializer = None
+            if post.contentType == 'text/plain' or post.contentType == 'text/Markdown':
+                post_serializer = TextPostSerializer(post)
+            else:
+                post_serializer = ImagePostSerializer(post)
             return Response(post_serializer.data, status=status.HTTP_200_OK)
     
         elif request.method == 'PUT':
@@ -908,6 +923,8 @@ def image(request, author_id, post_id):
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def comments(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
 
@@ -938,6 +955,8 @@ def comments(request, author_id, post_id):
 
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def posts_likes(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -958,6 +977,8 @@ def posts_likes(request, author_id, post_id):
 
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def comments_likes(request, author_id, post_id, comment_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists() and Comment.objects.filter(pk=comment_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -978,6 +999,8 @@ def comments_likes(request, author_id, post_id, comment_id):
 
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def liked(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)
