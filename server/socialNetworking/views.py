@@ -162,9 +162,9 @@ class FindFriendsView(View):
             remote_authors = remote_authors + json_data.get('items')
         for author in remote_authors:
             if not Author.objects.filter(url=author.get('id')).exists():
-                    author_serializer = AuthorSerializer(data=author)
-                    if author_serializer.is_valid():
-                        author_serializer.save()
+                author_serializer = AuthorSerializer(data=author)
+                if author_serializer.is_valid():
+                    author_serializer.save()
                     
         
         if query:
@@ -267,6 +267,10 @@ class PostDetailView(View):
         post = Post.objects.get(pk=pk)
         print(post.author_of_posts)
         form = CommentForm()
+
+        # TODO: Fetch comments if post is foreign and PUBLIC
+        # if not post.author_of_posts.host == request.build_absolute_uri('/'):
+        #     node = Node.objects.get(host_url=post.author_of_posts.host)
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
   
@@ -928,6 +932,8 @@ def comments(request, author_id, post_id):
             post_data = Post.objects.get(pk=post_id)
             comments = Comment.objects.filter(post=post_data).order_by('-published_at')
 
+            page_number = None
+            page_size = None
             if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
                 page_size = request.GET.get('size')
                 page_number = request.GET.get('page')
@@ -936,7 +942,7 @@ def comments(request, author_id, post_id):
 
             comments_serialized = CommentSerializer(comments, many=True)
 
-            output = {'type': 'comments', 'items': comments_serialized.data}
+            output = {'type': 'comments', 'page': page_number, 'size': page_size, 'post': post_data.url, 'id': post_data.url + '/comments', 'comments': comments_serialized.data}
 
             return Response(output, status=status.HTTP_200_OK)
     
@@ -1227,6 +1233,8 @@ def send_friend_request(request, *args, **kwargs):
                 node = Node.objects.get(host_url=receiver.host)
                 output = FollowSerializer(friend_request)
                 response = requests.post(receiver.url + '/inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+
+                # TODO: If receiver of follow request is foreign, create follower object immediately
 
                 context['result'] = "Successful"
                 return Response(context, status=status.HTTP_200_OK)
