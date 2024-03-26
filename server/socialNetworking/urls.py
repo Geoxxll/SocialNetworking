@@ -35,14 +35,14 @@ urlpatterns = [
 
 	
     path('social/', PostListView.as_view(), name='post-list'),
-    path('social/accept-request', accept_friend_request, name='accept-friend-request'),
-    path('social/cancel-request', cancel_follow_request, name='cancel-follow-request'),
-    path('social/unfollow', unfollow_user, name='unfollow-user'),
+    path('social/accept-request/', accept_friend_request, name='accept-friend-request'),
+    path('social/cancel-request/', cancel_follow_request, name='cancel-follow-request'),
+    path('social/unfollow/', unfollow_user, name='unfollow-user'),
 
 
     path('social/post/', AddPostView.as_view(), name='add-post'),
     path('social/find-friends/', FindFriendsView.as_view(), name='find-friends'),
-    path('social/find-friends/send-request', send_friend_request, name='send-friend-request'),
+    path('social/find-friends/send-request/', send_friend_request, name='send-friend-request'),
 
     path('social/profile/', DashboardView.as_view(), name='profile'),
     path('social/profile/<uuid:pk>/', User_Profile.as_view(), name='user-profile'),
@@ -58,13 +58,13 @@ urlpatterns = [
     path('social/profile/edit/<uuid:pk>/', ProfileEditView.as_view(), name='profile-edit'),
     
     # path('social/post/<uuid:pk>/like', AddLike.as_view(), name='like'),
-    path('social/post/<uuid:post_pk>/like', views.likeAction, name='like'),
+    path('social/post/<uuid:post_pk>/like/', views.likeAction, name='like'),
     
     # path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', AddCommentLike.as_view(), name='comment-like'),
-    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like', views.commentLike, name='comment-like'),
+    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/like/', views.commentLike, name='comment-like'),
 
-    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/reply', CommentReplyView.as_view(), name='comment-reply'),
-    path('social/post/<uuid:pk>/share', SharedPostView.as_view(), name='share-post'),
+    path('social/post/<uuid:post_pk>/comment/<uuid:pk>/reply/', CommentReplyView.as_view(), name='comment-reply'),
+    path('social/post/<uuid:pk>/share/', SharedPostView.as_view(), name='share-post'),
 
     path("api/authors/", views.authors, name="authors"),
     path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
