@@ -157,7 +157,7 @@ class FindFriendsView(View):
         nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
         remote_authors = []
         for node in nodes:
-            response = requests.get(node.api_url + 'authors/', auth=HTTPBasicAuth(node.username_out, node.password_out))
+            response = requests.get(node.api_url + 'authors/?page=1&size=50', auth=HTTPBasicAuth(node.username_out, node.password_out))
             json_data = response.json()
             remote_authors = remote_authors + json_data.get('items')
         for author in remote_authors:
@@ -745,8 +745,6 @@ def likeAction(request, post_pk):
         return JsonResponse(data, status=200)
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def authors(request):
     if request.method == 'GET':
         authors = Author.objects.exclude(user=None)
@@ -766,8 +764,6 @@ def authors(request):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET', 'PUT'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def authors_id(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -792,8 +788,6 @@ def authors_id(request, author_id):
 
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def followers(request, author_id):
     '''
         return all follower of author_id as json
@@ -815,8 +809,6 @@ def followers(request, author_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def followers_id(request, author_id, foreign_author_id):
     if Author.objects.filter(pk=author_id):
         followee = Author.objects.get(pk=author_id)
@@ -862,8 +854,6 @@ def followers_id(request, author_id, foreign_author_id):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def posts(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
 
@@ -894,8 +884,6 @@ def posts(request, author_id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def posts_id(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
         post = Post.objects.get(pk=post_id)    
@@ -933,8 +921,6 @@ def image(request, author_id, post_id):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def comments(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
 
@@ -965,8 +951,6 @@ def comments(request, author_id, post_id):
 
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def posts_likes(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -987,8 +971,6 @@ def posts_likes(request, author_id, post_id):
 
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def comments_likes(request, author_id, post_id, comment_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists() and Comment.objects.filter(pk=comment_id).exists():
         author = Author.objects.get(pk=author_id)
@@ -1009,8 +991,6 @@ def comments_likes(request, author_id, post_id, comment_id):
 
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def liked(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
         author = Author.objects.get(pk=author_id)
