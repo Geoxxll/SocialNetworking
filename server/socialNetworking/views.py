@@ -201,7 +201,6 @@ class PostListView(View):
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
 
         posts = Post.objects.all().order_by('-published_at').exclude(visibility=Post.VisibilityChoices.UNLISTED)
-        print("ALL POSTS:",posts)
 
         friend_posts = []
         visible_posts = []
@@ -243,7 +242,8 @@ class PostListView(View):
                 post_comments[post.post_id] = comments
 
             follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
-
+            new = currentUser_asAuthor.followInbox
+            print(new)
             context = {
                 'post_list': posts,
                 'form': form,
@@ -1302,6 +1302,14 @@ def send_friend_request(request, *args, **kwargs):
                 response = requests.post(receiver.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
 
                 # TODO: If receiver of follow request is foreign, create follower object immediately
+                ###########THIS IF STATEMENT WAS ADDED########################
+                if not receiver.host == request.build_absolute_uri('/'):
+                    if Follower.objects.filter(follower=author, followee=receiver).exists():
+                        context['result'] = "You are already following this user"
+                        return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # Create Follower object
+                    follower = Follower.objects.create(follower=author, followee=receiver)
 
                 context['result'] = "Successful"
                 return Response(context, status=status.HTTP_200_OK)
