@@ -48,6 +48,14 @@ class TextPostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'published', 'visibility']
 
+class ImagePostSerializer(serializers.ModelSerializer):
+    id = serializers.URLField(source='url')
+    author = AuthorSerializer(source='author_of_posts', read_only=True)
+    published = serializers.DateTimeField(source='published_at')
+
+    class Meta:
+        model = Post
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'published', 'visibility']
 
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(source='comment_author', read_only=True)

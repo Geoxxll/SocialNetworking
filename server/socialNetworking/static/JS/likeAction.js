@@ -3,7 +3,7 @@ function getCSRFToken() {
 }
 
 function likeAction(post_pk, numLikesId) {
-    fetch(`/social/post/${post_pk}/like`, {
+    fetch(`/social/post/${post_pk}/like/`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',

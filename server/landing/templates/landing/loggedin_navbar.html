@@ -32,10 +32,8 @@
         
       </div>
       <div class="profile-pic">
-        <!-- <a href=""><img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture"></a> -->
-        
-        <!-- <div class="profile-pic"> -->
-          <a href=""><img src="{% if user.is_authenticated and author.profileImagePicture %}{{ user.author.profileImagePicture.url }}{% else %}{% static 'images/User_cicrle.png' %}{% endif %}" alt="Profile Picture"></a>
+          <a href=""><img src="{% if user.is_authenticated and author.profileImage %}{{ author.profileImage }}{% else %}{% static 'images/User_cicrle.png' %}{% endif %}" alt="Profile Picture"
+            style="width: 64px; height: 64px; border-radius: 32px; border: 2px solid #1a2c15;"></a>
         <!-- </div> -->
       </div>
     </div>
