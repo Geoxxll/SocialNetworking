@@ -117,10 +117,20 @@ class AddPostView(View):
                     if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
                         output = TextPostSerializer(new_post)
                     else:
-                        pass # TODO: Create ImagePostSerializer and add it here
+                        output = ImagePostSerializer(new_post)
                     response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
             
             # TODO: HTTP Requests to POST new friends-only post to inbox of friends
+            elif new_post.visibility == 'FRIENDS':
+                friends_list = Author.objects.filter(follower_set__followee=author_instance, followee_set__follower=author_instance)
+                for friend in friends_list:
+                    node = Node.objects.get(host_url=friend.host)
+                    output = None
+                    if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
+                        output = TextPostSerializer(new_post)
+                    else:
+                        output = ImagePostSerializer(new_post)
+                    response = requests.post(friend.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
 
             # Create a new, empty form after successfully saving the post
             form = PostForm()
@@ -1068,9 +1078,12 @@ def inbox(request, author_id):
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
-                if not Post.objects.filter(url=request.data.get('id')).exists():                                 
+                if not Post.objects.filter(url=request.data.get('id')).exists():
+                    post_serializer = None                                 
                     if cont_type == 'text/plain' or cont_type == 'text/markdown':
                         post_serializer = TextPostSerializer(data=request.data)
+                    else:
+                        post_serializer = ImagePostSerializer(data=request.data)
 
                     if post_serializer.is_valid():
                         post_serializer.save()
@@ -1087,6 +1100,8 @@ def inbox(request, author_id):
                 output = None
                 if cont_type == 'text/plain' or cont_type == 'text/markdown':
                     output = TextPostSerializer(post_obj)
+                else:
+                    output = ImagePostSerializer(post_obj)
                    
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
