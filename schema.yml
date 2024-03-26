@@ -10,7 +10,9 @@ paths:
       tags:
       - api
       security:
+      - cookieAuth: []
       - basicAuth: []
+      - {}
       responses:
         '200':
           description: No response body
@@ -85,7 +87,6 @@ paths:
         name: foreign_author_id
         schema:
           type: string
-          format: uuid
         required: true
       tags:
       - api
@@ -109,7 +110,6 @@ paths:
         name: foreign_author_id
         schema:
           type: string
-          format: uuid
         required: true
       tags:
       - api
@@ -133,7 +133,6 @@ paths:
         name: foreign_author_id
         schema:
           type: string
-          format: uuid
         required: true
       tags:
       - api
@@ -452,7 +451,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /social/accept-request:
+  /social/accept-request/:
     post:
       operationId: social_accept_request_create
       tags:
@@ -464,7 +463,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /social/cancel-request:
+  /social/cancel-request/:
     post:
       operationId: social_cancel_request_create
       tags:
@@ -476,7 +475,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /social/find-friends/send-request:
+  /social/find-friends/send-request/:
     post:
       operationId: social_find_friends_send_request_create
       tags:
@@ -488,7 +487,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /social/post/{post_pk}/like:
+  /social/post/{post_pk}/like/:
     post:
       operationId: social_post_like_create
       parameters:
@@ -507,7 +506,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /social/unfollow:
+  /social/unfollow/:
     post:
       operationId: social_unfollow_create
       tags:
