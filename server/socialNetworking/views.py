@@ -318,23 +318,35 @@ class DashboardView(View):
 
     def get(self, request, *args, **kwargs):
 
+        # Get the author and the last time the author's commits were fetched
         author = Author.objects.get(user= request.user)
         last_commit_fetch = author.lastCommitFetch
+
+        # If the author has provided a github URL
         if author.github:
 
+            # Get the follower of the author to send new posts to (if needed)
             follower_list = Author.objects.filter(follower_set__followee=author)
+            print()
+            print(follower_list)
+            print()
 
+            # Fetch the last 2 weeks commits if no fetch has ever been made
             if not last_commit_fetch:
                 try:
                     url = "https://api.github.com/search/commits?q=author:{} author-date:>={}&sort=author-date&order=desc".format(
                         author.github.split("/")[-1],
                         (datetime.now() + timedelta(weeks=-2)).strftime("%Y-%m-%d")
                     )
+                    print(url)
                     response = requests.get(url).json()
-                    print(response)
                     author.lastCommitFetch = timezone.now()
                     author.save()
+
+                    # Create new post for all commits and distribute to followers
                     for commit in response["items"]:
+
+                        # Create new post based on the commit
                         new_post = Post(
                             title = "[{}]: {}".format(commit["repository"]["name"], commit["commit"]["message"]),
                             type = "post",
@@ -343,18 +355,32 @@ class DashboardView(View):
                                 commit["repository"]["name"],
                                 commit["sha"]
                             ),
+                            content = "[{}]: {}".format(
+                                commit["repository"]["name"],
+                                commit["sha"]
+                            ).encode('utf-8'),
                             contentType = 'text/plain',
                             visibility = "PUBLIC",
                             published_at = commit["commit"]["author"]["date"],
                             author_of_posts = author
                         )
+                        new_post.url = author.url + "/posts/" + str(new_post.post_id)
+                        new_post.origin = new_post.url
+                        new_post.source = new_post.url
                         new_post.save()
+
+                        # POST the new post to followers
                         for flwr in follower_list:
                             node = Node.objects.get(host_url=flwr.host)
                             output = TextPostSerializer(new_post)
+                            print(output)
                             response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                            print(response.text)
+
                 except:
-                    print("Unable to fetch the commits!")
+                    print("Unable to fetch the commits or POST to followers!")
+
+            # Fetch all commits since the last fetch (restriction is every 5 seconds)
             else:
                 try:
                     if ((author.lastCommitFetch + timedelta(seconds=5)) < timezone.now()):
@@ -362,11 +388,15 @@ class DashboardView(View):
                             author.github.split("/")[-1],
                             author.lastCommitFetch.strftime("%Y-%m-%dT%H:%M:%S")
                         )
+                        print(url)
                         response = requests.get(url).json()
-                        print(response)
                         author.lastCommitFetch = timezone.now()
                         author.save()
+
+                        # Create new post for all commits and distribute to followers
                         for commit in response["items"]:
+
+                            # Create new post based on the commit
                             new_post = Post(
                                 title = "[{}]: {}".format(commit["repository"]["name"], commit["commit"]["message"]),
                                 type = "post",
@@ -375,18 +405,30 @@ class DashboardView(View):
                                     commit["repository"]["name"],
                                     commit["sha"]
                                 ),
+                                content = "[{}]: {}".format(
+                                    commit["repository"]["name"],
+                                    commit["sha"]
+                                ).encode('utf-8'),
                                 contentType = 'text/plain',
                                 visibility = "PUBLIC",
                                 published_at = commit["commit"]["author"]["date"],
                                 author_of_posts = author
                             )
+                            new_post.url = author.url + "/posts/" + str(new_post.post_id)
+                            new_post.origin = new_post.url
+                            new_post.source = new_post.url
                             new_post.save()
+
+                            # POST the new post to followers
                             for flwr in follower_list:
                                 node = Node.objects.get(host_url=flwr.host)
                                 output = TextPostSerializer(new_post)
+                                print(output)
                                 response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                                print(response.text)
+
                 except:
-                    print("Unable to fetch the commits!")
+                    print("Unable to fetch the commits or POST to followers!")
 
         shared_posts  = Post.objects.filter(
             shared_user=request.user,
@@ -416,35 +458,59 @@ class DashboardView(View):
     
     def post(self, request, *args, **kwargs):
 
+        # Get the author that makes the update request
         author = Author.objects.get(id= request.POST.get("id"))
 
+        # Handle an update request
         if ('Update' in request.POST):
+
+            # Handle display name
             if (request.POST.get("draftDisplayName").strip()):
                 author.displayName = request.POST.get("draftDisplayName")
                 author.draftDisplayName = request.POST.get("draftDisplayName")
+            
+            # Handle profile image
             if (request.FILES.get("draftProfileImage")):
                 author.draftProfileImage = request.FILES.get("draftProfileImage")
                 author.profileImagePicture = request.FILES.get("draftProfileImage")
                 author.save()
-                author.profileImage = author.host + author.profileImagePicture.url
+                author.profileImage = author.host + author.profileImagePicture.url[1:]
             else:
                 author.draftProfileImage = None
                 author.profileImagePicture = None
                 author.profileImage = None
-            author.github = request.POST.get("draftGithub")
-            author.draftGithub = request.POST.get("draftGithub")
 
+            # Handle github URL
+            if (request.POST.get("draftGithub").strip()):
+                try:
+                    author.github = request.POST.get("draftGithub")
+                    author.draftGithub = request.POST.get("draftGithub")
+                except:
+                    print("Invalid github URL!")
+
+            author.save()
+
+        # Handle a local save request
         elif ('Save as Draft' in request.POST):
+
+            # Handle display name
             if (request.POST.get("draftDisplayName").strip()):
                 author.draftDisplayName = request.POST.get("draftDisplayName")
+
+            # Handle profile image
             if (request.FILES.get("draftProfileImage")):
                 author.draftProfileImage = request.FILES.get("draftProfileImage")
             else:
                 author.draftProfileImage = None
+
+            # Handle github URL
             if (request.POST.get("draftGithub").strip()):
-                author.draftGithub = request.POST.get("draftGithub")
-        
-        author.save()
+                try:
+                    author.draftGithub = request.POST.get("draftGithub")
+                except:
+                    print("Invalid github URL!")
+
+            author.save()
 
         return redirect("profile")
 
