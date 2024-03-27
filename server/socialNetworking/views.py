@@ -1299,9 +1299,15 @@ def send_friend_request(request, *args, **kwargs):
                 friend_request = Follow.objects.create(actor=author, object_of_follow=receiver)
 
                 # HTTP Request to POST new follow request to inbox of receipient author
+                print(receiver.host)
+                print(receiver.url)
                 node = Node.objects.get(host_url=receiver.host)
                 output = FollowSerializer(friend_request)
+                print(output.data)
+                print(node.username_out)
+                print(node.password_out)
                 response = requests.post(receiver.url + '/inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                print(response.status_code)
 
                 # TODO: If receiver of follow request is foreign, create follower object immediately
                 ###########THIS IF STATEMENT WAS ADDED########################
