@@ -19,7 +19,7 @@
   <div id="profile-container">
     <div>
       {% if not author.profileImage %}
-      <img src="{% static 'images/User_cicrle.png' %}" />
+      <img src="{% static 'images/default_profile_image.png' %}" />
       {% else %}
       <img src="{{ author.profileImage }}" />
       {% endif %}
