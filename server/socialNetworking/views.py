@@ -1032,17 +1032,26 @@ def posts(request, author_id):
 
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            posts = Post.objects.filter(author_of_posts=author, visibility="PUBLIC").order_by('-published_at')
+            text_posts = Post.objects.filter(author_of_posts=author, contentType="text/plain", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="text/markdown", visibility="PUBLIC")
+            image_posts = Post.objects.filter(author_of_posts=author, contentType="image/png;base64", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="image/jpeg;base64", visibility="PUBLIC")
+
+            text_posts_ser = TextPostSerializer(text_posts, many=True)
+            image_posts_ser = ImagePostSerializer(image_posts, many=True)
+
+            text_posts_data = text_posts_ser.data
+            image_posts_data = image_posts_ser.data
+
+            posts_list = text_posts_data + image_posts_data
+            posts_list = sorted(posts_list, key=lambda x: x['published'], reverse=True)
 
             if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
                 page_size = request.GET.get('size')
                 page_number = request.GET.get('page')
-                paginated = Paginator(posts, page_size)
-                posts = paginated.get_page(page_number)
+                paginated = Paginator(posts_list, page_size)
+                page = paginated.get_page(page_number)
+                posts_list = page.object_list
 
-            posts_serialized = TextPostSerializer(posts, many=True)
-
-            output = {'type': 'posts', 'items': posts_serialized.data}
+            output = {'type': 'posts', 'items': posts_list}
 
             return Response(output, status=status.HTTP_200_OK)
     
