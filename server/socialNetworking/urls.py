@@ -66,16 +66,40 @@ urlpatterns = [
     path('social/post/<uuid:post_pk>/comment/<uuid:pk>/reply/', CommentReplyView.as_view(), name='comment-reply'),
     path('social/post/<uuid:pk>/share/', SharedPostView.as_view(), name='share-post'),
 
+    # API ENDPOINTS
     path("api/authors/", views.authors, name="authors"),
+    path("api/authors", views.authors, name="authors_no_slash"),
+
     path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
+    path("api/authors/<uuid:author_id>", views.authors_id, name="authors_id_no_slash"),
+
     path("api/authors/<uuid:author_id>/followers/", views.followers, name="followers"),
+    path("api/authors/<uuid:author_id>/followers", views.followers, name="followers_no_slash"),
+
     path("api/authors/<uuid:author_id>/followers/<path:foreign_author_id>/", views.followers_id, name="followers_id"),
+    path("api/authors/<uuid:author_id>/followers/<path:foreign_author_id>", views.followers_id, name="followers_id_no_slash"),
+
     path("api/authors/<uuid:author_id>/posts/", views.posts, name="posts"),
+    path("api/authors/<uuid:author_id>/posts", views.posts, name="posts_no_slash"),
+
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),
+    path("api/authors/<uuid:author_id>/posts/<uuid:post_id>", views.posts_id, name="posts_id_no_slash"),
+
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image/", views.image, name="image"),
+    path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image", views.image, name="image_no_slash"),
+
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/", views.comments, name="comments"),
+    path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments", views.comments, name="comments_no_slash"),
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", views.posts_likes, name="posts_likes"),
+    path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes", views.posts_likes, name="posts_likes_no_slash"),
+
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
+    path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes", views.comments_likes, name="comments_likes_no_slash"),
+
     path("api/authors/<uuid:author_id>/liked/", views.liked, name="liked"),
+    path("api/authors/<uuid:author_id>/liked", views.liked, name="liked_no_slash"),
+
     path("api/authors/<uuid:author_id>/inbox/", views.inbox, name="inbox"),
+    path("api/authors/<uuid:author_id>/inbox", views.inbox, name="inbox_no_slash"),
 ]

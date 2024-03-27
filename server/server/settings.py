@@ -75,7 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
-    'socialNetworking.middleware.TrailingSlashMiddleware',
+    #'socialNetworking.middleware.TrailingSlashMiddleware',
 ]
 
 ROOT_URLCONF = 'server.urls'
