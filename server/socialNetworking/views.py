@@ -782,13 +782,35 @@ class SharedPostView(View):
         if form.is_valid():
             new_post = Post(
 					shared_body=self.request.POST.get('body'),
+                    title=original_post.title,
+                    url=original_post.url,
+                    source=original_post.source,
+                    origin=original_post.origin,
 					description=original_post.description,
+                    contentType=original_post.contentType,
+                    content=original_post.content,
+                    visibility=original_post.visibility,
 					author_of_posts=original_post.author_of_posts,
 					published_at=original_post.published_at,
 					shared_user=request.user,
 					shared_on=timezone.now(),
 				)
             new_post.save()
+
+            follower_list = Author.objects.filter(follower_set__followee=author)
+            for flwr in follower_list:
+                print(flwr.host)
+                node = Node.objects.get(host_url=flwr.host)
+                print(node.username_out)
+                print(node.password_out)
+                output = None
+                if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
+                    output = TextPostSerializer(new_post)
+                else:
+                    output = ImagePostSerializer(new_post)
+                print(output.data)
+                response = requests.post(flwr.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                print(response.status_code)
             
         return redirect('post-list')
 
@@ -1000,7 +1022,7 @@ def posts(request, author_id):
 
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+            posts = Post.objects.filter(author_of_posts=author, visibility="PUBLIC").order_by('-published_at')
 
             if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
                 page_size = request.GET.get('size')
