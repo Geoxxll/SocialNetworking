@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Like(models.Model):
-    type = models.CharField(max_length=15, default='like', editable=False)
+    type = models.CharField(max_length=15, default='Like')
     summary = models.TextField(blank=True)
     date = models.DateTimeField(auto_now_add=True, null=True)
 
