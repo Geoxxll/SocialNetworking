@@ -102,28 +102,26 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
-    function onFriendRequestSent(){
-        location.reload();
-    }
+    
 
     $(document).ready(function() {
         $(".send-request-button").on("click", function() {
             var userId = $(this).data("user-id");
-            sendFriendRequest(userId, onFriendRequestSent);
+            sendFriendRequest(userId, $(this));
         });
 
         $(".cancel-request-button").on("click", function() {
             var userId = $(this).data("user-id");
-            cancelFriendRequest(userId, onFriendRequestSent);
+            cancelFriendRequest(userId, $(this));
         });
 
         $(".unfollow-button").on("click", function() {
             var userId = $(this).data("user-id");
-            unfollow(userId, onFriendRequestSent);
-        })
+            unfollow(userId, $(this));
+        });
     });
 
-    function sendFriendRequest(id, uiUpdateFunction){
+    function sendFriendRequest(id, buttonElement){
         var csrfToken = "{{ csrf_token }}";
         $.ajax({
             type: "POST",
@@ -135,20 +133,27 @@
             url: "{% url 'send-friend-request' %}",
             timeout: 5000,
             success: function(data){
-                if (data['result'] == "Successful"){
-                    // Handle success
-                }
+                // if (data['result'] == "Successful"){
+                //     buttonElement.removeClass("send-request-button").addClass("cancel-request-button").text("Cancel Request");
+                // }
             },
             error: function(data){
                 // Handle error
             },
             complete: function(data){
-                uiUpdateFunction();
+                buttonElement.removeClass("send-request-button").addClass("cancel-request-button").text("Cancel Request");
+                // Reattach event handler
+                buttonElement.off("click").on("click", function() {
+                    var userId = $(this).data("user-id");
+                    var buttonElement = $(this);
+                    cancelFriendRequest(userId, buttonElement);
+                });
             }
+            
         });
     }
 
-    function cancelFriendRequest(id, uiUpdateFunction) {
+    function cancelFriendRequest(id, buttonElement) {
         var csrfToken = "{{ csrf_token }}";
         $.ajax({
             type: "POST",
@@ -161,44 +166,91 @@
             timeout: 5000,
             success: function(data){
                 if (data['result'] == "Successful"){
-                    // Handle success
+                    // Change button text and class
+                    buttonElement.removeClass("cancel-request-button").addClass("send-request-button").text("Send Request");
+                    buttonElement.off("click").on("click", function() {
+                    var userId = $(this).data("user-id");
+                    var buttonElement = $(this);
+                    sendFriendRequest(userId, buttonElement);
+                });
                 }
             },
             error: function(data){
                 // Handle error
-            },
-            complete: function(data){
-                uiUpdateFunction();
             }
         });
     }
 
-    function unfollow(id, uiUpdateFunction) {
+    function unfollow(id, buttonElement) {
+    var csrfToken = "{{ csrf_token }}";
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        data: {
+            "csrfmiddlewaretoken": csrfToken,
+            "user_id": id,
+        },
+        url: "{% url 'unfollow-user' %}",
+        timeout: 5000,
+        success: function(data){
+            if (data['result'] == "Successful"){
+                // Change button text and class
+                buttonElement.removeClass("unfollow-button").addClass("send-request-button").text("Send Request");
+                // Reattach event handler
+                buttonElement.off("click").on("click", function() {
+                    var userId = $(this).data("user-id");
+                    var buttonElement = $(this);
+                    sendFriendRequest(userId, buttonElement);
+                });
+            }
+        },
+        error: function(data){
+            // Handle error
+        }
+        });
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".accept-button").on("click", function() {
+            var userId = $(this).data("user-id");
+            var container = $(this).parent(); // Get the parent div containing the button
+            acceptFriendRequest(userId, container);
+        });
+    });
+
+    function acceptFriendRequest(id, container) {
         var csrfToken = "{{ csrf_token }}";
         $.ajax({
             type: "POST",
             dataType: "json",
             data: {
                 "csrfmiddlewaretoken": csrfToken,
-                "user_id": id,
+                "receiver_user_id": id,
             },
-            url: "{% url 'unfollow-user' %}",
+            url: "{% url 'accept-friend-request' %}",  // Update the URL to match your view
             timeout: 5000,
-            success: function(data){
-                if (data['result'] == "Successful"){
-                    // Handle success
-                }
-            },
-            error: function(data){
+            // success: function(data) {
+            //     container.prev('hr').remove();
+            //     container.remove();
+            //     if (data['result'] === "Successful") {
+            //         // Remove the parent <div> element and its preceding <hr> element
+            //         container.prev('hr').remove();
+            //         container.remove();
+            //     }
+            // },
+            error: function(data) {
                 // Handle error
             },
-            complete: function(data){
-                uiUpdateFunction();
+            complete: function(data) {
+                container.prev('hr').remove();
+                container.remove();
             }
         });
     }
-</script>
 
+</script>
 
 
 {% endblock %}

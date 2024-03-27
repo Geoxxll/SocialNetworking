@@ -127,5 +127,44 @@
     </script>
     <script src="{% static 'JS/post_list.js' %}" defer></script>
 
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".accept-button").on("click", function() {
+                var userId = $(this).data("user-id");
+                var container = $(this).parent(); // Get the parent div containing the button
+                acceptFriendRequest(userId, container);
+            });
+        });
 
+        function acceptFriendRequest(id, container) {
+            var csrfToken = "{{ csrf_token }}";
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "csrfmiddlewaretoken": csrfToken,
+                    "receiver_user_id": id,
+                },
+                url: "{% url 'accept-friend-request' %}",  // Update the URL to match your view
+                timeout: 5000,
+                // success: function(data) {
+                //     container.prev('hr').remove();
+                //     container.remove();
+                //     if (data['result'] === "Successful") {
+                //         // Remove the parent <div> element and its preceding <hr> element
+                //         container.prev('hr').remove();
+                //         container.remove();
+                //     }
+                // },
+                error: function(data) {
+                    // Handle error
+                },
+                complete: function(data) {
+                    container.prev('hr').remove();
+                    container.remove();
+                }
+            });
+        }
+
+    </script>
 {% endblock content %} 
