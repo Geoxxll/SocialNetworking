@@ -11,6 +11,10 @@ from django.db.models import F
 import json
 from urllib.parse import unquote
 
+# drf_spectaculars
+from drf_spectacular.utils import extend_schema_view, extend_schema
+
+
 from django.utils import timezone
 from django.views import View
 from .models.posts import Post
@@ -747,7 +751,13 @@ def likeAction(request, post_pk):
         }
  
         return JsonResponse(data, status=200)
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Authors",
+        responses={200: AuthorSerializer(many=True)},
+        description="Retrieves a list of authors, optionally paginated."
+    )
+)
 @api_view(['GET'])
 def authors(request):
     if request.method == 'GET':
@@ -767,6 +777,19 @@ def authors(request):
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+@extend_schema_view(
+    get=extend_schema(
+        summary="Retrieve an Author",
+        responses={200: AuthorSerializer},
+        description="Retrieves detailed information about a specific author by their ID."
+    ),
+    put=extend_schema(
+        summary="Update an Author",
+        request=AuthorSerializer,
+        responses={201: AuthorSerializer},
+        description="Updates an existing author's details. Returns the updated author information."
+    )
+)
 @api_view(['GET', 'PUT'])
 def authors_id(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
@@ -789,8 +812,14 @@ def authors_id(request, author_id):
             return Response({'error': "Author not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Followers",
+        responses={200: FollowerSerializer(many=True)},
+        description="Returns all followers of a specified author by the author's ID.",
+        tags=['Followers']
+    )
+)
 @api_view(['GET'])
 def followers(request, author_id):
     '''
@@ -811,7 +840,13 @@ def followers(request, author_id):
         return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND) 
     
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="Retrieve Follower Relationship",
+        responses={200: None},  # Custom response structure
+        description="Retrieves detailed information about a specific follower relationship.",
+        tags=['Followers']
+))
 @api_view(['GET', 'PUT', 'DELETE'])
 def followers_id(request, author_id, foreign_author_id):
     if Author.objects.filter(pk=author_id):
@@ -854,9 +889,21 @@ def followers_id(request, author_id, foreign_author_id):
         return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-
-
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Posts by Author",
+        responses={200: TextPostSerializer(many=True)},
+        description="Retrieves a list of posts made by a specified author, optionally paginated.",
+        tags=['Posts']
+    ),
+    post=extend_schema(
+        summary="Create a Post for an Author",
+        request=TextPostSerializer,
+        responses={201: TextPostSerializer},
+        description="Creates a new post for the specified author.",
+        tags=['Posts']
+    )
+)
 @api_view(['GET', 'POST'])
 def posts(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
@@ -886,7 +933,29 @@ def posts(request, author_id):
     else:
         return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="Retrieve a Post",
+        responses={
+            200: None  
+        },
+        description="Retrieves detailed information about a specific post by its ID, dynamically choosing the serializer based on the post's content type.",
+        tags=['Posts']
+    ),
+    put=extend_schema(
+        summary="Update a Post",
+        request=TextPostSerializer,  
+        responses={201: TextPostSerializer},
+        description="Updates an existing text post's details. Note: This example assumes text content; you may need to handle image posts separately.",
+        tags=['Posts']
+    ),
+    delete=extend_schema(
+        summary="Delete a Post",
+        responses={204: None},
+        description="Deletes a specific post by its ID.",
+        tags=['Posts']
+    )
+)
 @api_view(['GET', 'PUT', 'DELETE'])
 def posts_id(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
@@ -923,7 +992,21 @@ def posts_id(request, author_id, post_id):
 def image(request, author_id, post_id):
     return
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Comments for a Post",
+        responses={200: CommentSerializer(many=True)},
+        description="Retrieves a list of comments for a specific post, optionally paginated.",
+        tags=['Comments']
+    ),
+    post=extend_schema(
+        summary="Create a Comment for a Post",
+        request=CommentSerializer,
+        responses={201: CommentSerializer},
+        description="Creates a new comment for a specific post.",
+        tags=['Comments']
+    )
+)
 @api_view(['GET', 'POST'])
 def comments(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
@@ -955,7 +1038,14 @@ def comments(request, author_id, post_id):
     else:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Likes for a Post",
+        responses={200: LikeSerializer(many=True)},
+        description="Returns all likes for a specified post by a given author, ordered by date.",
+        tags=['Likes']
+    )
+)
 @api_view(['GET'])
 def posts_likes(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
@@ -975,7 +1065,14 @@ def posts_likes(request, author_id, post_id):
     else:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Likes for a Comment",
+        responses={200: LikeSerializer(many=True)},
+        description="Returns all likes for a specified comment by the comment's ID.",
+        tags=['Likes']
+    )
+)
 @api_view(['GET'])
 def comments_likes(request, author_id, post_id, comment_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists() and Comment.objects.filter(pk=comment_id).exists():
@@ -995,7 +1092,14 @@ def comments_likes(request, author_id, post_id, comment_id):
     else:
         return Response({'error': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema_view(
+    get=extend_schema(
+        summary="List Likes by Author",
+        responses={200: LikeSerializer(many=True)},
+        description="Returns all likes made by a specified author, ordered by date in descending order.",
+        tags=['Likes']
+    )
+)
 @api_view(['GET'])
 def liked(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
