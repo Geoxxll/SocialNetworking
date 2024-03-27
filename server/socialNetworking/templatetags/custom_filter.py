@@ -27,9 +27,10 @@ def base64_image(value, content_type):
         value = str(value, 'utf-8')
 
     prefix = f'data:{content_type};base64,'
-    if not value.startswith(prefix):
-        return prefix + value
-    return value
+    
+    if not value.tobytes().decode('utf-8').startswith(prefix):
+        return prefix + value.tobytes().decode('utf-8')
+    return value.tobytes().decode('utf-8')
 
 @register.filter
 def decode_utf8(value):

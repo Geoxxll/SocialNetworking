@@ -165,7 +165,7 @@ body {
 
 #left-content-container {
     width: 60%;
-    align-content: center;
+    /* align-content: center; */
 }
 
 .left-content {

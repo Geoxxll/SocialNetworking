@@ -382,7 +382,7 @@ class DashboardView(View):
                             published_at = commit["commit"]["author"]["date"],
                             author_of_posts = author
                         )
-                        new_post.url = author.url + "posts/" + str(new_post.post_id)
+                        new_post.url = author.url + "/posts/" + str(new_post.post_id)
                         new_post.origin = new_post.url
                         new_post.source = new_post.url
                         new_post.save()
@@ -392,7 +392,7 @@ class DashboardView(View):
                             node = Node.objects.get(host_url=flwr.host)
                             output = TextPostSerializer(new_post)
                             print(output)
-                            response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                            response = requests.post(flwr.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
                             print(response.json())
 
                 except:
@@ -432,7 +432,7 @@ class DashboardView(View):
                                 published_at = commit["commit"]["author"]["date"],
                                 author_of_posts = author
                             )
-                            new_post.url = author.url + "posts/" + str(new_post.post_id)
+                            new_post.url = author.url + "/posts/" + str(new_post.post_id)
                             new_post.origin = new_post.url
                             new_post.source = new_post.url
                             new_post.save()
@@ -442,7 +442,7 @@ class DashboardView(View):
                                 node = Node.objects.get(host_url=flwr.host)
                                 output = TextPostSerializer(new_post)
                                 print(output)
-                                response = requests.post(flwr.url + 'inbox/', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                                response = requests.post(flwr.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
                                 print(response.json())
 
                 except:
@@ -1080,7 +1080,22 @@ def posts_id(request, author_id, post_id):
 
 @api_view(['GET'])
 def image(request, author_id, post_id):
-    return
+    
+    if request.method == "GET":
+        if Author.objects.filter(id=author_id).exists():
+            author = Author.objects.get(id=author_id)
+            if Post.objects.filter(author_of_posts=author, post_id=post_id).exists():
+                post = Post.objects.get(author_of_posts=author, post_id=post_id)
+                if post.contentType in ["image/png;base64", "image/jpeg;base64"]:
+                    return HttpResponse(base64.b64decode(post.content), status=status.HTTP_200_OK, content_type=post.contentType)
+                else:
+                    return JsonResponse({'result': 'Post is not an image'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return JsonResponse({'result': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return JsonResponse({'result': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @extend_schema_view(
     get=extend_schema(
