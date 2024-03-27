@@ -78,3 +78,12 @@ class AddAuthorTest(APITestCase):
 
     def test_followers_GET(self):
         pass
+
+    def test_image_GET(self):
+        pass
+
+    def test_comments_GET(self):
+        pass
+
+    def test_comments_POST(self):
+        pass

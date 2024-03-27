@@ -80,7 +80,7 @@ class AddPostView(View):
             author_instance = Author.objects.get(user=user_instance)
             new_post = form.save(commit=False)
             new_post.author_of_posts = author_instance
-            new_post.url = author_instance.url + "posts/" + str(new_post.post_id)
+            new_post.url = author_instance.url + "/posts/" + str(new_post.post_id)
             new_post.source = new_post.url
             new_post.origin = new_post.url
             content_type = form.cleaned_data.get('contentType')
