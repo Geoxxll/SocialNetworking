@@ -112,25 +112,35 @@ class AddPostView(View):
             if new_post.visibility == 'PUBLIC':
                 follower_list = Author.objects.filter(follower_set__followee=author_instance)
                 for flwr in follower_list:
+                    print(flwr.host)
                     node = Node.objects.get(host_url=flwr.host)
+                    print(node.username_out)
+                    print(node.password_out)
                     output = None
                     if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
                         output = TextPostSerializer(new_post)
                     else:
                         output = ImagePostSerializer(new_post)
+                    print(output.data)
                     response = requests.post(flwr.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                    print(response.status_code)
             
             # TODO: HTTP Requests to POST new friends-only post to inbox of friends
             elif new_post.visibility == 'FRIENDS':
                 friends_list = Author.objects.filter(follower_set__followee=author_instance, followee_set__follower=author_instance)
                 for friend in friends_list:
+                    print(friend.host)
                     node = Node.objects.get(host_url=friend.host)
+                    print(node.username_out)
+                    print(node.password_out)
                     output = None
                     if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
                         output = TextPostSerializer(new_post)
                     else:
                         output = ImagePostSerializer(new_post)
+                    print(output.data)
                     response = requests.post(friend.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                    print(response.status_code)
 
             # Create a new, empty form after successfully saving the post
             form = PostForm()
@@ -295,9 +305,14 @@ class PostDetailView(View):
             form = CommentForm()
 
             # HTTP Request to POST new comment to inbox of post author
+            print(post.author_of_posts.host)
             node = Node.objects.get(host_url=post.author_of_posts.host)
+            print(node.username_out)
+            print(node.password_out)
             output = CommentSerializer(new_comment)
+            print(output.data)
             response = requests.post(post.author_of_posts.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+            print(response.status_code)
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
         
@@ -710,9 +725,14 @@ def commentLike(request,post_pk, pk):
         current_likes+=1
 
         # HTTP Request to POST new comment like to inbox of comment author
+        print(comment.comment_author.host)
         node = Node.objects.get(host_url=comment.comment_author.host)
+        print(node.username_out)
+        print(node.password_out)
         output = LikeSerializer(liked)
+        print(output.data)
         response = requests.post(comment.comment_author.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+        print(response.status_code)
 
     else:
         liked = Like.objects.filter(author_like = author, like_comment = comment).delete()
@@ -798,9 +818,14 @@ def likeAction(request, post_pk):
             current_likes+=1
 
             # HTTP Request to POST new post like to inbox of post author
+            print(post.author_of_posts.host)
             node = Node.objects.get(host_url=post.author_of_posts.host)
+            print(node.username_out)
+            print(node.password_out)
             output = LikeSerializer(liked)
+            print(output.data)
             response = requests.post(post.author_of_posts.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+            print(response.status_code)
 
         else:
             liked = Like.objects.filter(author_like = author, like_post = post).delete()
