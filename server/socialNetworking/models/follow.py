@@ -5,7 +5,7 @@ class Follow(models.Model):
         actor: there act as the follower
         object_of_follow: people who recive the follow request
     '''
-    type = models.CharField(max_length=15, default='follow', editable=False)
+    type = models.CharField(max_length=15, default='Follow')
     summary = models.TextField(blank=True)
     actor = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='actor_follow_set')
     object_of_follow = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, related_name='object_of_follow_set')
