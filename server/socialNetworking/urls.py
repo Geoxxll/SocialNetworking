@@ -82,10 +82,10 @@ urlpatterns = [
 
     path("api/authors/<uuid:author_id>/posts/", views.posts, name="posts"),
     path("api/authors/<uuid:author_id>/posts", views.posts, name="posts_no_slash"),
-     # TILL HERE -----------------------------------------------------------
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>", views.posts_id, name="posts_id_no_slash"),
-
+     # TILL HERE -----------------------------------------------------------
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image/", views.image, name="image"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image", views.image, name="image_no_slash"),
 
