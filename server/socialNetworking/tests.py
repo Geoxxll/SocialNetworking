@@ -68,6 +68,7 @@ class AddAuthorTest(APITestCase):
         }
         response = self.client.put(url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['displayName'], 'UpdatedUser')
     
     def test_authors_GET(self):
         url = reverse('authors')
