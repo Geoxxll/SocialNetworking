@@ -12,8 +12,8 @@ import json
 from urllib.parse import unquote
 
 # drf_spectaculars
-from drf_spectacular.utils import extend_schema_view, extend_schema
-
+from drf_spectacular.utils import extend_schema_view, extend_schema, inline_serializer, OpenApiParameter
+from rest_framework import serializers
 
 from django.utils import timezone
 from django.views import View
@@ -809,7 +809,14 @@ class SharedPostView(View):
 #     post.save()
     
 #     return HttpResponseRedirect(reverse_lazy('post-list'))
-    
+@extend_schema(
+    methods=['POST'],  
+    summary="Like or Unlike a Post",
+    description="Performs a like action on a post by the current user. If the post is already liked by the user, it unlikes it.",
+    request=None,  
+    responses={200: None},
+    tags=['Likes']
+)    
 @api_view(['POST'])
 def likeAction(request, post_pk):
     if request.method == 'POST':
@@ -841,6 +848,7 @@ def likeAction(request, post_pk):
         }
  
         return JsonResponse(data, status=200)
+    
 @extend_schema_view(
     get=extend_schema(
         summary="List Authors",
@@ -933,7 +941,9 @@ def followers(request, author_id):
 @extend_schema_view(
     get=extend_schema(
         summary="Retrieve Follower Relationship",
-        responses={200: None},  # Custom response structure
+        responses={
+            200: AuthorSerializer
+        },
         description="Retrieves detailed information about a specific follower relationship.",
         tags=['Followers']
 ))
@@ -960,17 +970,17 @@ def followers_id(request, author_id, foreign_author_id):
                 else:
                     return Response({'error': 'Foreign author not a follower'}, status=status.HTTP_404_NOT_FOUND)
             
-            elif request.method == 'PUT':
-                # follower_serializer = FollowerSerializer(request.data)
-                # if follower_serializer.is_valid():
-                #     follower_serializer.save()
-                #     return Response(follower_serializer.data, status=status.HTTP_200_OK)
-                pass
+            # elif request.method == 'PUT':
+            #     # follower_serializer = FollowerSerializer(request.data)
+            #     # if follower_serializer.is_valid():
+            #     #     follower_serializer.save()
+            #     #     return Response(follower_serializer.data, status=status.HTTP_200_OK)
+            #     pass
             
-            elif request.method == 'DELETE':
-                # obj_follow.delete()
-                # return Response(status=status.HTTP_204_NO_CONTENT)
-                pass
+            # elif request.method == 'DELETE':
+            #     # obj_follow.delete()
+            #     # return Response(status=status.HTTP_204_NO_CONTENT)
+            #     pass
 
         else:
             return Response({'error': 'Foreign author not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -1077,7 +1087,16 @@ def posts_id(request, author_id, post_id):
     else:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema(
+    methods=['GET'], 
+    summary="Retrieve an Image Post",
+    description="Returns the image of a specific post by an author in binary format. Only supports 'image/png;base64' and 'image/jpeg;base64' content types.",
+    responses={
+        200: None,  
+        400: None,  
+    },
+    tags=['Posts'],
+)
 @api_view(['GET'])
 def image(request, author_id, post_id):
     
@@ -1223,6 +1242,28 @@ def liked(request, author_id):
     else:
         return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
+@extend_schema_view(
+    get=extend_schema(
+        summary="Retrieve Inbox Items",
+        responses={200: None},  # Specify a custom serializer or structure if needed
+        description="Returns all inbox items (posts, comments, likes, follows) for a specific author.",
+        tags=['Inbox']
+    ),
+    post=extend_schema(
+        summary="Add an Item to Inbox",
+        request=None,  # You may need a custom serializer or structure for handling diverse POST data
+        responses={201: None},  # Adjust based on actual response structure
+        description="Adds a new item (post, comment, like, follow) to the author's inbox.",
+        tags=['Inbox']
+    ),
+    delete=extend_schema(
+        summary="Delete Inbox Item",
+        responses={204: None},
+        description="Conditionally deletes an item from the author's inbox.",
+        tags=['Inbox']
+    )
+)
 @api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
@@ -1420,7 +1461,15 @@ def inbox(request, author_id):
     else:
         return Response({'error': 'Author not found'}, status=status.HTTP_404_NOT_FOUND)
     
-
+@extend_schema(
+    methods=['POST'], 
+    summary="Send Friend Request",
+    description="Sends a friend request from the authenticated user to another author.",
+    request=FollowSerializer,  
+    responses={200: 'Your success response structure here', 404: 'Your error response structure here'},  # Specify actual structure
+    tags=['Friend Requests'],
+    operation_id='send_friend_request',
+)
 @api_view(['POST']) 
 def send_friend_request(request, *args, **kwargs):
     user = request.user
@@ -1479,7 +1528,14 @@ def send_friend_request(request, *args, **kwargs):
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
 
-
+@extend_schema(
+    request=None,  
+    responses={201: FollowerSerializer, 400: None, 404: None, 401: None},
+    summary="Accept a Friend Request",
+    description="Accepts a friend request between two authors, creating a follower relationship.",
+    methods=['POST'],
+    tags=['Friendships']
+)
 @api_view(['POST']) 
 def accept_friend_request(request, *args, **kwargs):
     user = request.user
@@ -1524,7 +1580,18 @@ def accept_friend_request(request, *args, **kwargs):
         context['result'] = "Authentication required"
         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
-
+@extend_schema(
+    summary="Cancel Follow Request",
+    description="Cancels an active follow request between two authors.",
+    request=None,  
+    responses={
+        200: None,  
+        404: None,  
+        401: None,
+    },
+    methods=['POST'],
+    tags=['Follow Management']
+)
 @api_view(['POST'])
 def cancel_follow_request(request):
     if request.method == "POST" and request.user.is_authenticated:
@@ -1542,6 +1609,14 @@ def cancel_follow_request(request):
     else:
         return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
+@extend_schema(
+    request=None,  
+    responses={200: None},  
+    summary="Unfollow a User",
+    description="Allows an authenticated user to unfollow another user. Requires 'user_id' as POST parameter.",
+    methods=['POST'],  
+    tags=['Followers'],  
+)
 @api_view(['POST'])
 def unfollow_user(request):
     if request.method == "POST" and request.user.is_authenticated:
