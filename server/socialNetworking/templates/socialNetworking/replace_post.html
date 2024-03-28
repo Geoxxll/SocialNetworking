@@ -24,9 +24,9 @@
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                         {% if post.content %}
                             {% if post.contentType == 'image/jpeg;base64' %}
-                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'image/png;base64' %}
-                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% endif %}
                         {% endif %}
 
@@ -39,9 +39,9 @@
                         <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                         {% if post.content %}
                             {% if post.contentType == 'image/jpeg;base64' %}
-                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'image/png;base64' %}
-                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'text/plain' %}
                                 <pre>{{ post.content|decode_utf8}}</pre>
                             {% elif post.contentType == 'text/markdown'%}
