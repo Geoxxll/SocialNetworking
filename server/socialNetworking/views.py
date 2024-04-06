@@ -171,6 +171,7 @@ class FindFriendsView(View):
         remote_authors = []
         for node in nodes:
             response = requests.get(node.api_url + 'authors/?page=1&size=100')
+            print(response.status_code)
             json_data = response.json()
             remote_authors = remote_authors + json_data.get('items')
         for author in remote_authors:
