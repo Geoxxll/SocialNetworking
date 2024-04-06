@@ -583,7 +583,13 @@ class User_Profile(View):
         followers = Follower.objects.filter(follower__user=request.user)
         following_set = set(follower_user.followee_id for follower_user in followers)
 
+        unlisted_post = Post.objects.filter(
+            author_of_posts=author,visibility=Post.VisibilityChoices.UNLISTED
+        )
         
+        shared_posts  = Post.objects.filter(
+            shared_user=request.user,
+        )
 
         context = {
             # 'user_list': all_users,
@@ -594,6 +600,8 @@ class User_Profile(View):
             'post_list': posts,
             'form': form,
             'author': author,
+            'unlisted_posts':unlisted_post,
+            'shared_posts':shared_posts,
         }
 
         return render(request, 'socialNetworking/profile_view.html', context)
