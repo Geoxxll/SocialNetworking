@@ -970,17 +970,17 @@ def followers_id(request, author_id, foreign_author_id):
                 else:
                     return Response({'error': 'Foreign author not a follower'}, status=status.HTTP_404_NOT_FOUND)
             
-            # elif request.method == 'PUT':
+            elif request.method == 'PUT':
             #     # follower_serializer = FollowerSerializer(request.data)
             #     # if follower_serializer.is_valid():
             #     #     follower_serializer.save()
             #     #     return Response(follower_serializer.data, status=status.HTTP_200_OK)
-            #     pass
+                pass
             
-            # elif request.method == 'DELETE':
+            elif request.method == 'DELETE':
             #     # obj_follow.delete()
             #     # return Response(status=status.HTTP_204_NO_CONTENT)
-            #     pass
+                pass
 
         else:
             return Response({'error': 'Foreign author not found'}, status=status.HTTP_404_NOT_FOUND)
