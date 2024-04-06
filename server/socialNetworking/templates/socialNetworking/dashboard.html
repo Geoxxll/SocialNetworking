@@ -45,7 +45,7 @@
                 <!-- Post Container -->
                 <div class="post-container left-content" style="display: flex; justify-content: space-between;">
                     {% if not post.author_of_posts.profileImage %}
-                        <img src="{% static 'images/User_cicrle.png' %}" alt="Profile Picture" class="post-profile-pic">
+                        <img src="{% static 'images/default_profile_image.png' %}" alt="Profile Picture" class="post-profile-pic">
                     {% else %}
                         <img src="{{ post.author_of_posts.profileImage }}" alt="Profile Picture" class="post-profile-pic">
                     {% endif %}
@@ -63,9 +63,9 @@
                             <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                             {% if post.content %}
                             {% if post.contentType == 'image/jpeg;base64' %}
-                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'image/png;base64' %}
-                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'text/plain' %}
                                 <pre>{{ post.content|decode_utf8}}</pre>
                             {% elif post.contentType == 'text/markdown'%}
@@ -79,9 +79,9 @@
                             <p><b>Title: </b>{{ post.title }}</p>
                             <p><b>Date: </b><i>{{ post.published_at }}</i></p>
                             {% if post.contentType == 'image/jpeg;base64' %}
-                                <img src="{{ post.content|base64_image:'image/jpeg' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'image/png;base64' %}
-                                <img src="{{ post.content|base64_image:'image/png' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
                             {% elif post.contentType == 'text/plain' %}
                                 <pre>{{ post.content|decode_utf8}}</pre>
                             {% elif post.contentType == 'text/markdown'%}

@@ -170,7 +170,8 @@ class FindFriendsView(View):
         nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
         remote_authors = []
         for node in nodes:
-            response = requests.get(node.api_url + 'authors/?page=1&size=100')
+            response = requests.get(node.api_url + 'authors/?page=1&size=100', auth=HTTPBasicAuth(node.username_out, node.password_out))
+            print(response.status_code)
             json_data = response.json()
             remote_authors = remote_authors + json_data.get('items')
         for author in remote_authors:
@@ -180,6 +181,7 @@ class FindFriendsView(View):
                     author_serializer.save()
                 else:
                     print('Serializer invalid')
+                    print(author)
                     
         
         if query:
@@ -782,13 +784,35 @@ class SharedPostView(View):
         if form.is_valid():
             new_post = Post(
 					shared_body=self.request.POST.get('body'),
+                    title=original_post.title,
+                    url=original_post.url,
+                    source=original_post.source,
+                    origin=original_post.origin,
 					description=original_post.description,
+                    contentType=original_post.contentType,
+                    content=original_post.content,
+                    visibility=original_post.visibility,
 					author_of_posts=original_post.author_of_posts,
 					published_at=original_post.published_at,
 					shared_user=request.user,
 					shared_on=timezone.now(),
 				)
             new_post.save()
+
+            follower_list = Author.objects.filter(follower_set__followee=author)
+            for flwr in follower_list:
+                print(flwr.host)
+                node = Node.objects.get(host_url=flwr.host)
+                print(node.username_out)
+                print(node.password_out)
+                output = None
+                if new_post.contentType == 'text/plain' or new_post.contentType == 'text/markdown':
+                    output = TextPostSerializer(new_post)
+                else:
+                    output = ImagePostSerializer(new_post)
+                print(output.data)
+                response = requests.post(flwr.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                print(response.status_code)
             
         return redirect('post-list')
 
@@ -1010,17 +1034,26 @@ def posts(request, author_id):
 
         if request.method == 'GET':
             author = Author.objects.get(pk=author_id)
-            posts = Post.objects.filter(author_of_posts=author).order_by('-published_at')
+            text_posts = Post.objects.filter(author_of_posts=author, contentType="text/plain", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="text/markdown", visibility="PUBLIC")
+            image_posts = Post.objects.filter(author_of_posts=author, contentType="image/png;base64", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="image/jpeg;base64", visibility="PUBLIC")
+
+            text_posts_ser = TextPostSerializer(text_posts, many=True)
+            image_posts_ser = ImagePostSerializer(image_posts, many=True)
+
+            text_posts_data = text_posts_ser.data
+            image_posts_data = image_posts_ser.data
+
+            posts_list = text_posts_data + image_posts_data
+            posts_list = sorted(posts_list, key=lambda x: x['published'], reverse=True)
 
             if isinstance(request.GET.get('size'), str) and isinstance(request.GET.get('page'), str):
                 page_size = request.GET.get('size')
                 page_number = request.GET.get('page')
-                paginated = Paginator(posts, page_size)
-                posts = paginated.get_page(page_number)
+                paginated = Paginator(posts_list, page_size)
+                page = paginated.get_page(page_number)
+                posts_list = page.object_list
 
-            posts_serialized = TextPostSerializer(posts, many=True)
-
-            output = {'type': 'posts', 'items': posts_serialized.data}
+            output = {'type': 'posts', 'items': posts_list}
 
             return Response(output, status=status.HTTP_200_OK)
     
@@ -1499,7 +1532,7 @@ def send_friend_request(request, *args, **kwargs):
                 print(output.data)
                 print(node.username_out)
                 print(node.password_out)
-                response = requests.post(receiver.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out))
+                response = requests.post(receiver.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out), headers={'Content-Type': 'application/json'})
                 print(response.status_code)
 
                 # TODO: If receiver of follow request is foreign, create follower object immediately

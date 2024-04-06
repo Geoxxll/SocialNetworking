@@ -67,24 +67,25 @@ urlpatterns = [
     path('social/post/<uuid:pk>/share/', SharedPostView.as_view(), name='share-post'),
 
     # API ENDPOINTS
-    path("api/authors/", views.authors, name="authors"),
+    # TEST COVERED TILL
+    path("api/authors/", views.authors, name="authors"),   
     path("api/authors", views.authors, name="authors_no_slash"),
-
+    
     path("api/authors/<uuid:author_id>/", views.authors_id, name="authors_id"),
     path("api/authors/<uuid:author_id>", views.authors_id, name="authors_id_no_slash"),
-
+   
     path("api/authors/<uuid:author_id>/followers/", views.followers, name="followers"),
     path("api/authors/<uuid:author_id>/followers", views.followers, name="followers_no_slash"),
-
+    
     path("api/authors/<uuid:author_id>/followers/<path:foreign_author_id>/", views.followers_id, name="followers_id"),
     path("api/authors/<uuid:author_id>/followers/<path:foreign_author_id>", views.followers_id, name="followers_id_no_slash"),
 
     path("api/authors/<uuid:author_id>/posts/", views.posts, name="posts"),
     path("api/authors/<uuid:author_id>/posts", views.posts, name="posts_no_slash"),
-
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>", views.posts_id, name="posts_id_no_slash"),
-
+     # TILL HERE -----------------------------------------------------------
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image/", views.image, name="image"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image", views.image, name="image_no_slash"),
 
