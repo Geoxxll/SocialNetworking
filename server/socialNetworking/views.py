@@ -1532,7 +1532,7 @@ def send_friend_request(request, *args, **kwargs):
                 print(output.data)
                 print(node.username_out)
                 print(node.password_out)
-                response = requests.post(receiver.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out), header={'Content-Type': 'application/json'})
+                response = requests.post(receiver.url + '/inbox', json=output.data, auth=HTTPBasicAuth(node.username_out, node.password_out), headers={'Content-Type': 'application/json'})
                 print(response.status_code)
 
                 # TODO: If receiver of follow request is foreign, create follower object immediately
