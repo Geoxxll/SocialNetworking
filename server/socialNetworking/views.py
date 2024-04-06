@@ -170,7 +170,7 @@ class FindFriendsView(View):
         nodes = Node.objects.exclude(host_url=request.build_absolute_uri('/'))
         remote_authors = []
         for node in nodes:
-            response = requests.get(node.api_url + 'authors/?page=1&size=100')
+            response = requests.get(node.api_url + 'authors/?page=1&size=100', auth=HTTPBasicAuth(node.username_out, node.password_out))
             print(response.status_code)
             json_data = response.json()
             remote_authors = remote_authors + json_data.get('items')
