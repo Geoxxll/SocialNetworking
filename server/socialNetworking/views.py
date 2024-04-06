@@ -180,6 +180,7 @@ class FindFriendsView(View):
                     author_serializer.save()
                 else:
                     print('Serializer invalid')
+                    print(author)
                     
         
         if query:
