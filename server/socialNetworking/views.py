@@ -23,6 +23,7 @@ from .models.followers import Follower
 from .models.follow import Follow
 from .models.likes import Like
 from .models.nodes import Node
+from .models.approval import Approval
 from .forms import PostForm, CommentForm, ShareForm, DraftForm
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
@@ -224,23 +225,80 @@ class PostListView(View):
         visible_posts = []
         currentUser_asAuthor = Author.objects.get(user=request.user)
         
-        # for admin access
-        if currentUser_asAuthor.is_approved:
-            for post in posts:
-                if post.visibility == 'PUBLIC':
-                    visible_posts.append(post)
-                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                        friend_posts.append(post)
-                elif post.visibility == 'FRIENDS':
-                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                        if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+        # for admin access 
+        
+        # check approval if its required by admin
+        approval_instance, created = Approval.objects.get_or_create(id=1, defaults={'require_approval': True})
+        
+        # check if approval is required
+        if approval_instance.require_approval:
+            if currentUser_asAuthor.is_approved:
+                for post in posts:
+                    if post.visibility == 'PUBLIC':
+                        visible_posts.append(post)
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                            friend_posts.append(post)
+                    elif post.visibility == 'FRIENDS':
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                                visible_posts.append(post)
+                                friend_posts.append(post)
+                    elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                        if post.author_of_posts.user == request.user:
                             visible_posts.append(post)
                             friend_posts.append(post)
-                elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
-                    if post.author_of_posts.user == request.user:
+                
+                if toggle_option == 'friends':
+                    posts = friend_posts
+                    template_name = 'socialNetworking/replace_post.html'
+                elif toggle_option == 'all':
+                    posts = visible_posts
+                    template_name = 'socialNetworking/replace_post.html'
+                else:
+                    posts = friend_posts
+                    template_name = 'socialNetworking/dashboard.html'
+                
+                form = PostForm()
+                share_form = ShareForm()
+                
+                post_comments = {}
+                for post in posts:
+                    comments = Comment.objects.filter(post=post).order_by('-published_at')
+                    post_comments[post.post_id] = comments
+
+                follow_requests = Follow.objects.filter(object_of_follow__user = request.user, active = True)
+                new = currentUser_asAuthor.followInbox
+                print(new)
+                context = {
+                    'post_list': posts,
+                    'form': form,
+                    'post_comments': post_comments,
+                    'shareform': share_form,
+                    'follow_requests' : follow_requests,
+                    'author': Author.objects.get(user= request.user)
+                }
+                
+                return render(request, template_name, context)
+            else:
+                return render(request, 'socialNetworking/waiting_approval.html')
+
+        # no approval is required - direct access to the system by the user
+        else:
+            for post in posts:
+                    if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
-                        friend_posts.append(post)
-            
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                            friend_posts.append(post)
+                    elif post.visibility == 'FRIENDS':
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                                visible_posts.append(post)
+                                friend_posts.append(post)
+                    elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                        if post.author_of_posts.user == request.user:
+                            visible_posts.append(post)
+                            friend_posts.append(post)
+                
             if toggle_option == 'friends':
                 posts = friend_posts
                 template_name = 'socialNetworking/replace_post.html'
@@ -272,8 +330,8 @@ class PostListView(View):
             }
             
             return render(request, template_name, context)
-        else:
-            return render(request, 'socialNetworking/waiting_approval.html')
+        # else:
+        #     return render(request, 'socialNetworking/waiting_approval.html')
 
     
 class PostDetailView(View):
