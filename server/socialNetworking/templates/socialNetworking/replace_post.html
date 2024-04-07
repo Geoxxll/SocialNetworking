@@ -75,7 +75,10 @@
                             <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
                         </button>
                         <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
+                        <!-- Not be able to share friends only posts of others friends only post-->
+                        {% if post.visibility != "FRIENDS" %}
                         <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
+                        {% endif %}
                     </div>
                 </form> 
             </div>
