@@ -23,6 +23,7 @@ from .views import (
   likeAction,
   cancel_follow_request,
   unfollow_user,
+  check_inbox,
   )
 from . import views
 
@@ -38,6 +39,7 @@ urlpatterns = [
     path('social/accept-request/', accept_friend_request, name='accept-friend-request'),
     path('social/cancel-request/', cancel_follow_request, name='cancel-follow-request'),
     path('social/unfollow/', unfollow_user, name='unfollow-user'),
+    path('social/check_inbox',check_inbox, name = 'check_inbox'),
 
 
     path('social/post/', AddPostView.as_view(), name='add-post'),

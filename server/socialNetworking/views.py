@@ -236,12 +236,14 @@ class PostListView(View):
                 for post in posts:
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            friend_posts.append(post)
+                        #  NO NEED TO ADD TO FRIENDS ONLY IF ITS A PUBLIC POST
+                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                        #     friend_posts.append(post)
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
@@ -249,11 +251,13 @@ class PostListView(View):
                             visible_posts.append(post)
                             friend_posts.append(post)
                 
+                print(toggle_option)
                 if toggle_option == 'friends':
                     posts = friend_posts
                     template_name = 'socialNetworking/replace_post.html'
                 elif toggle_option == 'all':
                     posts = visible_posts
+
                     template_name = 'socialNetworking/replace_post.html'
                 else:
                     posts = friend_posts
@@ -288,12 +292,13 @@ class PostListView(View):
             for post in posts:
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            friend_posts.append(post)
+                        # NO NEED TO ADD A PUBLIC POST TO FRIENDS ONLY
+                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                        #     friend_posts.append(post)
                     elif post.visibility == 'FRIENDS':
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
-                                visible_posts.append(post)
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
+                                # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
                         if post.author_of_posts.user == request.user:
@@ -302,6 +307,7 @@ class PostListView(View):
                 
             if toggle_option == 'friends':
                 posts = friend_posts
+                print(posts)
                 template_name = 'socialNetworking/replace_post.html'
             elif toggle_option == 'all':
                 posts = visible_posts
@@ -1770,3 +1776,63 @@ def unfollow_user(request):
             return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
         return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+def check_inbox(request):
+    five_seconds_ago = timezone.now() - timezone.timedelta(seconds=5)
+    
+    current_time = timezone.now()
+
+    recent_posts = Post.objects.filter(
+        published_at__gte=five_seconds_ago,  # Posts made in the last minute
+        published_at__lte=current_time,   # Posts made up to the current time
+    )
+    
+    toggle_option = request.GET.get('toggleOption')
+    show_friends_posts = toggle_option == 'friends'  
+
+    friend_posts = []
+    visible_posts = []
+    currentUser_asAuthor = Author.objects.get(user=request.user)
+    
+    # for admin access 
+    
+    # check approval if its required by admin
+    approval_instance, created = Approval.objects.get_or_create(id=1, defaults={'require_approval': True})
+    
+    # check if approval is required
+    if approval_instance.require_approval:
+        if currentUser_asAuthor.is_approved:
+            for post in recent_posts:
+                if post.visibility == 'PUBLIC':
+                    visible_posts.append(post)
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        friend_posts.append(post)
+                # dont add users friends only posts
+                elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                            # visible_posts.append(post)
+                            friend_posts.append(post)
+                elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                    if post.author_of_posts.user == request.user:
+                        visible_posts.append(post)
+                        friend_posts.append(post)
+            
+        
+            if toggle_option == 'all':
+                posts = visible_posts
+                print(posts)
+                template_name = 'socialNetworking/replace_post.html'
+            else:
+                posts = friend_posts
+                template_name = 'socialNetworking/replace_post.html'
+            
+    print(recent_posts)
+    context = {
+                'post_list': posts,
+            }
+            
+    return render(request, 'socialNetworking/replace_post.html', context)
+   
