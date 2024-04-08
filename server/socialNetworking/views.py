@@ -1498,8 +1498,6 @@ def inbox(request, author_id):
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                post = Post.objects.get(url=obj_url)
-
                 if not Like.objects.filter(object=obj_url).filter(author_like__url=like_author.get('id')).exists():
                     like_serializer = LikeSerializer(data=request.data)
                     if like_serializer.is_valid():
@@ -1510,6 +1508,7 @@ def inbox(request, author_id):
                     like_obj = Like.objects.get(author_like=None)
                     like_obj.author_like = Author.objects.get(url=like_author.get('id'))
                     if Post.objects.filter(url=obj_url).exists():
+                        post = Post.objects.get(url=obj_url)
                         like_obj.like_post = post
                         post.num_likes += 1
                         post.save()
