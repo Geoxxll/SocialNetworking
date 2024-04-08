@@ -8,6 +8,7 @@ from .models.likes import Like
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
 from .models.nodes import Node
+from .models.approval import Approval
 # Register your models here.
 
 admin.site.register(Node)
@@ -19,3 +20,4 @@ admin.site.register(Comment)
 admin.site.register(Like)
 admin.site.register(Inbox)
 admin.site.register(InboxItem)
+admin.site.register(Approval)

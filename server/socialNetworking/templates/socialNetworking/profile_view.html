@@ -62,14 +62,15 @@
 		<div class="row mt-3">
 		<div class="col-sm-12 border-bottom">
 			{% if author.user == request.user %}
-			  <h2>Posts you created(check unlisted posts below):</h2>
+			  <h2>User created post:</h2>
       {% else %}
-        <h2>Posts </h2>
+        <h2>User created posts: </h2>
       {% endif %}
 
 		</div>
 		</div>
 
+    <!-- For user created post -->
 		{% for post in post_list %} {% if not post.shared_user %}
 		<div class="row mt-3">
 		<div class="col-sm-12 border-bottom position-relative">
@@ -77,6 +78,7 @@
 			<a href="{% url 'post-edit' post.pk %}">Edit</a>
 			<a href="{% url 'post-delete' post.pk %}">Delete</a>
 			{% endif %}
+      <button class="btn btn-light position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
 			<p><b>Created on:</b> {{ post.published_at }}</p>
 			<p>
 			<b>Title:</b> {{ post.title }}
@@ -86,34 +88,47 @@
 		</div>
 		{% endif %}
 		{% endfor %}
+  <!-- User shared post -->
 	{% if shared_posts %}
     <div class="row mt-3">
       <div class="col-sm-12 border-bottom">
-        <h2>Posts you shared:</h2>
+        <h2>User shared posts:</h2>
       </div>
     </div>
     {% for post in shared_posts %}
     <div class="row mt-3">
       <div class="col-sm-12 border-bottom position-relative">
+        {% if author.user == request.user %}
         <a href="{% url 'shared-post-edit' post.pk %}">Edit</a>
         <a href="{% url 'shared-post-delete' post.pk %}">Delete</a>
+        {% endif %}
+        <button class="btn btn-light position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
         <p><b>Shared on:</b> {{ post.shared_on }}</p>
         <p><b>Title:</b> {{ post.shared_body }}</p>
         <!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
       </div>
     </div>
-    {% endfor %} {% endif %} {% if unlisted_posts %}
-    <div class="row mt-3">
-      <div class="col-sm-12 border-bottom">
-        <h2>Your unlisted posts:</h2>
-      </div>
+    {% endfor %} 
+    {% endif %}
+  <!-- User unlisted post  -->
+  {% if unlisted_posts %}
+  <div class="row mt-3">
+    <div class="col-sm-12 border-bottom">
+      <h2>User unlisted posts:</h2>
     </div>
-    {% endif %} 
+  </div>
+  {% endif %} 
 	{% for post in unlisted_posts %}
     <div class="row mt-3">
       <div class="col-sm-12 border-bottom position-relative">
+        {% if author.user == request.user %}
         <a href="{% url 'unlisted-post-edit' post.pk %}">Edit</a>
         <a href="{% url 'post-delete' post.pk %}">Delete</a>
+        {% endif %}
+        <button class="btn btn-light position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment</a></button>
+        {% if not author.user == request.user %}
+        <button onclick="copyPostUrl('{{ post.post_id }}')">Copy Post URL</button>
+        {% endif %}
         <p><b>Created on:</b> {{ post.published_at }}</p>
         <p><b>Title:</b> {{ post.title }}</p>
         <!-- <a class="stretched-link" href="{% url 'post-edit' post.pk %}"></a> -->
@@ -232,6 +247,21 @@
         }
         });
     }
+
+    //  copy paste url
+    function copyPostUrl(postId) {
+      // Construct the post URL dynamically
+      const postUrl = `${window.location.origin}/social/post/${postId}/`;
+      
+      navigator.clipboard.writeText(postUrl).then(function() {
+        /* Clipboard successfully set */
+        alert("Post URL copied to clipboard!");
+      }, function() {
+        /* Clipboard write failed */
+        alert("Failed to copy post URL.");
+      });
+  }
+
 </script>
 
 

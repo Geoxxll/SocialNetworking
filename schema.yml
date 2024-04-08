@@ -4,9 +4,11 @@ info:
   version: 1.0.0
   description: CMPUT404 Group Project
 paths:
-  /api/authors/:
+  /api/authors:
     get:
-      operationId: api_authors_retrieve
+      operationId: api_authors_list
+      description: Retrieves a list of authors, optionally paginated.
+      summary: List Authors
       tags:
       - api
       security:
@@ -15,10 +17,102 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+          description: ''
+  /api/authors/:
+    get:
+      operationId: api_authors_list_2
+      description: Retrieves a list of authors, optionally paginated.
+      summary: List Authors
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+          description: ''
+  /api/authors/{author_id}:
+    get:
+      operationId: api_authors_retrieve
+      description: Retrieves detailed information about a specific author by their
+        ID.
+      summary: Retrieve an Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
+    put:
+      operationId: api_authors_update
+      description: Updates an existing author's details. Returns the updated author
+        information.
+      summary: Update an Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Author'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
   /api/authors/{author_id}/:
     get:
       operationId: api_authors_retrieve_2
+      description: Retrieves detailed information about a specific author by their
+        ID.
+      summary: Retrieve an Author
       parameters:
       - in: path
         name: author_id
@@ -34,9 +128,16 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
     put:
-      operationId: api_authors_update
+      operationId: api_authors_update_2
+      description: Updates an existing author's details. Returns the updated author
+        information.
+      summary: Update an Author
       parameters:
       - in: path
         name: author_id
@@ -46,17 +147,61 @@ paths:
         required: true
       tags:
       - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Author'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
+  /api/authors/{author_id}/followers:
+    get:
+      operationId: api_authors_followers_list
+      description: Returns all followers of a specified author by the author's ID.
+      summary: List Followers
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Follower'
+          description: ''
   /api/authors/{author_id}/followers/:
     get:
-      operationId: api_authors_followers_retrieve
-      description: return all follower of author_id as json
+      operationId: api_authors_followers_list_2
+      description: Returns all followers of a specified author by the author's ID.
+      summary: List Followers
       parameters:
       - in: path
         name: author_id
@@ -65,17 +210,25 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
-  /api/authors/{author_id}/followers/{foreign_author_id}/:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Follower'
+          description: ''
+  /api/authors/{author_id}/followers/{foreign_author_id}:
     get:
-      operationId: api_authors_followers_retrieve_2
+      operationId: api_authors_followers_retrieve
+      description: Retrieves detailed information about a specific follower relationship.
+      summary: Retrieve Follower Relationship
       parameters:
       - in: path
         name: author_id
@@ -89,14 +242,18 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
     put:
       operationId: api_authors_followers_update
       parameters:
@@ -143,9 +300,88 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/authors/{author_id}/inbox/:
+  /api/authors/{author_id}/followers/{foreign_author_id}/:
+    get:
+      operationId: api_authors_followers_retrieve_2
+      description: Retrieves detailed information about a specific follower relationship.
+      summary: Retrieve Follower Relationship
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Followers
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
+    put:
+      operationId: api_authors_followers_update_2
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_authors_followers_destroy_2
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: foreign_author_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/authors/{author_id}/inbox:
     get:
       operationId: api_authors_inbox_retrieve
+      description: Returns all inbox items (posts, comments, likes, follows) for a
+        specific author.
+      summary: Retrieve Inbox Items
       parameters:
       - in: path
         name: author_id
@@ -154,7 +390,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Inbox
       security:
       - basicAuth: []
       responses:
@@ -162,6 +398,8 @@ paths:
           description: No response body
     post:
       operationId: api_authors_inbox_create
+      description: Adds a new item (post, comment, like, follow) to the author's inbox.
+      summary: Add an Item to Inbox
       parameters:
       - in: path
         name: author_id
@@ -170,14 +408,16 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Inbox
       security:
       - basicAuth: []
       responses:
-        '200':
+        '201':
           description: No response body
     delete:
       operationId: api_authors_inbox_destroy
+      description: Conditionally deletes an item from the author's inbox.
+      summary: Delete Inbox Item
       parameters:
       - in: path
         name: author_id
@@ -186,15 +426,18 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Inbox
       security:
       - basicAuth: []
       responses:
         '204':
           description: No response body
-  /api/authors/{author_id}/liked/:
+  /api/authors/{author_id}/inbox/:
     get:
-      operationId: api_authors_liked_retrieve
+      operationId: api_authors_inbox_retrieve_2
+      description: Returns all inbox items (posts, comments, likes, follows) for a
+        specific author.
+      summary: Retrieve Inbox Items
       parameters:
       - in: path
         name: author_id
@@ -203,35 +446,16 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Inbox
       security:
-      - cookieAuth: []
       - basicAuth: []
-      - {}
-      responses:
-        '200':
-          description: No response body
-  /api/authors/{author_id}/posts/:
-    get:
-      operationId: api_authors_posts_retrieve
-      parameters:
-      - in: path
-        name: author_id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - api
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           description: No response body
     post:
-      operationId: api_authors_posts_create
+      operationId: api_authors_inbox_create_2
+      description: Adds a new item (post, comment, like, follow) to the author's inbox.
+      summary: Add an Item to Inbox
       parameters:
       - in: path
         name: author_id
@@ -240,17 +464,220 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Inbox
+      security:
+      - basicAuth: []
+      responses:
+        '201':
+          description: No response body
+    delete:
+      operationId: api_authors_inbox_destroy_2
+      description: Conditionally deletes an item from the author's inbox.
+      summary: Delete Inbox Item
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Inbox
+      security:
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/authors/{author_id}/liked:
+    get:
+      operationId: api_authors_liked_list
+      description: Returns all likes made by a specified author, ordered by date in
+        descending order.
+      summary: List Likes by Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
-  /api/authors/{author_id}/posts/{post_id}/:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
+  /api/authors/{author_id}/liked/:
     get:
-      operationId: api_authors_posts_retrieve_2
+      operationId: api_authors_liked_list_2
+      description: Returns all likes made by a specified author, ordered by date in
+        descending order.
+      summary: List Likes by Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
+  /api/authors/{author_id}/posts:
+    get:
+      operationId: api_authors_posts_list
+      description: Retrieves a list of posts made by a specified author, optionally
+        paginated.
+      summary: List Posts by Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TextPost'
+          description: ''
+    post:
+      operationId: api_authors_posts_create
+      description: Creates a new post for the specified author.
+      summary: Create a Post for an Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextPost'
+          description: ''
+  /api/authors/{author_id}/posts/:
+    get:
+      operationId: api_authors_posts_list_2
+      description: Retrieves a list of posts made by a specified author, optionally
+        paginated.
+      summary: List Posts by Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TextPost'
+          description: ''
+    post:
+      operationId: api_authors_posts_create_2
+      description: Creates a new post for the specified author.
+      summary: Create a Post for an Author
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextPost'
+          description: ''
+  /api/authors/{author_id}/posts/{post_id}:
+    get:
+      operationId: api_authors_posts_retrieve
+      description: Retrieves detailed information about a specific post by its ID,
+        dynamically choosing the serializer based on the post's content type.
+      summary: Retrieve a Post
       parameters:
       - in: path
         name: author_id
@@ -265,7 +692,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -275,6 +702,9 @@ paths:
           description: No response body
     put:
       operationId: api_authors_posts_update
+      description: 'Updates an existing text post''s details. Note: This example assumes
+        text content; you may need to handle image posts separately.'
+      summary: Update a Post
       parameters:
       - in: path
         name: author_id
@@ -289,16 +719,34 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+        required: true
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextPost'
+          description: ''
     delete:
       operationId: api_authors_posts_destroy
+      description: Deletes a specific post by its ID.
+      summary: Delete a Post
       parameters:
       - in: path
         name: author_id
@@ -313,7 +761,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -321,9 +769,12 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/authors/{author_id}/posts/{post_id}/comments/:
+  /api/authors/{author_id}/posts/{post_id}/:
     get:
-      operationId: api_authors_posts_comments_retrieve
+      operationId: api_authors_posts_retrieve_2
+      description: Retrieves detailed information about a specific post by its ID,
+        dynamically choosing the serializer based on the post's content type.
+      summary: Retrieve a Post
       parameters:
       - in: path
         name: author_id
@@ -338,7 +789,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -346,8 +797,112 @@ paths:
       responses:
         '200':
           description: No response body
+    put:
+      operationId: api_authors_posts_update_2
+      description: 'Updates an existing text post''s details. Note: This example assumes
+        text content; you may need to handle image posts separately.'
+      summary: Update a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TextPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextPost'
+          description: ''
+    delete:
+      operationId: api_authors_posts_destroy_2
+      description: Deletes a specific post by its ID.
+      summary: Delete a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/comments:
+    get:
+      operationId: api_authors_posts_comments_list
+      description: Retrieves a list of comments for a specific post, optionally paginated.
+      summary: List Comments for a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Comments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
     post:
       operationId: api_authors_posts_comments_create
+      description: Creates a new comment for a specific post.
+      summary: Create a Comment for a Post
       parameters:
       - in: path
         name: author_id
@@ -362,17 +917,110 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/authors/{author_id}/posts/{post_id}/comments/:
+    get:
+      operationId: api_authors_posts_comments_list_2
+      description: Retrieves a list of comments for a specific post, optionally paginated.
+      summary: List Comments for a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Comments
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
-  /api/authors/{author_id}/posts/{post_id}/comments/{comment_id}/likes/:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+    post:
+      operationId: api_authors_posts_comments_create_2
+      description: Creates a new comment for a specific post.
+      summary: Create a Comment for a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/authors/{author_id}/posts/{post_id}/comments/{comment_id}/likes:
     get:
-      operationId: api_authors_posts_comments_likes_retrieve
+      operationId: api_authors_posts_comments_likes_list
+      description: Returns all likes for a specified comment by the comment's ID.
+      summary: List Likes for a Comment
       parameters:
       - in: path
         name: author_id
@@ -393,17 +1041,95 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Likes
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
+  /api/authors/{author_id}/posts/{post_id}/comments/{comment_id}/likes/:
+    get:
+      operationId: api_authors_posts_comments_likes_list_2
+      description: Returns all likes for a specified comment by the comment's ID.
+      summary: List Likes for a Comment
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
+  /api/authors/{author_id}/posts/{post_id}/image:
+    get:
+      operationId: api_authors_posts_image_retrieve
+      description: Returns the image of a specific post by an author in binary format.
+        Only supports 'image/png;base64' and 'image/jpeg;base64' content types.
+      summary: Retrieve an Image Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+        '400':
           description: No response body
   /api/authors/{author_id}/posts/{post_id}/image/:
     get:
-      operationId: api_authors_posts_image_retrieve
+      operationId: api_authors_posts_image_retrieve_2
+      description: Returns the image of a specific post by an author in binary format.
+        Only supports 'image/png;base64' and 'image/jpeg;base64' content types.
+      summary: Retrieve an Image Post
       parameters:
       - in: path
         name: author_id
@@ -418,7 +1144,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -426,9 +1152,48 @@ paths:
       responses:
         '200':
           description: No response body
+        '400':
+          description: No response body
+  /api/authors/{author_id}/posts/{post_id}/likes:
+    get:
+      operationId: api_authors_posts_likes_list
+      description: Returns all likes for a specified post by a given author, ordered
+        by date.
+      summary: List Likes for a Post
+      parameters:
+      - in: path
+        name: author_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
   /api/authors/{author_id}/posts/{post_id}/likes/:
     get:
-      operationId: api_authors_posts_likes_retrieve
+      operationId: api_authors_posts_likes_list_2
+      description: Returns all likes for a specified post by a given author, ordered
+        by date.
+      summary: List Likes for a Post
       parameters:
       - in: path
         name: author_id
@@ -443,53 +1208,108 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - Likes
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+          description: ''
   /social/accept-request/:
     post:
       operationId: social_accept_request_create
+      description: Accepts a friend request between two authors, creating a follower
+        relationship.
+      summary: Accept a Friend Request
       tags:
-      - social
+      - Friendships
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
-        '200':
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Follower'
+          description: ''
+        '400':
+          description: No response body
+        '404':
+          description: No response body
+        '401':
           description: No response body
   /social/cancel-request/:
     post:
       operationId: social_cancel_request_create
+      description: Cancels an active follow request between two authors.
+      summary: Cancel Follow Request
       tags:
-      - social
+      - Follow Management
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
+          description: No response body
+        '404':
+          description: No response body
+        '401':
           description: No response body
   /social/find-friends/send-request/:
     post:
-      operationId: social_find_friends_send_request_create
+      operationId: send_friend_request
+      description: Sends a friend request from the authenticated user to another author.
+      summary: Send Friend Request
       tags:
-      - social
+      - Friend Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Follow'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Follow'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Follow'
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
   /social/post/{post_pk}/like/:
     post:
       operationId: social_post_like_create
+      description: Performs a like action on a post by the current user. If the post
+        is already liked by the user, it unlikes it.
+      summary: Like or Unlike a Post
       parameters:
       - in: path
         name: post_pk
@@ -498,7 +1318,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - social
+      - Likes
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -509,8 +1329,11 @@ paths:
   /social/unfollow/:
     post:
       operationId: social_unfollow_create
+      description: Allows an authenticated user to unfollow another user. Requires
+        'user_id' as POST parameter.
+      summary: Unfollow a User
       tags:
-      - social
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -519,6 +1342,210 @@ paths:
         '200':
           description: No response body
 components:
+  schemas:
+    Author:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        id:
+          type: string
+          format: uri
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 200
+        host:
+          type: string
+          format: uri
+          maxLength: 200
+        displayName:
+          type: string
+          maxLength: 100
+        github:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        profileImage:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+      required:
+      - displayName
+      - host
+      - id
+      - type
+      - url
+    Comment:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        comment:
+          type: string
+        contentType:
+          type: string
+          readOnly: true
+        published:
+          type: string
+          format: date-time
+        id:
+          type: string
+          format: uri
+      required:
+      - author
+      - comment
+      - contentType
+      - id
+      - published
+      - type
+    ContentTypeEnum:
+      enum:
+      - text/markdown
+      - text/plain
+      - application/base64
+      - image/png;base64
+      - image/jpeg;base64
+      type: string
+      description: |-
+        * `text/markdown` - text/markdown
+        * `text/plain` - text/plain
+        * `application/base64` - application/base64
+        * `image/png;base64` - image/png;base64
+        * `image/jpeg;base64` - image/jpeg;base64
+    Follow:
+      type: object
+      properties:
+        type:
+          type: string
+          maxLength: 15
+        summary:
+          type: string
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        object:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        published:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - actor
+      - object
+      - published
+    Follower:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        follower:
+          type: string
+          format: uuid
+        followee:
+          type: string
+          format: uuid
+        followed_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - followed_at
+      - followee
+      - follower
+      - type
+    Like:
+      type: object
+      properties:
+        summary:
+          type: string
+        type:
+          type: string
+          maxLength: 15
+        author:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        object:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        published:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - published
+    TextPost:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        id:
+          type: string
+          format: uri
+        source:
+          type: string
+          format: uri
+          maxLength: 200
+        origin:
+          type: string
+          format: uri
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        contentType:
+          $ref: '#/components/schemas/ContentTypeEnum'
+        content:
+          type: string
+        author:
+          allOf:
+          - $ref: '#/components/schemas/Author'
+          readOnly: true
+        published:
+          type: string
+          format: date-time
+        visibility:
+          $ref: '#/components/schemas/VisibilityEnum'
+      required:
+      - author
+      - content
+      - id
+      - origin
+      - published
+      - source
+      - title
+      - type
+    VisibilityEnum:
+      enum:
+      - PUBLIC
+      - FRIENDS
+      - UNLISTED
+      type: string
+      description: |-
+        * `PUBLIC` - Public
+        * `FRIENDS` - Friends
+        * `UNLISTED` - Unlisted
   securitySchemes:
     basicAuth:
       type: http
