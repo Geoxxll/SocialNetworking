@@ -242,6 +242,7 @@ class PostListView(View):
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+
                             if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
@@ -250,11 +251,13 @@ class PostListView(View):
                             visible_posts.append(post)
                             friend_posts.append(post)
                 
+                print(toggle_option)
                 if toggle_option == 'friends':
                     posts = friend_posts
                     template_name = 'socialNetworking/replace_post.html'
                 elif toggle_option == 'all':
                     posts = visible_posts
+
                     template_name = 'socialNetworking/replace_post.html'
                 else:
                     posts = friend_posts
@@ -304,6 +307,7 @@ class PostListView(View):
                 
             if toggle_option == 'friends':
                 posts = friend_posts
+                print(posts)
                 template_name = 'socialNetworking/replace_post.html'
             elif toggle_option == 'all':
                 posts = visible_posts
@@ -1793,6 +1797,7 @@ def check_inbox(request):
         
             if toggle_option == 'all':
                 posts = visible_posts
+                print(posts)
                 template_name = 'socialNetworking/replace_post.html'
             else:
                 posts = friend_posts
