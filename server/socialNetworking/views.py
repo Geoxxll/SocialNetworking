@@ -1105,9 +1105,9 @@ def followers_id(request, author_id, foreign_author_id):
 @api_view(['GET', 'POST'])
 def posts(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
+        author = Author.objects.get(pk=author_id)
 
         if request.method == 'GET':
-            author = Author.objects.get(pk=author_id)
             text_posts = Post.objects.filter(author_of_posts=author, contentType="text/plain", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="text/markdown", visibility="PUBLIC")
             image_posts = Post.objects.filter(author_of_posts=author, contentType="image/png;base64", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="image/jpeg;base64", visibility="PUBLIC")
 
@@ -1132,7 +1132,33 @@ def posts(request, author_id):
             return Response(output, status=status.HTTP_200_OK)
     
         elif request.method == 'POST':
-            return
+            cont_type = request.data.get('contentType')
+            post_serializer = None
+
+            if cont_type == 'text/plain' or cont_type == 'text/markdown':
+                post_serializer = TextPostSerializer(data=request.data)
+            else:
+                post_serializer = ImagePostSerializer(data=request.data)
+
+            if post_serializer.is_valid():
+                post_serializer.save()
+            else:
+                return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            post_obj = Post.objects.get(author_of_posts=None)
+            post_obj.author_of_posts = author
+            post_obj.url = author.url + "/posts/" + str(post_obj.post_id)
+            post_obj.source = post_obj.url
+            post_obj.origin = post_obj.url
+            post_obj.save()
+
+            output = None
+            if cont_type == 'text/plain' or cont_type == 'text/markdown':
+                output = TextPostSerializer(post_obj)
+            else:
+                output = ImagePostSerializer(post_obj)
+            
+            return Response(output.data, status=status.HTTP_201_CREATED)
         
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
