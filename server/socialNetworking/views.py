@@ -1486,7 +1486,12 @@ def inbox(request, author_id):
                 return Response({'error': 'Unrecognized object type'}, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
-            pass
+            author.postInbox.clear()
+            author.commentInbox.clear()
+            author.likeInbox.clear()
+            author.followInbox.clear()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
