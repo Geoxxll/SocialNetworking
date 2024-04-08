@@ -236,12 +236,13 @@ class PostListView(View):
                 for post in posts:
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            friend_posts.append(post)
+                        #  NO NEED TO ADD TO FRIENDS ONLY IF ITS A PUBLIC POST
+                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                        #     friend_posts.append(post)
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
@@ -288,12 +289,13 @@ class PostListView(View):
             for post in posts:
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            friend_posts.append(post)
+                        # NO NEED TO ADD A PUBLIC POST TO FRIENDS ONLY
+                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                        #     friend_posts.append(post)
                     elif post.visibility == 'FRIENDS':
-                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
-                                visible_posts.append(post)
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
+                                # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
                         if post.author_of_posts.user == request.user:
@@ -1062,16 +1064,23 @@ def followers_id(request, author_id, foreign_author_id):
                     return Response({'error': 'Foreign author not a follower'}, status=status.HTTP_404_NOT_FOUND)
             
             elif request.method == 'PUT':
-            #     # follower_serializer = FollowerSerializer(request.data)
-            #     # if follower_serializer.is_valid():
-            #     #     follower_serializer.save()
-            #     #     return Response(follower_serializer.data, status=status.HTTP_200_OK)
-                pass
+                if not Follower.objects.filter(followee=followee, follower=follower).exists():
+                    follower_obj = Follower.objects.create(follower=follower, followee=followee)
+                    followee_ser = AuthorSerializer(followee)
+                    follower_ser = AuthorSerializer(follower)
+                    output = {'type': 'Follow', 'summary': f_obj_str, 'actor': follower_ser.data, 'object': followee_ser.data}
+
+                    return Response(output, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({'error': 'Foreign author already a follower'}, status=status.HTTP_400_BAD_REQUEST)
             
             elif request.method == 'DELETE':
-            #     # obj_follow.delete()
-            #     # return Response(status=status.HTTP_204_NO_CONTENT)
-                pass
+                if Follower.objects.filter(followee=followee, follower=follower).exists():
+                    follower_obj = Follower.objects.get(followee=followee, follower=follower)
+                    follower_obj.delete()
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+                else:
+                    return Response({'error': 'Foreign author not a follower'}, status=status.HTTP_404_NOT_FOUND)
 
         else:
             return Response({'error': 'Foreign author not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -1491,8 +1500,6 @@ def inbox(request, author_id):
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                post = Post.objects.get(url=obj_url)
-
                 if not Like.objects.filter(object=obj_url).filter(author_like__url=like_author.get('id')).exists():
                     like_serializer = LikeSerializer(data=request.data)
                     if like_serializer.is_valid():
@@ -1503,6 +1510,7 @@ def inbox(request, author_id):
                     like_obj = Like.objects.get(author_like=None)
                     like_obj.author_like = Author.objects.get(url=like_author.get('id'))
                     if Post.objects.filter(url=obj_url).exists():
+                        post = Post.objects.get(url=obj_url)
                         like_obj.like_post = post
                         post.num_likes += 1
                         post.save()
@@ -1553,7 +1561,12 @@ def inbox(request, author_id):
                 return Response({'error': 'Unrecognized object type'}, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
-            pass
+            author.postInbox.clear()
+            author.commentInbox.clear()
+            author.likeInbox.clear()
+            author.followInbox.clear()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
