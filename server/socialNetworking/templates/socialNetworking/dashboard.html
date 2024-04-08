@@ -237,6 +237,37 @@
       </script>
       
 
+      <script>
+        // Function to fetch new posts
+        function fetchNewPosts() {
+            var toggleOptionValue = $('input[name="toggleOption"]:checked').val();
+
+            $.ajax({
+                url: 'check_inbox',  // URL to your Django view
+                type: 'GET',
+                dataType: 'html',
+                data: {
+                toggleOption: toggleOptionValue
+                },
+                success: function(response) {
+                    
+                    $('#posts-section').prepend(response);
+            
+
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching new posts:', error);
+                }
+            });
+        }
+
+        // Periodically fetch new posts every 5 seconds
+        $(document).ready(function() {
+            setInterval(fetchNewPosts, 5000);
+        });
+
+      </script>
+
  {% endblock %}
 
 
