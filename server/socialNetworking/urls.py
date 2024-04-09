@@ -87,16 +87,16 @@ urlpatterns = [
     
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>", views.posts_id, name="posts_id_no_slash"),
-     # TILL HERE -----------------------------------------------------------
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image/", views.image, name="image"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image", views.image, name="image_no_slash"),
-
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/", views.comments, name="comments"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments", views.comments, name="comments_no_slash"),
     
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", views.posts_likes, name="posts_likes"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes", views.posts_likes, name="posts_likes_no_slash"),
-
+     # TILL HERE -----------------------------------------------------------
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes", views.comments_likes, name="comments_likes_no_slash"),
 

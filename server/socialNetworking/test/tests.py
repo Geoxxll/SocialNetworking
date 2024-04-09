@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from socialNetworking.models.authors import Author
 from socialNetworking.models.posts import Post
 from socialNetworking.models.followers import Follower
+from socialNetworking.models.comments import Comment
+from socialNetworking.models.likes import Like
 
 from socialNetworking.forms import PostForm
 import json
@@ -40,7 +42,7 @@ class AddPostViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Post.objects.filter(title='TestPost').exists())
 
-class AddAuthorTest(APITestCase):
+class AuthorIntegrateTest(APITestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='TestUser', password='Test123')
@@ -68,6 +70,11 @@ class AddAuthorTest(APITestCase):
             contentType='image/png;base64', 
             author_of_posts=self.author,
             content=content,    
+        )
+
+        self.comment = Comment.objects.create(
+            comment='This is a good image post',
+            post=self.image_post,
         )
     def test_author_GET(self):
         url = reverse('authors_id', kwargs={'author_id': self.author.id})
@@ -141,7 +148,34 @@ class AddAuthorTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_comments_GET(self):
-        pass
+        request_url = reverse('comments', kwargs={'author_id':self.author.id, 'post_id': self.image_post.post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['comments'][0]['comment'], "This is a good image post")
+    def test_comments_GET_invalid_comment(self):
+        flaged_post_id = uuid.uuid4()
+        request_url = reverse('comments', kwargs={'author_id':self.author.id, 'post_id': flaged_post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_comments_POST(self):
-        pass
+    def test_posts_like_GET(self):
+        like_obj = Like.objects.create(
+            author_like=self.author,
+            like_post=self.image_post,
+            object=self.image_post.url,
+        )
+        request_url = reverse('posts_likes', kwargs={'author_id': self.author.id, 'post_id': self.image_post.post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['items'][0]['summary'], 'TestUser likes your post')
+
+    def test_posts_like_on_invalid_post(self):
+        like_obj = Like.objects.create(
+            author_like=self.author,
+            like_post=self.image_post,
+            object=self.image_post.url,
+        )
+        flaged_post_id = uuid.uuid4()
+        request_url = reverse('posts_likes', kwargs={'author_id': self.author.id, 'post_id': flaged_post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
