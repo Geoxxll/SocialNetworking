@@ -1273,9 +1273,9 @@ def image(request, author_id, post_id):
 @api_view(['GET', 'POST'])
 def comments(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
+        post_data = Post.objects.get(pk=post_id)
 
-        if request.method == 'GET':
-            post_data = Post.objects.get(pk=post_id)
+        if request.method == 'GET':            
             comments = Comment.objects.filter(post=post_data).order_by('-published_at')
 
             page_number = None
@@ -1292,8 +1292,23 @@ def comments(request, author_id, post_id):
 
             return Response(output, status=status.HTTP_200_OK)
     
-        elif request.method == 'POST':
-            return
+        elif request.method == 'POST': 
+            author = Author.objects.get(pk=author_id)
+            comment_serializer = CommentSerializer(data=request.data)
+
+            if comment_serializer.is_valid():
+                comment_serializer.save()
+            else:
+                return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            comment_obj = Comment.objects.get(author_of_posts=None)
+            comment_obj.comment_author = author
+            comment_obj.url = post_data.url + '/comments/' + str(comment_obj.comment_id)
+            comment_obj.save()
+
+            output = CommentSerializer(comment_obj)
+            
+            return Response(output.data, status=status.HTTP_201_CREATED)
         
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
