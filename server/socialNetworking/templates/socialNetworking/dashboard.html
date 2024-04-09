@@ -90,34 +90,22 @@
 
                         </div>
                     {% endif %}
-                    
-                    <!-- To print child comments:
-                    <b>Comments:</b>
-                        {% for comment in post.comment_set.all %}
-                            <p>{{ comment.comment }} - {{ comment.comment_author }} 
-                                <form method="POST" action="{% url 'comment-like' post.pk comment.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="next" value="{{ request.path }}">
-                                    <button class="btn btn-success btn-sm" type="submit">
-                                        <span>Like</span>
-                                        <span>{{ comment.likes.all.count }}</span>
-                                    </button>
-                                </form>
-                            </p>
-                        {% endfor %}
-                     -->
                      <form id="like-form">
                         {% csrf_token %}
                         <div class="post-buttons" id="{{ post.pk }}">
-                            <button type="button" onclick="likeAction('{{ post.pk }}', 'numLikes-{{ post.pk }}')" id="like-btn">
-                                <span>Likes</span>
-                                <!-- attach each the numLikes element to its own post in order to update number accordingly -->
+                            <button type="button" onclick="likeAction('{{ post.pk }}', 'numLikes-{{ post.pk }}')" id="like-btn-{{ post.pk }}" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;">
+                                <i class="fas fa-heart"></i>
                                 <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
+                            </button>                            
+                            <button type="button" class="btn position-relative" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;"
+                                    onclick="location.href='{% url 'post-detail' post.pk %}'">
+                                <i class="fas fa-comment"></i> Comment: {{ total_comments }}
                             </button>
-                            <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}" style="color: white; text-decoration: none;" >Comment: {{ total_comments }}</a></button>
                             
                             {% if post.visibility != "FRIENDS" %}
-                                <button><a href="{% url 'share-post' post.pk %}" style="color: white; text-decoration: none;">Repost</a></button>
+                            <button type="button" onclick="location.href='{% url 'share-post' post.pk %}'" style="color: rgb(3, 3, 3);background-color: transparent; text-decoration: none; border: none;">
+                                <i class="fas fa-share"></i> Share
+                            </button>
                             {% endif %}
                         </div>
                     </form>
