@@ -237,8 +237,8 @@ class PostListView(View):
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
                         #  NO NEED TO ADD TO FRIENDS ONLY IF ITS A PUBLIC POST
-                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                        #     friend_posts.append(post)
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                            friend_posts.append(post)
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
@@ -293,8 +293,8 @@ class PostListView(View):
                     if post.visibility == 'PUBLIC':
                         visible_posts.append(post)
                         # NO NEED TO ADD A PUBLIC POST TO FRIENDS ONLY
-                        # if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                        #     friend_posts.append(post)
+                        if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+                            friend_posts.append(post)
                     elif post.visibility == 'FRIENDS':
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
                             if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
@@ -1038,12 +1038,31 @@ def followers(request, author_id):
 @extend_schema_view(
     get=extend_schema(
         summary="Retrieve Follower Relationship",
-        responses={
-            200: AuthorSerializer
-        },
+        responses={200: AuthorSerializer},
         description="Retrieves detailed information about a specific follower relationship.",
         tags=['Followers']
-))
+    ),
+    put=extend_schema(
+        summary="Accept Follower Request",
+        responses={
+            201: AuthorSerializer,
+            400: {"type": "object", "properties": {"error": {"type": "string"}}},
+            404: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        description="Accepts a follower request between the specified authors.",
+        tags=['Followers'],
+        request=AuthorSerializer,
+    ),
+    delete=extend_schema(
+        summary="Remove Follower Relationship",
+        responses={
+            204: None,
+            404: {"type": "object", "properties": {"error": {"type": "string"}}}
+        },
+        description="Deletes a follower relationship between the specified authors.",
+        tags=['Followers']
+    )
+)
 @api_view(['GET', 'PUT', 'DELETE'])
 def followers_id(request, author_id, foreign_author_id):
     if Author.objects.filter(pk=author_id):
@@ -1406,8 +1425,8 @@ def liked(request, author_id):
     ),
     post=extend_schema(
         summary="Add an Item to Inbox",
-        request=None,  # You may need a custom serializer or structure for handling diverse POST data
-        responses={201: None},  # Adjust based on actual response structure
+        request=None,  
+        responses={201: None},  
         description="Adds a new item (post, comment, like, follow) to the author's inbox.",
         tags=['Inbox']
     ),
