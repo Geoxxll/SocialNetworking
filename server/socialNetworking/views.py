@@ -89,7 +89,7 @@ class AddPostView(View):
                 # For images, convert to base64 and store as bytes
                 if 'content' in request.FILES:
                     image = request.FILES['content']
-                    new_post.content = base64.b64encode(image.read())
+                    new_post.content = image.read()
             else:
                 # For text/markdown, encode as utf-8 to store as bytes
                 if 'content' in request.POST:
@@ -1245,7 +1245,7 @@ def image(request, author_id, post_id):
             if Post.objects.filter(author_of_posts=author, post_id=post_id).exists():
                 post = Post.objects.get(author_of_posts=author, post_id=post_id)
                 if post.contentType in ["image/png;base64", "image/jpeg;base64"]:
-                    return HttpResponse(base64.b64decode(post.content), status=status.HTTP_200_OK, content_type=post.contentType)
+                    return HttpResponse(post.content, status=status.HTTP_200_OK, content_type=post.contentType)
                 else:
                     return JsonResponse({'result': 'Post is not an image'}, status=status.HTTP_400_BAD_REQUEST)
             else:
