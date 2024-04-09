@@ -7,6 +7,7 @@ from .models.comments import Comment
 from .models.likes import Like
 from .models.inbox import Inbox
 from .models.inbox_item import InboxItem
+import base64
 
 class AuthorSerializer(serializers.ModelSerializer):
     id = serializers.URLField(source='url', read_only=True)
@@ -48,10 +49,18 @@ class TextPostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'published', 'visibility']
 
+class ImagePostContentField(serializers.Field):
+    def to_representation(self, value):
+        return str(value)
+    
+    def to_internal_value(self, data):
+        return base64.b64decode(data)
+
 class ImagePostSerializer(serializers.ModelSerializer):
     id = serializers.URLField(source='url')
     author = AuthorSerializer(source='author_of_posts', read_only=True)
     published = serializers.DateTimeField(source='published_at')
+    content = ImagePostContentField()
 
     class Meta:
         model = Post
