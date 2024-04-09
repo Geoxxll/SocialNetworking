@@ -1836,6 +1836,7 @@ def check_inbox(request):
 
     friend_posts = []
     visible_posts = []
+    posts = []
     currentUser_asAuthor = Author.objects.get(user=request.user)
     
     # for admin access 
