@@ -221,7 +221,6 @@ class PostListView(View):
         shared_or_published = Case(
             When(shared_on__isnull=False, then=F('shared_on')),
             default=F('published_at'),
-            # output_field=models.DateTimeField(),
         )
         posts_with_shared_or_published = Post.objects.annotate(shared_or_published=shared_or_published)
         posts = posts_with_shared_or_published.order_by('-shared_or_published')
