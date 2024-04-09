@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F
+from django.db.models import F, Case, When, Value, Max
 import json
 from urllib.parse import unquote
 
@@ -218,8 +218,15 @@ class PostListView(View):
     def get(self, request, *args, **kwargs):
         toggle_option = request.GET.get('toggleOption')
         show_friends_posts = toggle_option == 'friends'  # Check if user selected "Friends" option
+        shared_or_published = Case(
+            When(shared_on__isnull=False, then=F('shared_on')),
+            default=F('published_at'),
+            # output_field=models.DateTimeField(),
+        )
+        posts_with_shared_or_published = Post.objects.annotate(shared_or_published=shared_or_published)
+        posts = posts_with_shared_or_published.order_by('-shared_or_published')
 
-        posts = Post.objects.all().order_by('-published_at').exclude(visibility=Post.VisibilityChoices.UNLISTED)
+        # posts = Post.objects.all().order_by('-published_at').exclude(visibility=Post.VisibilityChoices.UNLISTED)
 
         friend_posts = []
         visible_posts = []
