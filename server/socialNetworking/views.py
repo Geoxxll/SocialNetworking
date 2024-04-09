@@ -242,7 +242,7 @@ class PostListView(View):
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
@@ -294,7 +294,7 @@ class PostListView(View):
                         #     friend_posts.append(post)
                     elif post.visibility == 'FRIENDS':
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
-                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts):
+                            if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
                     elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
