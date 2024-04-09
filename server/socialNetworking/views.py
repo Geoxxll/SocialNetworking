@@ -1482,8 +1482,8 @@ def inbox(request, author_id):
                     
                     post_obj = Post.objects.get(url=request.data.get('id'))
                     post_obj.author_of_posts = Author.objects.get(url=post_auth.get('id'))
-                    if cont_type == 'image/png;base64' or cont_type == 'image/jpeg;base64' or cont_type == 'application/base64':
-                        post_obj.content = request.data.get('content')
+                    #if cont_type == 'image/png;base64' or cont_type == 'image/jpeg;base64' or cont_type == 'application/base64':
+                    #    post_obj.content = request.data.get('content')
                     post_obj.save()
                 else:
                     post_obj = Post.objects.get(url=request.data.get('id'))              
