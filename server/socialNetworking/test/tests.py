@@ -134,7 +134,7 @@ class AddAuthorTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_image_GET_invalid_content_type(self):
-        self.image_post.contentType = 'text/plain;base64'
+        self.image_post.contentType = 'text/plain'
         self.image_post.save()
         request_url = reverse('image', kwargs={'author_id':self.author.id, 'post_id': self.image_post.post_id})
         response = self.client.get(request_url)
