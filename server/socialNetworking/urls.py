@@ -23,6 +23,7 @@ from .views import (
   likeAction,
   cancel_follow_request,
   unfollow_user,
+  check_inbox,
   )
 from . import views
 
@@ -38,6 +39,7 @@ urlpatterns = [
     path('social/accept-request/', accept_friend_request, name='accept-friend-request'),
     path('social/cancel-request/', cancel_follow_request, name='cancel-follow-request'),
     path('social/unfollow/', unfollow_user, name='unfollow-user'),
+    path('social/check_inbox',check_inbox, name = 'check_inbox'),
 
 
     path('social/post/', AddPostView.as_view(), name='add-post'),
@@ -85,16 +87,16 @@ urlpatterns = [
     
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/", views.posts_id, name="posts_id"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>", views.posts_id, name="posts_id_no_slash"),
-     # TILL HERE -----------------------------------------------------------
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image/", views.image, name="image"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/image", views.image, name="image_no_slash"),
-
+    
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/", views.comments, name="comments"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments", views.comments, name="comments_no_slash"),
     
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", views.posts_likes, name="posts_likes"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/likes", views.posts_likes, name="posts_likes_no_slash"),
-
+     # TILL HERE -----------------------------------------------------------
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", views.comments_likes, name="comments_likes"),
     path("api/authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes", views.comments_likes, name="comments_likes_no_slash"),
 

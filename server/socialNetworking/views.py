@@ -89,7 +89,7 @@ class AddPostView(View):
                 # For images, convert to base64 and store as bytes
                 if 'content' in request.FILES:
                     image = request.FILES['content']
-                    new_post.content = base64.b64encode(image.read())
+                    new_post.content = image.read()
             else:
                 # For text/markdown, encode as utf-8 to store as bytes
                 if 'content' in request.POST:
@@ -242,6 +242,7 @@ class PostListView(View):
                     # dont add users friends only posts
                     elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
                         if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists():
+
                             if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
@@ -250,11 +251,13 @@ class PostListView(View):
                             visible_posts.append(post)
                             friend_posts.append(post)
                 
+                print(toggle_option)
                 if toggle_option == 'friends':
                     posts = friend_posts
                     template_name = 'socialNetworking/replace_post.html'
                 elif toggle_option == 'all':
                     posts = visible_posts
+
                     template_name = 'socialNetworking/replace_post.html'
                 else:
                     posts = friend_posts
@@ -304,6 +307,7 @@ class PostListView(View):
                 
             if toggle_option == 'friends':
                 posts = friend_posts
+                print(posts)
                 template_name = 'socialNetworking/replace_post.html'
             elif toggle_option == 'all':
                 posts = visible_posts
@@ -1107,9 +1111,9 @@ def followers_id(request, author_id, foreign_author_id):
 @api_view(['GET', 'POST'])
 def posts(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
+        author = Author.objects.get(pk=author_id)
 
         if request.method == 'GET':
-            author = Author.objects.get(pk=author_id)
             text_posts = Post.objects.filter(author_of_posts=author, contentType="text/plain", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="text/markdown", visibility="PUBLIC")
             image_posts = Post.objects.filter(author_of_posts=author, contentType="image/png;base64", visibility="PUBLIC") | Post.objects.filter(author_of_posts=author, contentType="image/jpeg;base64", visibility="PUBLIC")
 
@@ -1134,7 +1138,33 @@ def posts(request, author_id):
             return Response(output, status=status.HTTP_200_OK)
     
         elif request.method == 'POST':
-            return
+            cont_type = request.data.get('contentType')
+            post_serializer = None
+
+            if cont_type == 'text/plain' or cont_type == 'text/markdown':
+                post_serializer = TextPostSerializer(data=request.data)
+            else:
+                post_serializer = ImagePostSerializer(data=request.data)
+
+            if post_serializer.is_valid():
+                post_serializer.save()
+            else:
+                return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            post_obj = Post.objects.get(author_of_posts=None)
+            post_obj.author_of_posts = author
+            post_obj.url = author.url + "/posts/" + str(post_obj.post_id)
+            post_obj.source = post_obj.url
+            post_obj.origin = post_obj.url
+            post_obj.save()
+
+            output = None
+            if cont_type == 'text/plain' or cont_type == 'text/markdown':
+                output = TextPostSerializer(post_obj)
+            else:
+                output = ImagePostSerializer(post_obj)
+            
+            return Response(output.data, status=status.HTTP_201_CREATED)
         
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -1215,7 +1245,7 @@ def image(request, author_id, post_id):
             if Post.objects.filter(author_of_posts=author, post_id=post_id).exists():
                 post = Post.objects.get(author_of_posts=author, post_id=post_id)
                 if post.contentType in ["image/png;base64", "image/jpeg;base64"]:
-                    return HttpResponse(base64.b64decode(post.content), status=status.HTTP_200_OK, content_type=post.contentType)
+                    return HttpResponse(post.content, status=status.HTTP_200_OK, content_type=post.contentType)
                 else:
                     return JsonResponse({'result': 'Post is not an image'}, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -1243,9 +1273,9 @@ def image(request, author_id, post_id):
 @api_view(['GET', 'POST'])
 def comments(request, author_id, post_id):
     if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists():
+        post_data = Post.objects.get(pk=post_id)
 
-        if request.method == 'GET':
-            post_data = Post.objects.get(pk=post_id)
+        if request.method == 'GET':            
             comments = Comment.objects.filter(post=post_data).order_by('-published_at')
 
             page_number = None
@@ -1262,8 +1292,23 @@ def comments(request, author_id, post_id):
 
             return Response(output, status=status.HTTP_200_OK)
     
-        elif request.method == 'POST':
-            return
+        elif request.method == 'POST': 
+            author = Author.objects.get(pk=author_id)
+            comment_serializer = CommentSerializer(data=request.data)
+
+            if comment_serializer.is_valid():
+                comment_serializer.save()
+            else:
+                return Response(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            comment_obj = Comment.objects.get(author_of_posts=None)
+            comment_obj.comment_author = author
+            comment_obj.url = post_data.url + '/comments/' + str(comment_obj.comment_id)
+            comment_obj.save()
+
+            output = CommentSerializer(comment_obj)
+            
+            return Response(output.data, status=status.HTTP_201_CREATED)
         
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -1437,6 +1482,8 @@ def inbox(request, author_id):
                     
                     post_obj = Post.objects.get(url=request.data.get('id'))
                     post_obj.author_of_posts = Author.objects.get(url=post_auth.get('id'))
+                    #if cont_type == 'image/png;base64' or cont_type == 'image/jpeg;base64' or cont_type == 'application/base64':
+                    #    post_obj.content = request.data.get('content')
                     post_obj.save()
                 else:
                     post_obj = Post.objects.get(url=request.data.get('id'))              
@@ -1746,3 +1793,63 @@ def unfollow_user(request):
             return JsonResponse({'result': 'Follow request not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
         return JsonResponse({'result': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+def check_inbox(request):
+    five_seconds_ago = timezone.now() - timezone.timedelta(seconds=5)
+    
+    current_time = timezone.now()
+
+    recent_posts = Post.objects.filter(
+        published_at__gte=five_seconds_ago,  # Posts made in the last minute
+        published_at__lte=current_time,   # Posts made up to the current time
+    )
+    
+    toggle_option = request.GET.get('toggleOption')
+    show_friends_posts = toggle_option == 'friends'  
+
+    friend_posts = []
+    visible_posts = []
+    currentUser_asAuthor = Author.objects.get(user=request.user)
+    
+    # for admin access 
+    
+    # check approval if its required by admin
+    approval_instance, created = Approval.objects.get_or_create(id=1, defaults={'require_approval': True})
+    
+    # check if approval is required
+    if approval_instance.require_approval:
+        if currentUser_asAuthor.is_approved:
+            for post in recent_posts:
+                if post.visibility == 'PUBLIC':
+                    visible_posts.append(post)
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        friend_posts.append(post)
+                # dont add users friends only posts
+                elif post.visibility == 'FRIENDS' and post.author_of_posts != currentUser_asAuthor:
+                    if Follower.objects.filter(followee=post.author_of_posts, follower=currentUser_asAuthor).exists() or post.author_of_posts == currentUser_asAuthor:
+                        if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts) or post.author_of_posts == currentUser_asAuthor:
+                            # visible_posts.append(post)
+                            friend_posts.append(post)
+                elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                    if post.author_of_posts.user == request.user:
+                        visible_posts.append(post)
+                        friend_posts.append(post)
+            
+        
+            if toggle_option == 'all':
+                posts = visible_posts
+                print(posts)
+                template_name = 'socialNetworking/replace_post.html'
+            else:
+                posts = friend_posts
+                template_name = 'socialNetworking/replace_post.html'
+            
+    print(recent_posts)
+    context = {
+                'post_list': posts,
+            }
+            
+    return render(request, 'socialNetworking/replace_post.html', context)
+   

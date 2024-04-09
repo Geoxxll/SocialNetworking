@@ -114,8 +114,11 @@
                                 <!-- attach each the numLikes element to its own post in order to update number accordingly -->
                                 <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
                             </button>
-                            <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}">Comment: {{ total_comments }}</a></button>
-                            <button><a href="{% url 'share-post' post.pk %}">Repost</a></button>
+                            <button class="position-relative"><a class="stretched-link" href="{% url 'post-detail' post.pk %}" style="color: white; text-decoration: none;" >Comment: {{ total_comments }}</a></button>
+                            
+                            {% if post.visibility != "FRIENDS" %}
+                                <button><a href="{% url 'share-post' post.pk %}" style="color: white; text-decoration: none;">Repost</a></button>
+                            {% endif %}
                         </div>
                     </form>
                 </div>
@@ -236,6 +239,44 @@
         });
       </script>
       
+
+      <script>
+        // Function to fetch new posts
+        function fetchNewPosts() {
+            var toggleOptionValue = $('input[name="toggleOption"]:checked').val();
+
+            $.ajax({
+                url: 'check_inbox',  // URL to your Django view
+                type: 'GET',
+                dataType: 'html',
+                data: {
+                toggleOption: toggleOptionValue
+                },
+                success: function(response) {
+                    
+                    // $('#posts-section').prepend(response);
+
+                    var newPosts = $(response).hide();
+                    // Prepend the new content to the posts section
+                    $('#posts-section').prepend(newPosts);
+                    // Fade in the new content
+                    newPosts.slideDown('slow', function() {
+                    $(this).fadeIn('slow');
+                    });            
+
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching new posts:', error);
+                }
+            });
+        }
+
+        // Periodically fetch new posts every 5 seconds
+        $(document).ready(function() {
+            setInterval(fetchNewPosts, 5000);
+        });
+
+      </script>
 
  {% endblock %}
 
