@@ -10,6 +10,9 @@ from socialNetworking.models.followers import Follower
 from socialNetworking.forms import PostForm
 import json
 from django.utils import timezone
+import os
+import base64
+import uuid
 
 class AddPostViewTest(APITestCase):
     def setUp(self):
@@ -54,6 +57,17 @@ class AddAuthorTest(APITestCase):
             draftGithub='',
             lastCommitFetch=None,
             is_approved=True  # Adjust as needed
+        )
+        current_dir = os.path.dirname(__file__)
+        image_path = os.path.join(current_dir, "testImage", "image.png")
+        self.image = open(image_path, "rb").read()
+        content = base64.b64encode(self.image)
+        self.image_post = Post.objects.create(
+            title='ImageTestPost', 
+            description='This is an image post', 
+            contentType='image/png;base64', 
+            author_of_posts=self.author,
+            content=content,    
         )
     def test_author_GET(self):
         url = reverse('authors_id', kwargs={'author_id': self.author.id})
@@ -103,7 +117,28 @@ class AddAuthorTest(APITestCase):
         self.assertEqual(response.data['items'][0]['displayName'], 'TestUser_Follower')
 
     def test_image_GET(self):
-        pass
+        request_url = reverse('image', kwargs={'author_id': self.author.id, 'post_id': self.image_post.post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.content, self.image)
+    def test_image_GET_author_not_found(self):
+        flaged_author_id = uuid.uuid4()
+        request_url = reverse('image', kwargs={'author_id': flaged_author_id, 'post_id': self.image_post.post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_image_GET_post_not_found(self):
+        flaged_post_id = uuid.uuid4()
+        request_url = reverse('image', kwargs={'author_id': self.author.id, 'post_id': flaged_post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_image_GET_invalid_content_type(self):
+        self.image_post.contentType = 'text/plain'
+        self.image_post.save()
+        request_url = reverse('image', kwargs={'author_id':self.author.id, 'post_id': self.image_post.post_id})
+        response = self.client.get(request_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_comments_GET(self):
         pass
