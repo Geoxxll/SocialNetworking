@@ -51,7 +51,7 @@ class TextPostSerializer(serializers.ModelSerializer):
 
 class ImagePostContentField(serializers.Field):
     def to_representation(self, value):
-        return str(value)
+        return base64.b64encode(value).decode("utf-8")
     
     def to_internal_value(self, data):
         return base64.b64decode(data)
