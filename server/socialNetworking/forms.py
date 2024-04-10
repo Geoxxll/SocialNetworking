@@ -5,6 +5,7 @@ from .models.authors import Author
 
 class PostForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
+    
     # source = forms.URLField()
     # origin = forms.URLField()
     # description = forms.CharField(widget=forms.Textarea)
