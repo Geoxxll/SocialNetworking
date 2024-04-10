@@ -3,132 +3,136 @@
 {% load crispy_forms_tags %}
 {% for post in post_list %}
             <!-- Post Container -->
-            <div class="post-container left-content" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="post-container left-content" style="display: flex; flex-direction: row; justify-content: flex-start;">
                 <!-- Profile Image next to Name at the start of the line -->
                 {% if not post.author_of_posts.profileImage %}
                     <img src="{% static 'images/default_profile_image.png' %}" alt="Profile Picture" class="post-profile-pic" style="width: 50px; height: 50px; margin-right: 10px;">
                 {% else %}
                     <img src="{{ post.author_of_posts.profileImage }}" alt="Profile Picture" class="post-profile-pic" style="width: 50px; height: 50px; margin-right: 10px;">
                 {% endif %}
+
+                <div style="display: flex; flex-direction: column; justify-content: space-between;">
                 
-                {% if post.shared_user %}
-                    <!-- info of the sharer -->
-                    <div class="post-content mb-0" style="margin-top: 5px; padding: 0px 40px;">
-                        <!-- Display Name -->
-                        <p>
-                            <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
-                                <b style="margin-bottom: 0; font-size: large;">{{ post.shared_user }}</b>
-                            </a> shared this post on <span style="margin-right: 20px;"><i><b>{{ post.shared_on }}</b></i></span>
-                        </p>
+                    {% if post.shared_user %}
+                        <!-- info of the sharer -->
+                        <div class="post-content mb-0" style="margin-top: 5px; padding: 0px 40px;">
+                            <!-- Display Name -->
+                            <p>
+                                <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
+                                    <b style="margin-bottom: 0; font-size: large;">{{ post.shared_user }}</b>
+                                </a> shared this post on <span style="margin-right: 20px;"><i><b>{{ post.shared_on }}</b></i></span>
+                            </p>
+                            
+                            <!-- Display Title and Date on the same line -->
+                            <p>
+                                {{ post.shared_body }}
+                            </p>
                         
-                        <!-- Display Title and Date on the same line -->
-                        <p>
-                            {{ post.shared_body }}
-                        </p>
-                    
-                        <!-- Display content -->
-                        <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                            <!-- Display content -->
+                            <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                                    
+                                </div>                            
+                            </div>
+                        </div>
+                        <!-- original post -->
+                        <div class="post-content mb-0" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px;background-color: rgba(248, 248, 248, 0.377);">
+                            <!-- Display Name -->
+                            <p>
+                                <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
+                                    <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>
+                                </a>
+                            </p>
+                            <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
+                            <!-- Display Title and Date on the same line -->
+                            <p>
+                                <p>{{ post.title }}</p>
                                 
-                            </div>                            
-                        </div>
-                    </div>
-                    <!-- original post -->
-                    <div class="post-content mb-0" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px;background-color: rgba(248, 248, 248, 0.377);">
-                        <!-- Display Name -->
-                        <p>
-                            <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
-                                <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>
-                            </a>
-                        </p>
-                        <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
-                        <!-- Display Title and Date on the same line -->
-                        <p>
-                            <p>{{ post.title }}</p>
-                            
-                        </p>
-                    
-                        <!-- Display content -->
-                        <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
-                                {% if post.content %}
-                                    {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
-                                        <!-- Images are restricted in size but will scale down if the container is smaller -->
-                                        <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="flex-grow: 1; max-width: 100%; max-height: 200px; height: auto;">
-                                    {% elif post.contentType == 'text/plain' %}
-                                        <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
-                                        <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
-                                            {{ post.content|decode_utf8 }}
-                                        </pre>
-                                    {% elif post.contentType == 'text/markdown' %}
-                                        <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
-                                        <div style="flex-grow: 1; word-wrap: break-word; padding: 5px;">
-                                            {{ post.content|decode_markdown_to_html|safe }}
-                                        </div>
+                            </p>
+                        
+                            <!-- Display content -->
+                            <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                                    {% if post.content %}
+                                        {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
+                                            <!-- Images are restricted in size but will scale down if the container is smaller -->
+                                            <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="flex-grow: 1; max-width: 100%; max-height: 200px; height: auto;">
+                                        {% elif post.contentType == 'text/plain' %}
+                                            <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
+                                            <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
+                                                {{ post.content|decode_utf8 }}
+                                            </pre>
+                                        {% elif post.contentType == 'text/markdown' %}
+                                            <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
+                                            <div style="flex-grow: 1; word-wrap: break-word; padding: 5px;">
+                                                {{ post.content|decode_markdown_to_html|safe }}
+                                            </div>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
-                            </div>                            
+                                </div>                            
+                            </div>
                         </div>
+                    
+                    <!-- Non shared post -->
+                    {% else %}
+                        <div class="post-content mb-0">
+                            <!-- Display Name -->
+                            <p>
+                                <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
+                                    <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>                            </a>
+                            </p>
+                            <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
+                            <!-- Display Title and Date on the same line -->
+                            <p>
+                                <p>{{ post.title }}</p>
+                                
+                            </p>
+                        
+                            <!-- Display content -->
+                            <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                                    {% if post.content %}
+                                        {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
+                                            <!-- Images are restricted in size but will scale down if the container is smaller -->
+                                            <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="flex-grow: 1; max-width: 100%; max-height: 200px; height: auto;">
+                                        {% elif post.contentType == 'text/plain' %}
+                                            <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
+                                            <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
+                                                {{ post.content|decode_utf8 }}
+                                            </pre>
+                                        {% elif post.contentType == 'text/markdown' %}
+                                            <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
+                                            <div style="flex-grow: 1; word-wrap: break-word; padding: 5px;">
+                                                {{ post.content|decode_markdown_to_html|safe }}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>                            
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                        <form id="like-form">
+                            {% csrf_token %}
+                            <div class="post-buttons" id="{{ post.pk }}">
+                                <button type="button" onclick="likeAction('{{ post.pk }}', 'numLikes-{{ post.pk }}')" id="like-btn-{{ post.pk }}" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;">
+                                    <i class="fas fa-heart"></i>
+                                    <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
+                                </button>                        
+                                <button type="button" class="btn position-relative" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;"
+                                        onclick="location.href='{% url 'post-detail' post.pk %}'">
+                                    <i class="fas fa-comment"></i> Comment: {{ total_comments }}
+                                </button>
+                                <!-- Not be able to share friends only posts of others friends only post-->
+                                {% if post.visibility != "FRIENDS" %}
+                                <button type="button" onclick="location.href='{% url 'share-post' post.pk %}'" style="color: rgb(3, 3, 3);background-color: transparent; text-decoration: none; border: none;">
+                                    <i class="fas fa-share"></i> Share
+                                </button>
+                                {% endif %}
+                            </div>
+                        </form> 
                     </div>
                 
-                <!-- Non shared post -->
-                {% else %}
-                    <div class="post-content mb-0">
-                        <!-- Display Name -->
-                        <p>
-                            <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
-                                <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>                            </a>
-                        </p>
-                        <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
-                        <!-- Display Title and Date on the same line -->
-                        <p>
-                            <p>{{ post.title }}</p>
-                            
-                        </p>
-                    
-                        <!-- Display content -->
-                        <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
-                                {% if post.content %}
-                                    {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
-                                        <!-- Images are restricted in size but will scale down if the container is smaller -->
-                                        <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="flex-grow: 1; max-width: 100%; max-height: 200px; height: auto;">
-                                    {% elif post.contentType == 'text/plain' %}
-                                        <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
-                                        <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
-                                            {{ post.content|decode_utf8 }}
-                                        </pre>
-                                    {% elif post.contentType == 'text/markdown' %}
-                                        <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
-                                        <div style="flex-grow: 1; word-wrap: break-word; padding: 5px;">
-                                            {{ post.content|decode_markdown_to_html|safe }}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
-                            </div>                            
-                        </div>
-                    </div>
-                {% endif %}
-                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                    <form id="like-form">
-                        {% csrf_token %}
-                        <div class="post-buttons" id="{{ post.pk }}">
-                            <button type="button" onclick="likeAction('{{ post.pk }}', 'numLikes-{{ post.pk }}')" id="like-btn-{{ post.pk }}" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;">
-                                <i class="fas fa-heart"></i>
-                                <span id="numLikes-{{ post.pk }}">{{ post.num_likes }}</span>
-                            </button>                        
-                            <button type="button" class="btn position-relative" style="color: rgb(0, 0, 0); background-color: transparent; border: none; text-decoration: none;"
-                                    onclick="location.href='{% url 'post-detail' post.pk %}'">
-                                <i class="fas fa-comment"></i> Comment: {{ total_comments }}
-                            </button>
-                            <!-- Not be able to share friends only posts of others friends only post-->
-                            {% if post.visibility != "FRIENDS" %}
-                            <button type="button" onclick="location.href='{% url 'share-post' post.pk %}'" style="color: rgb(3, 3, 3);background-color: transparent; text-decoration: none; border: none;">
-                                <i class="fas fa-share"></i> Share
-                            </button>
-                            {% endif %}
-                        </div>
-                    </form> 
                 </div>
                 
             </div>

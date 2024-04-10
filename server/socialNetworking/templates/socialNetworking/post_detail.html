@@ -19,7 +19,7 @@
                 <a href="{% url 'post-delete' post.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a>
             {% endif %} -->
 			{% if post.shared_user %}
-				<p><strong>{{ post.shared_user }}</strong>  {{ post.shared_on }}</p>
+				<p><strong>{{ post.shared_user.displayName }}</strong>  {{ post.shared_on }}</p>
 				<div class="border p-3 shadow rounded">
 					<p>{{ post.title }}</p>
 				</div>
@@ -35,7 +35,7 @@
 					{% endif %}
                 {% endif %}
 			{% else %}
-				<p><strong>{{ post.author_of_posts }}</strong> <i>{{ post.published_at }}</i></p>
+				<p><strong>{{ post.author_of_posts.displayName }}</strong> <i>{{ post.published_at }}</i></p>
 				<p>ss</p>
 				{% if post.content %}
 					{% if post.contentType == 'image/jpeg;base64' %}
@@ -73,7 +73,7 @@
 		<div class="row justify-content-center mt-3 mb-5 border-bottom">
 			<div class="col-md-5 col-sm-12">
 				<p>
-					<strong>{{ comment.comment_author }}</strong> {{ comment.published_at }}
+					<strong>{{ comment.comment_author.displayName }}</strong> {{ comment.published_at }}
 					<!-- <a href="{% url 'comment-delete' post.pk comment.pk %}">Delete</a> -->
 					<!-- Need user access restriction -->
 					
@@ -122,7 +122,7 @@
 							<a href="{% url 'comment-delete' post.pk child_comment.pk %}" class="edit-color">Delete reply</a>
 						{% endif %}
 					</p>
-					<p>{{ child_comment.comment }} - {{ child_comment.comment_author }} </p>
+					<p>{{ child_comment.comment }} - {{ child_comment.comment_author.displayName }} </p>
 				</div>
 			</div>
 			{% endfor %}

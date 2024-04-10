@@ -609,6 +609,10 @@ class DashboardView(View):
                     author.draftGithub = request.POST.get("draftGithub")
                 except:
                     print("Invalid github URL!")
+            else:
+                author.github = None
+                author.draftGithub = None
+                author.lastCommitFetch = None
 
             author.save()
 
@@ -631,6 +635,8 @@ class DashboardView(View):
                     author.draftGithub = request.POST.get("draftGithub")
                 except:
                     print("Invalid github URL!")
+            else:
+                author.draftGithub = None
 
             author.save()
 
