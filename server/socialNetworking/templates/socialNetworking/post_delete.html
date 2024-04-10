@@ -16,9 +16,11 @@
             {% csrf_token %}
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-danger">Delete</button>
-				<button class="btn btn-danger"><a href="{% url 'profile' %}">Cancel</a></button>
             </div>
         </form>
+        <div class="d-grid gap-2  mt-2">
+            <a href="{% url 'profile' %}" class="btn btn-danger" style="text-decoration: none; color: white;">Cancel</a>
+        </div>
     </div>
     </div>
 </div>
