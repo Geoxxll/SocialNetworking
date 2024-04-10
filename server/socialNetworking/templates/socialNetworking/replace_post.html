@@ -13,7 +13,7 @@
                 
                 {% if post.shared_user %}
                     <!-- info of the sharer -->
-                    <div class="post-content mb-0" style="margin-top: 5px;">
+                    <div class="post-content mb-0" style="margin-top: 5px; padding: 0px 40px;">
                         <!-- Display Name -->
                         <p>
                             <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
@@ -23,8 +23,7 @@
                         
                         <!-- Display Title and Date on the same line -->
                         <p>
-                            <p>{{ post.shared_body }}</p>
-                            
+                            {{ post.shared_body }}
                         </p>
                     
                         <!-- Display content -->
