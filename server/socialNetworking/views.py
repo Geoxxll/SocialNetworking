@@ -1448,6 +1448,8 @@ def liked(request, author_id):
 @permission_classes([IsAuthenticated])
 def inbox(request, author_id):
     if Author.objects.filter(pk=author_id).exists():
+
+        print('\n1\n')
         author = Author.objects.get(pk=author_id)
 
         if request.method == 'GET':
@@ -1481,13 +1483,16 @@ def inbox(request, author_id):
             return Response(output, status=status.HTTP_200_OK)
 
         elif request.method == 'POST':
+            print('\n2\n')
 
             if Node.objects.filter(node_user=request.user).exists():
                 node = Node.objects.get(node_user=request.user)
                 if not node.approved:
                     return Response({'error': 'Node not approved for posting'}, status=status.HTTP_403_FORBIDDEN)
 
+            
             if request.data.get('type').lower() == 'post':
+                print('\n3\n')
                 post_auth = request.data.get('author')
                 cont_type = request.data.get('contentType')
                 post_obj = None
@@ -1498,7 +1503,8 @@ def inbox(request, author_id):
                         author_serializer.save()
                     else:
                         return Response(author_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    
+
+                print('\n4\n')    
                 if not Post.objects.filter(url=request.data.get('id')).exists():
                     post_serializer = None                                 
                     if cont_type == 'text/plain' or cont_type == 'text/markdown':
@@ -1506,24 +1512,29 @@ def inbox(request, author_id):
                     else:
                         post_serializer = ImagePostSerializer(data=request.data)
 
+                    print('\n5\n')
                     if post_serializer.is_valid():
                         post_serializer.save()
                     else:
                         return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
+                    print('\n6\n')
                     post_obj = Post.objects.get(url=request.data.get('id'))
                     post_obj.author_of_posts = Author.objects.get(url=post_auth.get('id'))
                     post_obj.save()
                 else:
+                    print('\n5b\n')
                     post_obj = Post.objects.get(url=request.data.get('id'))              
                 
+                print('\n7\n')
                 author.postInbox.add(post_obj)
                 output = None
                 if cont_type == 'text/plain' or cont_type == 'text/markdown':
                     output = TextPostSerializer(post_obj)
                 else:
                     output = ImagePostSerializer(post_obj)
-                   
+
+                print('\n8\n')   
                 return Response(output.data, status=status.HTTP_201_CREATED)
 
             elif request.data.get('type').lower() == 'comment':
