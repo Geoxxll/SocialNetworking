@@ -355,8 +355,35 @@ class PostDetailView(View):
         form = CommentForm()
 
         # TODO: Fetch comments if post is foreign and PUBLIC
-        # if not post.author_of_posts.host == request.build_absolute_uri('/'):
-        #     node = Node.objects.get(host_url=post.author_of_posts.host)
+        if not post.author_of_posts.host == request.build_absolute_uri('/'):
+            node = Node.objects.get(host_url=post.author_of_posts.host)
+            response = requests.get(post.url + '/comments?page=1&size=15', auth=HTTPBasicAuth(node.username_out, node.password_out))
+            print(response.status_code)
+            json_data = response.json()
+            comment_list = json_data.get('comments')
+            for cmnt in comment_list:
+                comment_auth = cmnt.get('author')
+
+                if not Author.objects.filter(url=comment_auth.get('id')).exists():
+                    author_serializer = AuthorSerializer(data=comment_auth)
+                    if author_serializer.is_valid():
+                        author_serializer.save()
+                    else:
+                        print('Serializer invalid')
+                        print(comment_auth)
+                
+                if not Comment.objects.filter(url=cmnt.get('id')).exists():    
+                    comment_serializer = CommentSerializer(data=cmnt)
+                    if comment_serializer.is_valid():
+                        comment_serializer.save()
+                    else:
+                        print('Serializer invalid')
+                        print(cmnt)
+                    
+                    comment_obj = Comment.objects.get(comment_author=None)
+                    comment_obj.comment_author = Author.objects.get(url=comment_auth.get('id'))
+                    comment_obj.post = post
+                    comment_obj.save()
         
         comments = Comment.objects.filter(post=post).order_by('-published_at')
   
