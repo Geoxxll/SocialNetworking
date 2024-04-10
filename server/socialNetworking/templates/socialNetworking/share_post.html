@@ -23,25 +23,25 @@
 			
 			<p>{{ original_post.title }}
 			<p> <i>{{ original_post.published_at }}</i></p>
-			{% if post.content %}
-				{% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
+			{% if original_post.content %}
+				{% if original_post.contentType == 'image/jpeg;base64' or original_post.contentType == 'image/png;base64' %}
 					<!-- Images are restricted in size but will scale down if the container is smaller -->
-					<img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-				{% elif post.contentType == 'text/plain' %}
+					<img src="{{ original_post.url|add:'/image' }}" alt="{{ original_post.title }}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+				{% elif original_post.contentType == 'text/plain' %}
 					<!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
 					<pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
-						{{ post.content|decode_utf8 }}
+						{{ original_post.content|decode_utf8 }}
 					</pre>
-				{% elif post.contentType == 'text/markdown' %}
+				{% elif original_post.contentType == 'text/markdown' %}
 					<!-- Markdown formatted text, allows for natural text wrapping and formatting -->
-					<div style="white-space: pre-wrap; word-wrap: break-word;">{{ post.content|decode_markdown_to_html|safe }}</div>
+					<div style="white-space: pre-wrap; word-wrap: break-word;">{{ original_post.content|decode_markdown_to_html|safe }}</div>
 				{% endif %}
 			{% endif %}
 		</div>
 	</div>
 	<div class="row justify-content-center mt-3">
 		<div class="col-md-5 col-sm-12 border-bottom">
-			<form method="POST" action="{% url 'share-post' original_post.pk %}" id="{{ post.pk }}">
+			<form method="POST" action="{% url 'share-post' original_post.pk %}" id="{{ original_post.pk }}">
 				{% csrf_token %}
 				{{ shareform | crispy }}
 				<div class="d-grid gap-2">

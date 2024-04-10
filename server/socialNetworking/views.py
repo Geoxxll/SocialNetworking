@@ -907,7 +907,7 @@ class SharedPostView(View):
 					shared_user=request.user,
 					shared_on=timezone.now(),
 				)
-            new_post.url = new_post.author_of_posts.url + '/posts/' + new_post.post_id
+            new_post.url = new_post.author_of_posts.url + '/posts/' + str(new_post.post_id)
             new_post.save()
 
             follower_list = Author.objects.filter(follower_set__followee=author)

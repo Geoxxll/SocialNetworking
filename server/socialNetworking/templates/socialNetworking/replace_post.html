@@ -11,33 +11,65 @@
                     <img src="{{ post.author_of_posts.profileImage }}" alt="Profile Picture" class="post-profile-pic" style="width: 50px; height: 50px; margin-right: 10px;">
                 {% endif %}
                 
-                {% if post.shared_body %}
+                {% if post.shared_user %}
                     <!-- info of the sharer -->
-                    <div>
-                        <b>{{ post.shared_user }} </b> reposted at <i>{{ post.shared_on }}</i>
-                        <p><i>{{ post.shared_body }}</i></p>
+                    <div class="post-content mb-0" style="margin-top: 5px;">
+                        <!-- Display Name -->
+                        <p>
+                            <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
+                                <b style="margin-bottom: 0; font-size: large;">{{ post.shared_user }}</b>
+                            </a> shared this post on <span style="margin-right: 20px;"><i><b>{{ post.shared_on }}</b></i></span>
+                        </p>
+                        
+                        <!-- Display Title and Date on the same line -->
+                        <p>
+                            <p>{{ post.shared_body }}</p>
+                            
+                        </p>
+                    
+                        <!-- Display content -->
+                        <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                                
+                            </div>                            
+                        </div>
                     </div>
-                    <hr>
                     <!-- original post -->
-                    <div>
-                        <p><b>Name: </b><a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">{{ post.author_of_posts.displayName }}</a></p>
-                        <p><b>Title: </b>{{ post.Title }}</p>
-                        <p><b>Date: </b><i>{{ post.published_at }}</i></p>
-                        {% if post.content %}
-                            {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
-                                <!-- Images are restricted in size but will scale down if the container is smaller -->
-                                <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-                            {% elif post.contentType == 'text/plain' %}
-                                <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
-                                <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
-                                    {{ post.content|decode_utf8 }}
-                                </pre>
-                            {% elif post.contentType == 'text/markdown' %}
-                                <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
-                                <div style="white-space: pre-wrap; word-wrap: break-word;">{{ post.content|decode_markdown_to_html|safe }}</div>
-                            {% endif %}
-                        {% endif %}
-
+                    <div class="post-content mb-0" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px;background-color: rgba(248, 248, 248, 0.377);">
+                        <!-- Display Name -->
+                        <p>
+                            <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
+                                <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>
+                            </a>
+                        </p>
+                        <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
+                        <!-- Display Title and Date on the same line -->
+                        <p>
+                            <p>{{ post.title }}</p>
+                            
+                        </p>
+                    
+                        <!-- Display content -->
+                        <div style="display: flex; justify-content: space-between; width: 800px; margin-bottom: 5px;"> <!-- Set a maximum width for the container -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; max-width: 800px;"> <!-- Flex container with a maximum width -->
+                                {% if post.content %}
+                                    {% if post.contentType == 'image/jpeg;base64' or post.contentType == 'image/png;base64' %}
+                                        <!-- Images are restricted in size but will scale down if the container is smaller -->
+                                        <img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" style="flex-grow: 1; max-width: 100%; max-height: 200px; height: auto;">
+                                    {% elif post.contentType == 'text/plain' %}
+                                        <!-- Plain text in a preformatted block, overflow will be handled with a scrollbar -->
+                                        <pre style="white-space: pre-wrap; overflow-y: auto; overflow-x: hidden; max-height: 200px; flex-grow: 1; width: 100%; padding: 5px;">
+                                            {{ post.content|decode_utf8 }}
+                                        </pre>
+                                    {% elif post.contentType == 'text/markdown' %}
+                                        <!-- Markdown formatted text, allows for natural text wrapping and formatting -->
+                                        <div style="flex-grow: 1; word-wrap: break-word; padding: 5px;">
+                                            {{ post.content|decode_markdown_to_html|safe }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>                            
+                        </div>
                     </div>
                 
                 <!-- Non shared post -->
@@ -46,9 +78,7 @@
                         <!-- Display Name -->
                         <p>
                             <a href="{% url 'user-profile' pk=post.author_of_posts.pk %}" class="profile-link">
-                                <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>
-                                
-                            </a>
+                                <b style="margin-bottom: 0; font-size: large;">{{ post.author_of_posts.displayName }}</b>                            </a>
                         </p>
                         <p><span style="margin-right: 20px;"><i>{{ post.published_at }}</i></span></p>
                         <!-- Display Title and Date on the same line -->
