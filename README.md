@@ -382,3 +382,22 @@ Sample Output Data:
             }
         ]
     }
+
+
+AJAX Documentation 
+------------------
+Like: 
+	AJAX is used to asynchronously like/unlike post by incrementing/decrementing the like count. This helps to update the count without reloading the page.
+
+Fetch New Posts:
+	AJAX is used to check if there is any new posts made in last 5 seconds. Posts are filtered and an html file is rendered which is injected to add the latest posts.
+
+Update Follow buttons:
+	Ajax is used to update the Follow/Cancel Request and unfollow button, based on if the user is friends or have sent a friend request. The buttons are changed dynamically to update the button.
+
+Send friend request:
+	We use ajax to create follow object to send friend requests and send it to that user’s inbox
+Accepting friend request:
+	When clicking on the accept request button, ajax is used to delete the follow object and create a follower object to show which user follows and the other user 
+
+
