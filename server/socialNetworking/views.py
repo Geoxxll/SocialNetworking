@@ -365,6 +365,8 @@ class PostDetailView(View):
             print(response.status_code)
             json_data = response.json()
             comment_list = json_data.get('comments')
+            if not comment_list:
+                comment_list = []
             for cmnt in comment_list:
                 comment_auth = cmnt.get('author')
 
