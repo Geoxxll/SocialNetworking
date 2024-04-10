@@ -1482,10 +1482,10 @@ def inbox(request, author_id):
 
         elif request.method == 'POST':
 
-            print(str(request.user))
             if Node.objects.filter(node_user=request.user).exists():
                 node = Node.objects.get(node_user=request.user)
-                print(node.approved)
+                if not node.approved:
+                    return Response({'error': 'Node not approved for posting'}, status=status.HTTP_403_FORBIDDEN)
 
             if request.data.get('type').lower() == 'post':
                 post_auth = request.data.get('author')
