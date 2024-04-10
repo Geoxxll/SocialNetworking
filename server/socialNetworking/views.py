@@ -1512,9 +1512,9 @@ def inbox(request, author_id):
                     else:
                         image_post = request.data
                         print(image_post)
-                        if image_post.content.startswith('data'):
-                            str_list = image_post.content.split(',', 1)
-                            image_post.content = str_list[1]
+                        if image_post.get('content').startswith('data'):
+                            str_list = image_post.get('content').split(',', 1)
+                            image_post['content'] = str_list[1]
                         post_serializer = ImagePostSerializer(data=request.data)
 
                     print('\n5\n')
