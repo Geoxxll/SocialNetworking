@@ -806,7 +806,7 @@ def commentLike(request,post_pk, pk):
     liked = Like.objects.filter(author_like = author, like_comment = comment).count()
     
     if not liked:
-        liked = Like.objects.create(author_like = author, like_comment = comment, object = comment.url)
+        liked = Like.objects.create(summary = author.displayName + 'likes your comment', author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
 
         # HTTP Request to POST new comment like to inbox of comment author
@@ -876,6 +876,7 @@ class SharedPostView(View):
 					shared_user=request.user,
 					shared_on=timezone.now(),
 				)
+            new_post.url = new_post.author_of_posts.url + '/posts/' + new_post.post_id
             new_post.save()
 
             follower_list = Author.objects.filter(follower_set__followee=author)
