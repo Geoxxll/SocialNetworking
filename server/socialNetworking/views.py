@@ -1483,6 +1483,9 @@ def inbox(request, author_id):
         elif request.method == 'POST':
 
             print(str(request.user))
+            if Node.objects.filter(node_user=request.user).exists():
+                node = Node.objects.get(node_user=request.user)
+                print(node.approved)
 
             if request.data.get('type').lower() == 'post':
                 post_auth = request.data.get('author')
