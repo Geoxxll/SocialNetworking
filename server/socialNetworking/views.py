@@ -1510,6 +1510,11 @@ def inbox(request, author_id):
                     if cont_type == 'text/plain' or cont_type == 'text/markdown':
                         post_serializer = TextPostSerializer(data=request.data)
                     else:
+                        image_post = request.data
+                        print(image_post)
+                        if image_post.content.startswith('data'):
+                            str_list = image_post.content.split(',', 1)
+                            image_post.content = str_list[1]
                         post_serializer = ImagePostSerializer(data=request.data)
 
                     print('\n5\n')
