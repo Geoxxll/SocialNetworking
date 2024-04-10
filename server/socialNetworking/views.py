@@ -252,10 +252,10 @@ class PostListView(View):
                             if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
-                    elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
-                        if post.author_of_posts.user == request.user:
-                            visible_posts.append(post)
-                            friend_posts.append(post)
+                    # elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                    #     if post.author_of_posts.user == request.user:
+                    #         visible_posts.append(post)
+                    #         friend_posts.append(post)
                 
                 print(toggle_option)
                 if toggle_option == 'friends':
@@ -306,10 +306,10 @@ class PostListView(View):
                             if Follower.objects.filter(followee=currentUser_asAuthor, follower=post.author_of_posts).exists():
                                 # visible_posts.append(post)
                                 friend_posts.append(post)
-                    elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
-                        if post.author_of_posts.user == request.user:
-                            visible_posts.append(post)
-                            friend_posts.append(post)
+                    # elif post.visibility == 'UNLISTED' and request.user.is_authenticated:
+                    #     if post.author_of_posts.user == request.user:
+                    #         visible_posts.append(post)
+                    #         friend_posts.append(post)
                 
             if toggle_option == 'friends':
                 posts = friend_posts
