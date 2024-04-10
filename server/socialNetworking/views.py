@@ -806,7 +806,7 @@ def commentLike(request,post_pk, pk):
     liked = Like.objects.filter(author_like = author, like_comment = comment).count()
     
     if not liked:
-        liked = Like.objects.create(summary = author.displayName + 'likes your comment', author_like = author, like_comment = comment, object = comment.url)
+        liked = Like.objects.create(summary = author.displayName + ' likes your comment', author_like = author, like_comment = comment, object = comment.url)
         current_likes+=1
 
         # HTTP Request to POST new comment like to inbox of comment author
@@ -1379,8 +1379,7 @@ def posts_likes(request, author_id, post_id):
 )
 @api_view(['GET'])
 def comments_likes(request, author_id, post_id, comment_id):
-    if Author.objects.filter(pk=author_id).exists() and Post.objects.filter(pk=post_id).exists() and Comment.objects.filter(pk=comment_id).exists():
-        author = Author.objects.get(pk=author_id)
+    if Comment.objects.filter(pk=comment_id).exists():
         comment = Comment.objects.get(pk=comment_id)
 
         if request.method == 'GET':
