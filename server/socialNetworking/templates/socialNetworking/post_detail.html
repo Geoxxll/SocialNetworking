@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
+{% load custom_filter %}
 
 <link rel="stylesheet" href="{% static 'socialNetworking/post_detail.css' %}">
 <div class="container">
@@ -18,14 +19,35 @@
                 <a href="{% url 'post-delete' post.pk %}" style="color: #333;"><i class="fas fa-trash"></i></a>
             {% endif %} -->
 			{% if post.shared_user %}
-			<p><strong>{{ post.shared_user }}</strong>  {{ post.shared_on }}</p>
-            <div class="border p-3 shadow rounded">
-				<p>{{ post.title }}</p>
-			</div>
-			
+				<p><strong>{{ post.shared_user }}</strong>  {{ post.shared_on }}</p>
+				<div class="border p-3 shadow rounded">
+					<p>{{ post.title }}</p>
+				</div>
+				{% if post.content %}
+					{% if post.contentType == 'image/jpeg;base64' %}
+						<img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+					{% elif post.contentType == 'image/png;base64' %}
+						<img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+					{% elif post.contentType == 'text/plain' %}
+						<pre>{{ post.content|decode_utf8}}</pre>
+					{% elif post.contentType == 'text/markdown'%}
+						<pre>{{ post.content|decode_markdown_to_html|safe }}</pre>
+					{% endif %}
+                {% endif %}
 			{% else %}
-            <p><strong>{{ post.author_of_posts }}</strong> <i>{{ post.published_at }}</i></p>
-			<p>{{ post.title }}</p>
+				<p><strong>{{ post.author_of_posts }}</strong> <i>{{ post.published_at }}</i></p>
+				<p>ss</p>
+				{% if post.content %}
+					{% if post.contentType == 'image/jpeg;base64' %}
+						<img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+					{% elif post.contentType == 'image/png;base64' %}
+						<img src="{{ post.url|add:'/image' }}" alt="{{ post.title }}" class="img-fluid" style="max-width: 100px; height:100px">
+					{% elif post.contentType == 'text/plain' %}
+						<pre>{{ post.content|decode_utf8}}</pre>
+					{% elif post.contentType == 'text/markdown'%}
+						<pre>{{ post.content|decode_markdown_to_html|safe }}</pre>
+					{% endif %}
+                {% endif %}
 			{% endif %}
         </div>
     </div>

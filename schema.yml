@@ -256,6 +256,8 @@ paths:
           description: ''
     put:
       operationId: api_authors_followers_update
+      description: Accepts a follower request between the specified authors.
+      summary: Accept Follower Request
       parameters:
       - in: path
         name: author_id
@@ -269,16 +271,52 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - Followers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Author'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
     delete:
       operationId: api_authors_followers_destroy
+      description: Deletes a follower relationship between the specified authors.
+      summary: Remove Follower Relationship
       parameters:
       - in: path
         name: author_id
@@ -292,7 +330,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -300,6 +338,15 @@ paths:
       responses:
         '204':
           description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
   /api/authors/{author_id}/followers/{foreign_author_id}/:
     get:
       operationId: api_authors_followers_retrieve_2
@@ -332,6 +379,8 @@ paths:
           description: ''
     put:
       operationId: api_authors_followers_update_2
+      description: Accepts a follower request between the specified authors.
+      summary: Accept Follower Request
       parameters:
       - in: path
         name: author_id
@@ -345,16 +394,52 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - Followers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Author'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
       security:
       - cookieAuth: []
       - basicAuth: []
       - {}
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
     delete:
       operationId: api_authors_followers_destroy_2
+      description: Deletes a follower relationship between the specified authors.
+      summary: Remove Follower Relationship
       parameters:
       - in: path
         name: author_id
@@ -368,7 +453,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - Followers
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -376,6 +461,15 @@ paths:
       responses:
         '204':
           description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          description: ''
   /api/authors/{author_id}/inbox:
     get:
       operationId: api_authors_inbox_retrieve
